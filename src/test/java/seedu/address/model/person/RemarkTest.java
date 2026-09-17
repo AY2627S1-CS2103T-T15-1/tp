@@ -1,5 +1,6 @@
 package seedu.address.model.person;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.Assert.assertThrows;
@@ -33,5 +34,15 @@ public class RemarkTest {
         // different remark -> returns false
         Remark differentRemark = new Remark("Bye");
         assertFalse(remark.equals(differentRemark));
+    }
+
+    @Test
+    public void toStringMethod() {
+        assertEquals("Hello", new Remark("Hello").toString());
+    }
+
+    @Test
+    public void hashCodeMethod() {
+        assertEquals(new Remark("Hello").hashCode(), new Remark("Hello").hashCode());
     }
 }

@@ -1,5 +1,6 @@
 package seedu.address.logic.commands;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_REMARK_AMY;
@@ -129,5 +130,14 @@ public class RemarkCommandTest {
 
         // different remark -> returns false
         assertFalse(standardCommand.equals(new RemarkCommand(INDEX_FIRST_PERSON, new Remark(VALID_REMARK_BOB))));
+    }
+
+    @Test
+    public void toStringMethod() {
+        Remark remark = new Remark(VALID_REMARK_AMY);
+        RemarkCommand remarkCommand = new RemarkCommand(INDEX_FIRST_PERSON, remark);
+        String expected = RemarkCommand.class.getCanonicalName() + "{index=" + INDEX_FIRST_PERSON
+                + ", remark=" + remark + "}";
+        assertEquals(expected, remarkCommand.toString());
     }
 }

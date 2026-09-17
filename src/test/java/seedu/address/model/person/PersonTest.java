@@ -2,6 +2,7 @@ package seedu.address.model.person;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_ADDRESS_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_EMAIL_BOB;
@@ -92,6 +93,15 @@ public class PersonTest {
         // different remark -> returns false
         editedAlice = new PersonBuilder(ALICE).withRemark("Other remark").build();
         assertFalse(ALICE.equals(editedAlice));
+    }
+
+    @Test
+    public void hashCodeMethod() {
+        // same values -> same hash code
+        assertEquals(ALICE.hashCode(), new PersonBuilder(ALICE).build().hashCode());
+
+        // different remark -> different hash code
+        assertNotEquals(ALICE.hashCode(), new PersonBuilder(ALICE).withRemark("Other remark").build().hashCode());
     }
 
     @Test
