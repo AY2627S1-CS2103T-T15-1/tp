@@ -12,6 +12,7 @@ import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 import org.junit.jupiter.api.Test;
 
 import seedu.address.logic.commands.RemarkCommand;
+import seedu.address.model.person.Remark;
 
 public class RemarkCommandParserTest {
 
@@ -36,22 +37,22 @@ public class RemarkCommandParserTest {
     public void parse_validRemark_success() {
         String userInput = PREAMBLE_WHITESPACE + INDEX_FIRST_PERSON.getOneBased()
                 + " " + PREFIX_REMARK + VALID_REMARK_AMY;
-        RemarkCommand expectedCommand = new RemarkCommand(INDEX_FIRST_PERSON, VALID_REMARK_AMY);
+        RemarkCommand expectedCommand = new RemarkCommand(INDEX_FIRST_PERSON, new Remark(VALID_REMARK_AMY));
         assertParseSuccess(parser, userInput, expectedCommand);
     }
 
     @Test
     public void parse_emptyRemark_success() {
         assertParseSuccess(parser, String.valueOf(INDEX_FIRST_PERSON.getOneBased()),
-                new RemarkCommand(INDEX_FIRST_PERSON, ""));
+                new RemarkCommand(INDEX_FIRST_PERSON, new Remark("")));
         assertParseSuccess(parser, INDEX_FIRST_PERSON.getOneBased() + " " + PREFIX_REMARK,
-                new RemarkCommand(INDEX_FIRST_PERSON, ""));
+                new RemarkCommand(INDEX_FIRST_PERSON, new Remark("")));
     }
 
     @Test
     public void parse_multipleRemarks_returnsLastRemark() {
         String userInput = INDEX_FIRST_PERSON.getOneBased() + " "
                 + PREFIX_REMARK + VALID_REMARK_AMY + " " + PREFIX_REMARK + VALID_REMARK_BOB;
-        assertParseSuccess(parser, userInput, new RemarkCommand(INDEX_FIRST_PERSON, VALID_REMARK_BOB));
+        assertParseSuccess(parser, userInput, new RemarkCommand(INDEX_FIRST_PERSON, new Remark(VALID_REMARK_BOB)));
     }
 }

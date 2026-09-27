@@ -12,6 +12,7 @@ import seedu.address.commons.core.index.Index;
 import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
+import seedu.address.model.person.Remark;
 
 /**
  * Contains integration tests (interaction with the Model) and unit tests for {@code RemarkCommand}.
@@ -22,17 +23,17 @@ public class RemarkCommandTest {
 
     @Test
     public void execute_throwsArgumentsException() {
-        RemarkCommand command = new RemarkCommand(Index.fromOneBased(1), "Likes to swim.");
+        RemarkCommand command = new RemarkCommand(Index.fromOneBased(1), new Remark("Likes to swim."));
         String expectedMessage = String.format(MESSAGE_ARGUMENTS, 1, "Likes to swim.");
         assertCommandFailure(command, model, expectedMessage);
     }
 
     @Test
     public void equals() {
-        RemarkCommand firstCommand = new RemarkCommand(Index.fromOneBased(1), "Likes to swim.");
-        RemarkCommand firstCommandCopy = new RemarkCommand(Index.fromOneBased(1), "Likes to swim.");
-        RemarkCommand differentIndexCommand = new RemarkCommand(Index.fromOneBased(2), "Likes to swim.");
-        RemarkCommand differentRemarkCommand = new RemarkCommand(Index.fromOneBased(1), "Likes to run.");
+        RemarkCommand firstCommand = new RemarkCommand(Index.fromOneBased(1), new Remark("Likes to swim."));
+        RemarkCommand firstCommandCopy = new RemarkCommand(Index.fromOneBased(1), new Remark("Likes to swim."));
+        RemarkCommand differentIndexCommand = new RemarkCommand(Index.fromOneBased(2), new Remark("Likes to swim."));
+        RemarkCommand differentRemarkCommand = new RemarkCommand(Index.fromOneBased(1), new Remark("Likes to run."));
 
         assertEquals(firstCommand, firstCommand);
         assertEquals(firstCommand, firstCommandCopy);
