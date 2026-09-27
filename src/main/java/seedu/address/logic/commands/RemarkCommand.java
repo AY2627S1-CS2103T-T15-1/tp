@@ -28,13 +28,6 @@ public class RemarkCommand extends Command {
     private final String remark;
 
     /**
-     * Temporary constructor used while the parser is not yet able to supply remark arguments.
-     */
-    public RemarkCommand() {
-        this(Index.fromOneBased(1), "");
-    }
-
-    /**
      * @param index of the person in the filtered person list to edit the remark
      * @param remark of the person to be updated to
      */
