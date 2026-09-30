@@ -29,14 +29,14 @@ You can reach us at the email `seer[at]comp.nus.edu.sg`
 * Role: Developer
 * Responsibilities: Scheduling and tracking
 
-### Johnny Doe
+### Nguyen Hoang Thai
 
-<img src="images/johndoe.png" width="200px">
+<img src="images/thainguyen0806.png" width="200px">
 
-[[github](http://github.com/johndoe)] [[portfolio](team/johndoe.md)]
+[[github](https://github.com/ThaiNguyen0806)]
 
 * Role: Developer
-* Responsibilities: Data
+* Responsibilities: Testing
 
 ### Jean Doe
 
