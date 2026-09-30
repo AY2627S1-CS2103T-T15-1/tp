@@ -49,7 +49,7 @@ You can reach us at the email `seer[at]comp.nus.edu.sg`
 
 ### Phuong Hoang
 
-<img src="images/hphehe.jpg" width="200px">
+<img src="images/hphehe.png" width="200px">
 
 [[github](https://github.com/hphehe)]
 
