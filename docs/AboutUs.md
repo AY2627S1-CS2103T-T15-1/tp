@@ -20,15 +20,14 @@ You can reach us at the email `seer[at]comp.nus.edu.sg`
 * Role: Developer
 * Responsibilities: In charge of documentation: Responsible for the quality of various project documents.
 
-### Jane Doe
+### Chen Ling Song
 
-<img src="images/johndoe.png" width="200px">
+<img src="images/lingsongc.png" width="200px">
 
-[[github](http://github.com/johndoe)]
-[[portfolio](team/johndoe.md)]
+[[github](https://github.com/lingsongc)]
 
-* Role: Team Lead
-* Responsibilities: UI
+* Role: Developer
+* Responsibilities: Scheduling and tracking
 
 ### Johnny Doe
 
