@@ -11,15 +11,14 @@ You can reach us at the email `seer[at]comp.nus.edu.sg`
 
 ## Project team
 
-### John Doe
+### Wong Zhong Xian
 
-<img src="images/johndoe.png" width="200px">
+<img src="images/wongzhongxian.png" width="200px">
 
-[[homepage](http://www.comp.nus.edu.sg/~damithch)]
-[[github](https://github.com/johndoe)]
-[[portfolio](team/johndoe.md)]
+[[github](https://github.com/wongzhongxian)]
 
-* Role: Project Advisor
+* Role: Developer
+* Responsibilities: In charge of documentation: Responsible for the quality of various project documents.
 
 ### Jane Doe
 
