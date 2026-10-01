@@ -285,12 +285,27 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 | Priority | As a …                                    | I want to …                 | So that I can…                                                        |
 |----------|--------------------------------------------|------------------------------|------------------------------------------------------------------------|
-| `* * *`  | new user                                   | see usage instructions       | refer to instructions when I forget how to use the App                 |
-| `* * *`  | user                                       | add a new person             |                                                                        |
-| `* * *`  | user                                       | delete a person              | remove entries that I no longer need                                   |
-| `* * *`  | user                                       | find a person by name        | locate details of persons without having to go through the entire list |
-| `* *`    | user                                       | hide private contact details | minimize chance of someone else seeing them by accident                |
-| `*`      | user with many persons in the address book | sort persons by name         | locate a person easily                                                 |
+| `* * *`  | new fitness trainer | see usage instructions | learn how to manage my clients in the app without having to ask for help |
+| `* * *`  | fitness trainer | add a new client after a trial session | start keeping their contact and training details in one place from day one |
+| `* * *`  | fitness trainer | view a client's details before a session | prepare a session that suits that client's needs |
+| `* * *`  | fitness trainer | list all my clients | get an overview of everyone I am currently training |
+| `* * *`  | fitness trainer | delete a client who has stopped training with me | keep my client list focused on the clients I am actively training |
+| `* * *`  | fitness trainer | have my client data saved automatically on my computer | keep my client records between sessions without saving manually or relying on an internet connection |
+| `* *`    | fitness trainer | edit a client's details | keep their contact and training information accurate when it changes |
+| `* *`    | fitness trainer with many clients | find a client by name | pull up their details quickly without scrolling through my whole client list |
+| `* *`    | fitness trainer | tag clients by fitness goal (e.g. weight loss, strength) | group clients with similar goals and reuse suitable training approaches |
+| `* *`    | fitness trainer | record a client's fitness goals | design each session to work towards what the client wants to achieve |
+| `* *`    | fitness trainer | record a client's injuries or health conditions | avoid exercises that could aggravate an injury or put the client at risk |
+| `* *`    | fitness trainer | track how many sessions remain in a client's package | remind the client to renew before their package runs out |
+| `* *`    | fitness trainer | view a deleted client's history | pick up where we left off if a former client returns |
+| `* *`    | fitness trainer with many clients | sort my clients (e.g. by name) | find the client I need in a long list more easily |
+| `* *`    | experienced user | use short commands | update client records quickly between back-to-back sessions |
+| `*`      | fitness trainer | track a client's progress metrics over time (e.g. weight, personal bests) | show clients how far they have come and keep them motivated |
+| `*`      | fitness trainer | store a workout plan for each client | run each session from a prepared plan instead of writing it from memory |
+| `*`      | fitness trainer | log a client's session attendance | spot clients who are missing sessions and check in with them |
+| `*`      | fitness trainer | set follow-up reminders for clients | check in with clients on time and keep them engaged between sessions |
+| `*`      | fitness trainer | track client payments | see who has outstanding payments without keeping separate records |
+| `*`      | fitness trainer | export my client list | back up my records or share them with another trainer if I need cover |
 
 *{More to be added}*
 
