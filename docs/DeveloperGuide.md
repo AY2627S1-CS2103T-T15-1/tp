@@ -348,6 +348,29 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
       Use case ends.
 
+**Use case: List all clients**
+
+**MSS**
+
+1.  Trainer requests to list all clients.
+2.  Cindy shows all clients in the roster, each with an index number, name and phone number, along with the total number of clients.
+
+    Use case ends.
+
+**Extensions**
+
+* 1a. Trainer includes extra parameters in the request.
+
+    * 1a1. Cindy shows an error message stating that the request does not take any parameters.
+
+      Use case resumes at step 1.
+
+* 2a. The client roster is empty.
+
+    * 2a1. Cindy shows that there are no clients yet and explains how to add one.
+
+      Use case ends.
+
 **Use case: Update client details**
 
 **MSS**
