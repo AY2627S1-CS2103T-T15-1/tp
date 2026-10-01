@@ -419,8 +419,10 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 1.  Should work on any _mainstream OS_ as long as it has Java `25` or above installed.
 2.  Should be able to hold up to 1000 persons without noticeable sluggishness in performance for typical usage.
 3.  A user with above average typing speed for regular English text (i.e. not code, not system admin commands) should be able to accomplish most of the tasks faster using commands than using the mouse.
-
-*{More to be added}*
+4.  All features are accessible using the keyboard.
+5.  All commands should produce a result within 2 seconds.
+6.  The user should not lose more than 1 minute of work after unexpected closure.
+7.  The user should be able to understand the error message within 20 seconds of reading it.
 
 ### Glossary
 
