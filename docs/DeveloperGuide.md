@@ -342,8 +342,17 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 ### Glossary
 
+* **Client**: A person who receives fitness coaching from a trainer and whose information is managed in Cindy
+* **Client progress**: Changes in a client's recorded fitness metrics or exercise performance over time
+* **Client record**: The information Cindy stores about a client, including contact details, training sessions, and progress entries
+* **Client roster**: The collection of client records managed by a trainer in Cindy
+* **Fitness metric**: A measurable value used to assess a client's physical condition or exercise performance
 * **Mainstream OS**: Windows, Linux, Unix, or macOS
-* **Private contact detail**: A contact detail that is not meant to be shared with others
+* **Progress entry**: A dated record of a client's fitness metrics, exercise results, or other progress observations
+* **Progress history**: A client's progress entries arranged in chronological order
+* **Trainer**: A freelance gym trainer who uses Cindy to manage clients
+* **Training schedule**: The collection of training sessions arranged for a client
+* **Training session**: A scheduled appointment between a trainer and a client, identified by its date, time, and session details
 
 --------------------------------------------------------------------------------------------------------------------
 
