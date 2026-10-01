@@ -309,6 +309,30 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
     Use case ends.
 
+**Extensions**
+
+* 2a. The client roster is empty.
+
+  Use case resumes at step 3.
+
+* 3a. Trainer leaves out some required contact details.
+
+    * 3a1. Cindy shows an error message stating which details are missing.
+
+      Use case resumes at step 3.
+
+* 3b. Some of the given contact details are in an invalid format.
+
+    * 3b1. Cindy shows an error message describing the expected format.
+
+      Use case resumes at step 3.
+
+* 3c. The client is already in the roster.
+
+    * 3c1. Cindy shows an error message stating that the client already exists.
+
+      Use case ends.
+
 **Use case: Schedule a training session**
 
 **MSS**
@@ -320,6 +344,38 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
     Use case ends.
 
+**Extensions**
+
+* 1a. The requested client does not exist in the roster.
+
+    * 1a1. Cindy shows an error message.
+
+      Use case ends.
+
+* 2a. The client has no scheduled sessions.
+
+    * 2a1. Cindy shows that the client has no sessions yet.
+
+      Use case resumes at step 3.
+
+* 3a. Trainer leaves out the date or time of the session.
+
+    * 3a1. Cindy shows an error message stating which details are missing.
+
+      Use case resumes at step 3.
+
+* 3b. The given date or time is invalid (e.g., in the wrong format, or a non-existent date such as 30 February).
+
+    * 3b1. Cindy shows an error message describing the expected format.
+
+      Use case resumes at step 3.
+
+* 3c. The new session overlaps with a session the trainer has already scheduled.
+
+    * 3c1. Cindy shows an error message identifying the conflicting session.
+
+      Use case resumes at step 3.
+
 **Use case: Record client progress**
 
 **MSS**
@@ -330,6 +386,32 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 4.  Cindy records the entry and shows the updated progress history.
 
     Use case ends.
+
+**Extensions**
+
+* 1a. The requested client does not exist in the roster.
+
+    * 1a1. Cindy shows an error message.
+
+      Use case ends.
+
+* 2a. The client has no progress records.
+
+    * 2a1. Cindy shows that the client has no progress records yet.
+
+      Use case resumes at step 3.
+
+* 3a. Trainer leaves out the date or the results of the entry.
+
+    * 3a1. Cindy shows an error message stating which details are missing.
+
+      Use case resumes at step 3.
+
+* 3b. The given date is invalid (e.g., in the wrong format, or a non-existent date such as 30 February).
+
+    * 3b1. Cindy shows an error message describing the expected format.
+
+      Use case resumes at step 3.
 
 
 ### Non-Functional Requirements
