@@ -296,32 +296,41 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 ### Use cases
 
-(For all use cases below, the **System** is the `AddressBook` and the **Actor** is the `user`, unless specified otherwise)
+(For all use cases below, the **System** is `Cindy` and the **Actor** is the `trainer`, unless specified otherwise.)
 
-**Use case: Delete a person**
+**Use case: Add a client**
 
 **MSS**
 
-1.  User requests to list persons
-2.  AddressBook shows a list of persons
-3.  User requests to delete a specific person in the list
-4.  AddressBook deletes the person
+1.  Trainer requests to view the client roster.
+2.  Cindy shows the client roster.
+3.  Trainer requests to add a client and provides the client's contact details.
+4.  Cindy adds the client to the roster and confirms the addition.
 
     Use case ends.
 
-**Extensions**
+**Use case: Schedule a training session**
 
-* 2a. The list is empty.
+**MSS**
 
-  Use case ends.
+1.  Trainer requests to view a client's training schedule.
+2.  Cindy shows the client's scheduled sessions.
+3.  Trainer requests to schedule a session and provides its date, time, and details.
+4.  Cindy records the session and shows the updated schedule.
 
-* 3a. The given index is invalid.
+    Use case ends.
 
-    * 3a1. AddressBook shows an error message.
+**Use case: Record client progress**
 
-      Use case resumes at step 2.
+**MSS**
 
-*{More to be added}*
+1.  Trainer requests to view a client's progress history.
+2.  Cindy shows the client's existing progress records.
+3.  Trainer submits a new progress entry with its date and results.
+4.  Cindy records the entry and shows the updated progress history.
+
+    Use case ends.
+
 
 ### Non-Functional Requirements
 
