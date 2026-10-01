@@ -333,6 +333,43 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
       Use case ends.
 
+**Use case: Update client details**
+
+**MSS**
+
+1.  Trainer requests to view the client roster.
+2.  Cindy shows the client roster.
+3.  Trainer requests to update a specific client's contact details.
+4.  Cindy shows the client's current contact details.
+5.  Trainer provides the updated contact details.
+6.  Cindy updates the client's record and confirms the update.
+
+    Use case ends.
+
+**Extensions**
+
+* 2a. The client roster is empty.
+
+  Use case ends.
+
+* 3a. The requested client does not exist in the roster.
+
+    * 3a1. Cindy shows an error message stating that the client does not exist.
+
+      Use case resumes at step 2.
+
+* 5a. Trainer does not provide any updated contact details.
+
+    * 5a1. Cindy shows an error message stating that no changes were provided.
+
+      Use case resumes at step 5.
+
+* 5b. One or more updated contact details are in an invalid format.
+
+    * 5b1. Cindy shows an error message describing the expected format.
+
+      Use case resumes at step 5.
+
 **Use case: Schedule a training session**
 
 **MSS**
