@@ -465,6 +465,34 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
       Use case resumes at step 3.
 
+**Use case: View a client **
+
+**MSS**
+
+1.  Trainer searches for a client by name.
+2.  Cindy displays the client's full details.
+    Use case ends.
+
+**Extensions**
+
+* 1a. The requested client does not exist in the roster.
+
+    * 1a1. Cindy shows an error message.
+
+      Use case ends.
+
+* 1b. Multiple clients have the same name
+
+    * 1b1. Cindy shows the list of clients with that name.
+    * 1b1. Trainer selects client by ID.
+
+      Use case resumes at step 2.
+
+* 1c. Invalid View input
+
+    * 1c1. Cindy shows an error message describing the expected format.
+      
+      Use case resumes at step 1.
 
 ### Non-Functional Requirements
 
