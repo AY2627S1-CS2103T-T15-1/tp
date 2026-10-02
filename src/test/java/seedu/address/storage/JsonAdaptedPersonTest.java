@@ -15,7 +15,10 @@ import seedu.address.commons.exceptions.IllegalValueException;
 import seedu.address.model.person.Address;
 import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
+import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
+import seedu.address.model.person.Remark;
+import seedu.address.testutil.PersonBuilder;
 
 public class JsonAdaptedPersonTest {
     private static final String INVALID_NAME = "R@chel";
@@ -36,6 +39,13 @@ public class JsonAdaptedPersonTest {
     public void toModelType_validPersonDetails_returnsPerson() throws Exception {
         JsonAdaptedPerson person = new JsonAdaptedPerson(BENSON);
         assertEquals(BENSON, person.toModelType());
+    }
+
+    @Test
+    public void toModelType_withRemark_preservesRemark() throws Exception {
+        Person person = new PersonBuilder(BENSON).withRemark("Likes to swim").build();
+        assertEquals(person, new JsonAdaptedPerson(person).toModelType());
+        assertEquals(new Remark("Likes to swim"), new JsonAdaptedPerson(person).toModelType().getRemark());
     }
 
     @Test
