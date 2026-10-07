@@ -42,6 +42,15 @@ public class DeleteCommandTest {
     }
 
     @Test
+    public void execute_validIndex_messageRefersToClient() throws Exception {
+        Person personToDelete = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
+
+        CommandResult result = new DeleteCommand(INDEX_FIRST_PERSON).execute(model);
+
+        assertEquals("Deleted client: " + Messages.format(personToDelete), result.getFeedbackToUser());
+    }
+
+    @Test
     public void execute_invalidIndexUnfilteredList_throwsCommandException() {
         Index outOfBoundIndex = Index.fromOneBased(model.getFilteredPersonList().size() + 1);
         DeleteCommand deleteCommand = new DeleteCommand(outOfBoundIndex);
