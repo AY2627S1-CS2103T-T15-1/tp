@@ -28,6 +28,9 @@ public class ViewCommand extends Command {
 
     private final Index targetIndex;
 
+    /**
+     * Creates a ViewCommand to show the details of the person at the specified {@code targetIndex}.
+     */
     public ViewCommand(Index targetIndex) {
         this.targetIndex = targetIndex;
     }
