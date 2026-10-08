@@ -9,6 +9,7 @@ import static seedu.address.testutil.TypicalPersons.IDA;
 import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -68,6 +69,10 @@ public class JsonAddressBookStorageTest {
 
         // Save in new file and read back
         jsonAddressBookStorage.saveAddressBook(original, filePath);
+        String savedJson = Files.readString(filePath);
+        assertFalse(savedJson.contains("\"email\""));
+        assertFalse(savedJson.contains("\"address\""));
+        assertFalse(savedJson.contains("\"tags\""));
         ReadOnlyAddressBook readBack = jsonAddressBookStorage.readAddressBook(filePath).get();
         assertEquals(original, new AddressBook(readBack));
 
