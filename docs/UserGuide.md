@@ -76,15 +76,15 @@ Shows a message explaining how to access the help page.
 Format: `help`
 
 
-### Adding a person: `add`
+### Adding a client: `add`
 
-Adds a person to the address book.
+Adds a client using their name and mandatory phone number.
 
 Format: `add n/NAME p/PHONE_NUMBER`
 
 <box type="tip" seamless>
 
-**Tip:** A person can have any number of tags, including zero.
+**Tip:** Phone numbers must contain exactly 8 digits. Spaces are allowed for readability and are removed when saved.
 </box>
 
 Examples:

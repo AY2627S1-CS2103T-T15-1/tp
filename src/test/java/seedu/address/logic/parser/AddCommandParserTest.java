@@ -41,6 +41,12 @@ public class AddCommandParserTest {
     }
 
     @Test
+    public void parse_valuesWithExtraWhitespace_success() {
+        Person expectedPerson = new Person(new Name("Bob Choo"), new Phone("91234567"));
+        assertParseSuccess(parser, " n/  Bob   Choo  p/ 9123  4567 ", new AddCommand(expectedPerson));
+    }
+
+    @Test
     public void parse_repeatedNonTagValue_failure() {
         String validExpectedPersonString = NAME_DESC_BOB + PHONE_DESC_BOB;
 
