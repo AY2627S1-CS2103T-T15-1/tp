@@ -1,8 +1,8 @@
 package seedu.address.logic.parser;
 
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME_LONG;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE_LONG;
 
 import java.util.stream.Stream;
 
@@ -24,16 +24,16 @@ public class AddCommandParser implements Parser<AddCommand> {
      */
     public AddCommand parse(String args) throws ParseException {
         ArgumentMultimap argMultimap =
-                ArgumentTokenizer.tokenize(args, PREFIX_NAME, PREFIX_PHONE);
+                ArgumentTokenizer.tokenize(args, PREFIX_NAME_LONG, PREFIX_PHONE_LONG);
 
-        if (!arePrefixesPresent(argMultimap, PREFIX_NAME, PREFIX_PHONE)
+        if (!arePrefixesPresent(argMultimap, PREFIX_NAME_LONG, PREFIX_PHONE_LONG)
                 || !argMultimap.getPreamble().isEmpty()) {
             throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, AddCommand.MESSAGE_USAGE));
         }
 
-        argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_NAME, PREFIX_PHONE);
-        Name name = ParserUtil.parseName(argMultimap.getValue(PREFIX_NAME).get());
-        Phone phone = ParserUtil.parsePhone(argMultimap.getValue(PREFIX_PHONE).get());
+        argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_NAME_LONG, PREFIX_PHONE_LONG);
+        Name name = ParserUtil.parseName(removeOptionalQuotes(argMultimap.getValue(PREFIX_NAME_LONG).get()));
+        Phone phone = ParserUtil.parsePhone(removeOptionalQuotes(argMultimap.getValue(PREFIX_PHONE_LONG).get()));
 
         Person person = new Person(name, phone);
 
@@ -46,6 +46,13 @@ public class AddCommandParser implements Parser<AddCommand> {
      */
     private static boolean arePrefixesPresent(ArgumentMultimap argumentMultimap, Prefix... prefixes) {
         return Stream.of(prefixes).allMatch(prefix -> argumentMultimap.getValue(prefix).isPresent());
+    }
+
+    private static String removeOptionalQuotes(String value) {
+        if (value.length() >= 2 && value.startsWith("\"") && value.endsWith("\"")) {
+            return value.substring(1, value.length() - 1);
+        }
+        return value;
     }
 
 }

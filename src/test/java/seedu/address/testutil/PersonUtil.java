@@ -1,7 +1,9 @@
 package seedu.address.testutil;
 
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME_LONG;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE_LONG;
 
 import seedu.address.logic.commands.AddCommand;
 import seedu.address.logic.commands.EditCommand.EditPersonDescriptor;
@@ -24,8 +26,8 @@ public class PersonUtil {
      */
     public static String getPersonDetails(Person person) {
         StringBuilder sb = new StringBuilder();
-        sb.append(PREFIX_NAME + person.getName().fullName + " ");
-        sb.append(PREFIX_PHONE + person.getPhone().value + " ");
+        sb.append(PREFIX_NAME_LONG).append(" \"").append(person.getName().fullName).append("\" ");
+        sb.append(PREFIX_PHONE_LONG).append(" \"").append(person.getPhone().value).append("\" ");
         return sb.toString();
     }
 

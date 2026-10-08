@@ -3,7 +3,9 @@ package seedu.address.logic.commands;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME_LONG;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE_LONG;
 import static seedu.address.testutil.Assert.assertThrows;
 
 import java.util.ArrayList;
@@ -31,9 +33,15 @@ public class CommandTestUtil {
     public static final String NAME_DESC_BOB = " " + PREFIX_NAME + VALID_NAME_BOB;
     public static final String PHONE_DESC_AMY = " " + PREFIX_PHONE + VALID_PHONE_AMY;
     public static final String PHONE_DESC_BOB = " " + PREFIX_PHONE + VALID_PHONE_BOB;
+    public static final String LONG_NAME_DESC_AMY = " " + PREFIX_NAME_LONG + " \"" + VALID_NAME_AMY + "\"";
+    public static final String LONG_NAME_DESC_BOB = " " + PREFIX_NAME_LONG + " \"" + VALID_NAME_BOB + "\"";
+    public static final String LONG_PHONE_DESC_AMY = " " + PREFIX_PHONE_LONG + " \"" + VALID_PHONE_AMY + "\"";
+    public static final String LONG_PHONE_DESC_BOB = " " + PREFIX_PHONE_LONG + " \"" + VALID_PHONE_BOB + "\"";
 
     public static final String INVALID_NAME_DESC = " " + PREFIX_NAME + "James&"; // '&' not allowed in names
     public static final String INVALID_PHONE_DESC = " " + PREFIX_PHONE + "911a"; // 'a' not allowed in phones
+    public static final String INVALID_LONG_NAME_DESC = " " + PREFIX_NAME_LONG + " \"James&\"";
+    public static final String INVALID_LONG_PHONE_DESC = " " + PREFIX_PHONE_LONG + " \"911a\"";
 
     public static final String PREAMBLE_WHITESPACE = "\t  \r  \n";
     public static final String PREAMBLE_NON_EMPTY = "NonEmptyPreamble";

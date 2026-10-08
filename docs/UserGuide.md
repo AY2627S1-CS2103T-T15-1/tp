@@ -31,7 +31,7 @@ AddressBook Level 3 (AB3) is a **desktop application for managing contacts, opti
 
    * `list` : Lists all contacts.
 
-   * `add n/John Doe p/98765432` : Adds a client named `John Doe` with phone number `98765432`.
+   * `add --name "John Doe" --phone "+65 9123 4567"` : Adds a client named `John Doe` with an international phone number.
 
    * `delete 3` : Deletes the 3rd contact shown in the current list.
 
@@ -50,13 +50,13 @@ AddressBook Level 3 (AB3) is a **desktop application for managing contacts, opti
 **Notes about the command format:**<br>
 
 * Words in `UPPER_CASE` are the parameters to be supplied by the user.<br>
-  For example, in `add n/NAME`, replace `NAME` with a value such as `John Doe`.
+  For example, in `add --name "NAME"`, replace `NAME` with a value such as `John Doe`.
 
 * Items in square brackets are optional.<br>
   For example, `edit INDEX [n/NAME]` can be used as `edit 1 n/John Doe`.
 
 * Parameters can be in any order.<br>
-  For example, if the command specifies `n/NAME p/PHONE_NUMBER`, `p/PHONE_NUMBER n/NAME` is also acceptable.
+  For example, if the command specifies `--name "NAME" --phone "PHONE_NUMBER"`, the two parameters can be reversed.
 
 * Extraneous parameters for commands that take no parameters, such as `help`, `list`, `exit`, and `clear`, are ignored.<br>
   For example, `help 123` is interpreted as `help`.
@@ -77,16 +77,30 @@ Format: `help`
 
 Adds a client using their name and mandatory phone number.
 
-Format: `add n/NAME p/PHONE_NUMBER`
+Format: `add --name "NAME" --phone "PHONE_NUMBER"`
 
-<box type="tip" seamless>
+Name requirements:
 
-**Tip:** Phone numbers must contain exactly 8 digits. Spaces are allowed for readability and are removed when saved.
-</box>
+* Contains 1–100 characters after trimming.
+* Allows Unicode letters, spaces, apostrophes, hyphens, and periods.
+* Must contain at least one letter.
+* Consecutive spaces are collapsed when saved.
+* Letter case is preserved but ignored when comparing client names.
+
+Phone requirements:
+
+* Contains 7–15 digits after separators are removed.
+* Allows digits, spaces, parentheses, and hyphens, with one optional leading `+`.
+* Formatting separators are removed when saved; a leading `+` is preserved.
+
+Invalid values produce these messages:
+
+* Name: `Invalid name: enter 1–100 characters using letters, spaces, apostrophes, hyphens or periods.`
+* Phone: `Invalid phone: enter 7–15 digits, with an optional leading +.`
 
 Examples:
-* `add n/John Doe p/98765432`
-* `add n/Betsy Crowe p/91234567`
+* `add --name "John Doe" --phone "+65 9123 4567"`
+* `add --name "John Doe" --phone "6123 4567"`
 
 ### Listing all clients: `list`
 
@@ -205,7 +219,7 @@ _Details coming soon ..._
 
 Action     | Format, Examples
 -----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-**Add**    | `add n/NAME p/PHONE_NUMBER` <br> e.g., `add n/James Ho p/22224444`
+**Add**    | `add --name "NAME" --phone "PHONE_NUMBER"` <br> e.g., `add --name "James Ho" --phone "+65 9123 4567"`
 **Clear**  | `clear`
 **Delete** | `delete INDEX`<br> e.g., `delete 3`
 **Edit**   | `edit INDEX [n/NAME] [p/PHONE_NUMBER]`<br> e.g., `edit 2 n/James Lee`

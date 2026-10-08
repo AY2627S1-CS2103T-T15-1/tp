@@ -27,14 +27,21 @@ public class PhoneTest {
         // invalid phone numbers
         assertFalse(Phone.isValidPhone("")); // empty string
         assertFalse(Phone.isValidPhone(" ")); // spaces only
-        assertFalse(Phone.isValidPhone("9123456")); // fewer than 8 digits
-        assertFalse(Phone.isValidPhone("912345678")); // more than 8 digits
+        assertFalse(Phone.isValidPhone("123456")); // fewer than 7 digits
+        assertFalse(Phone.isValidPhone("1234567890123456")); // more than 15 digits
         assertFalse(Phone.isValidPhone("phone")); // non-numeric
         assertFalse(Phone.isValidPhone("9011p041")); // alphabets within digits
-        assertFalse(Phone.isValidPhone("9312 1534")); // spaces within digits
+        assertFalse(Phone.isValidPhone("65+91234567")); // plus is not leading
+        assertFalse(Phone.isValidPhone("++6591234567")); // more than one plus
+        assertFalse(Phone.isValidPhone("9123.4567")); // unsupported separator
+        assertFalse(Phone.isValidPhone("9123\t4567")); // control character
 
         // valid phone numbers
-        assertTrue(Phone.isValidPhone("93121534"));
+        assertTrue(Phone.isValidPhone("6123 4567"));
+        assertTrue(Phone.isValidPhone("+65 9123 4567"));
+        assertTrue(Phone.isValidPhone("+1 (202) 555-0123"));
+        assertTrue(Phone.isValidPhone("1234567")); // 7 digits
+        assertTrue(Phone.isValidPhone("+123456789012345")); // 15 digits
     }
 
     @Test
@@ -43,6 +50,9 @@ public class PhoneTest {
 
         // same values -> returns true
         assertTrue(phone.equals(new Phone("99999999")));
+
+        // formatting separators are ignored
+        assertTrue(phone.equals(new Phone("9999 9999")));
 
         // same object -> returns true
         assertTrue(phone.equals(phone));

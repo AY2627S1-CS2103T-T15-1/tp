@@ -11,8 +11,8 @@ public class Phone {
 
 
     public static final String MESSAGE_CONSTRAINTS =
-            "Phone numbers should contain exactly 8 digits";
-    public static final String VALIDATION_REGEX = "\\d{8}";
+            "Invalid phone: enter 7–15 digits, with an optional leading +.";
+    public static final String VALIDATION_REGEX = "\\+?[0-9 ()-]+";
     public final String value;
 
     /**
@@ -23,14 +23,24 @@ public class Phone {
     public Phone(String phone) {
         requireNonNull(phone);
         checkArgument(isValidPhone(phone), MESSAGE_CONSTRAINTS);
-        value = phone;
+        value = normalize(phone);
     }
 
     /**
      * Returns true if a given string is a valid phone number.
      */
     public static boolean isValidPhone(String test) {
-        return test.matches(VALIDATION_REGEX);
+        requireNonNull(test);
+        if (test.codePoints().anyMatch(Character::isISOControl) || !test.matches(VALIDATION_REGEX)) {
+            return false;
+        }
+        String normalizedPhone = normalize(test);
+        int digitCount = normalizedPhone.startsWith("+") ? normalizedPhone.length() - 1 : normalizedPhone.length();
+        return digitCount >= 7 && digitCount <= 15;
+    }
+
+    private static String normalize(String phone) {
+        return phone.replaceAll("[ ()-]", "");
     }
 
     @Override

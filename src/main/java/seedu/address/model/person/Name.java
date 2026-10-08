@@ -10,13 +10,9 @@ import static seedu.address.commons.util.AppUtil.checkArgument;
 public class Name {
 
     public static final String MESSAGE_CONSTRAINTS =
-            "Names should only contain alphanumeric characters and spaces, and should not be blank";
+            "Invalid name: enter 1–100 characters using letters, spaces, apostrophes, hyphens or periods.";
 
-    /*
-     * The first character of the name must not be a whitespace,
-     * otherwise " " (a blank string) becomes a valid input.
-     */
-    public static final String VALIDATION_REGEX = "[\\p{Alnum}][\\p{Alnum} ]*";
+    public static final String VALIDATION_REGEX = "[\\p{L} .'\u2019-]+";
 
     public final String fullName;
 
@@ -28,16 +24,34 @@ public class Name {
     public Name(String name) {
         requireNonNull(name);
         checkArgument(isValidName(name), MESSAGE_CONSTRAINTS);
-        fullName = name;
+        fullName = normalize(name);
     }
 
     /**
      * Returns true if a given string is a valid name.
      */
     public static boolean isValidName(String test) {
-        return test.matches(VALIDATION_REGEX);
+        requireNonNull(test);
+        if (test.codePoints().anyMatch(Character::isISOControl)) {
+            return false;
+        }
+        String normalizedName = normalize(test);
+        return normalizedName.length() <= 100
+                && normalizedName.matches(VALIDATION_REGEX)
+                && normalizedName.codePoints().anyMatch(Character::isLetter);
     }
 
+    private static String normalize(String name) {
+        return name.trim().replaceAll(" +", " ");
+    }
+
+    private static String foldCase(String name) {
+        StringBuilder result = new StringBuilder();
+        name.codePoints()
+                .map(codePoint -> Character.toLowerCase(Character.toUpperCase(codePoint)))
+                .forEach(result::appendCodePoint);
+        return result.toString();
+    }
 
     @Override
     public String toString() {
@@ -55,12 +69,12 @@ public class Name {
             return false;
         }
 
-        return fullName.equals(otherName.fullName);
+        return foldCase(fullName).equals(foldCase(otherName.fullName));
     }
 
     @Override
     public int hashCode() {
-        return fullName.hashCode();
+        return foldCase(fullName).hashCode();
     }
 
 }

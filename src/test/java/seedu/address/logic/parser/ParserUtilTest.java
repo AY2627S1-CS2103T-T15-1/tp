@@ -72,7 +72,7 @@ public class ParserUtilTest {
 
     @Test
     public void parseName_validValueWithWhitespace_returnsTrimmedName() throws Exception {
-        String nameWithWhitespace = WHITESPACE + VALID_NAME + WHITESPACE;
+        String nameWithWhitespace = "  " + VALID_NAME + "  ";
         Name expectedName = new Name(VALID_NAME);
         assertEquals(expectedName, ParserUtil.parseName(nameWithWhitespace));
     }
@@ -80,7 +80,12 @@ public class ParserUtilTest {
     @Test
     public void parseName_repeatedWhitespace_returnsNormalizedName() throws Exception {
         Name expectedName = new Name(VALID_NAME);
-        assertEquals(expectedName, ParserUtil.parseName("Rachel   \tWalker"));
+        assertEquals(expectedName, ParserUtil.parseName("Rachel   Walker"));
+    }
+
+    @Test
+    public void parseName_controlCharacter_throwsParseException() {
+        assertThrows(ParseException.class, () -> ParserUtil.parseName("Rachel\tWalker"));
     }
 
     @Test
@@ -101,7 +106,7 @@ public class ParserUtilTest {
 
     @Test
     public void parsePhone_validValueWithWhitespace_returnsTrimmedPhone() throws Exception {
-        String phoneWithWhitespace = WHITESPACE + VALID_PHONE + WHITESPACE;
+        String phoneWithWhitespace = "  " + VALID_PHONE + "  ";
         Phone expectedPhone = new Phone(VALID_PHONE);
         assertEquals(expectedPhone, ParserUtil.parsePhone(phoneWithWhitespace));
     }
@@ -113,9 +118,15 @@ public class ParserUtilTest {
     }
 
     @Test
+    public void parsePhone_internationalFormatting_returnsNormalizedPhone() throws Exception {
+        Phone expectedPhone = new Phone("+6591234567");
+        assertEquals(expectedPhone, ParserUtil.parsePhone("+65 (9123)-4567"));
+    }
+
+    @Test
     public void parsePhone_wrongNumberOfDigits_throwsParseException() {
-        assertThrows(ParseException.class, () -> ParserUtil.parsePhone("1234567"));
-        assertThrows(ParseException.class, () -> ParserUtil.parsePhone("123456789"));
+        assertThrows(ParseException.class, () -> ParserUtil.parsePhone("123456"));
+        assertThrows(ParseException.class, () -> ParserUtil.parsePhone("1234567890123456"));
     }
 
     @Test

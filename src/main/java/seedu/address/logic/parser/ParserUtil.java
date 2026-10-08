@@ -37,32 +37,30 @@ public class ParserUtil {
 
     /**
      * Parses a {@code String name} into a {@code Name}.
-     * Leading and trailing whitespaces will be trimmed, and repeated whitespace will be collapsed.
+     * Leading and trailing spaces will be trimmed, and repeated spaces will be collapsed.
      *
      * @throws ParseException if the given {@code name} is invalid.
      */
     public static Name parseName(String name) throws ParseException {
         requireNonNull(name);
-        String normalizedName = name.trim().replaceAll("\\s+", " ");
-        if (!Name.isValidName(normalizedName)) {
+        if (!Name.isValidName(name)) {
             throw new ParseException(Name.MESSAGE_CONSTRAINTS);
         }
-        return new Name(normalizedName);
+        return new Name(name);
     }
 
     /**
      * Parses a {@code String phone} into a {@code Phone}.
-     * Whitespace will be removed to support commonly grouped phone numbers.
+     * Readable separators will be removed by {@link Phone}.
      *
      * @throws ParseException if the given {@code phone} is invalid.
      */
     public static Phone parsePhone(String phone) throws ParseException {
         requireNonNull(phone);
-        String normalizedPhone = phone.replaceAll("\\s+", "");
-        if (!Phone.isValidPhone(normalizedPhone)) {
+        if (!Phone.isValidPhone(phone)) {
             throw new ParseException(Phone.MESSAGE_CONSTRAINTS);
         }
-        return new Phone(normalizedPhone);
+        return new Phone(phone);
     }
 
     /**
