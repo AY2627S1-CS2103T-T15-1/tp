@@ -26,6 +26,13 @@ public class Person {
     private final Set<Tag> tags = new HashSet<>();
 
     /**
+     * Creates a client with only the required name and phone number.
+     */
+    public Person(Name name, Phone phone) {
+        this(name, phone, new Email("not@provided.invalid"), new Address("Not provided"), Collections.emptySet());
+    }
+
+    /**
      * Every field must be present and not null.
      */
     public Person(Name name, Phone phone, Email email, Address address, Set<Tag> tags) {
