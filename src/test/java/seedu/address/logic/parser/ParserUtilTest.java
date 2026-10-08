@@ -26,7 +26,7 @@ public class ParserUtilTest {
     private static final String INVALID_TAG = "#friend";
 
     private static final String VALID_NAME = "Rachel Walker";
-    private static final String VALID_PHONE = "123456";
+    private static final String VALID_PHONE = "12345678";
     private static final String VALID_ADDRESS = "123 Main Street #0505";
     private static final String VALID_EMAIL = "rachel@example.com";
     private static final String VALID_TAG_1 = "friend";
@@ -72,9 +72,20 @@ public class ParserUtilTest {
 
     @Test
     public void parseName_validValueWithWhitespace_returnsTrimmedName() throws Exception {
-        String nameWithWhitespace = WHITESPACE + VALID_NAME + WHITESPACE;
+        String nameWithWhitespace = "  " + VALID_NAME + "  ";
         Name expectedName = new Name(VALID_NAME);
         assertEquals(expectedName, ParserUtil.parseName(nameWithWhitespace));
+    }
+
+    @Test
+    public void parseName_repeatedWhitespace_returnsNormalizedName() throws Exception {
+        Name expectedName = new Name(VALID_NAME);
+        assertEquals(expectedName, ParserUtil.parseName("Rachel   Walker"));
+    }
+
+    @Test
+    public void parseName_controlCharacter_throwsParseException() {
+        assertThrows(ParseException.class, () -> ParserUtil.parseName("Rachel\tWalker"));
     }
 
     @Test
@@ -95,9 +106,27 @@ public class ParserUtilTest {
 
     @Test
     public void parsePhone_validValueWithWhitespace_returnsTrimmedPhone() throws Exception {
-        String phoneWithWhitespace = WHITESPACE + VALID_PHONE + WHITESPACE;
+        String phoneWithWhitespace = "  " + VALID_PHONE + "  ";
         Phone expectedPhone = new Phone(VALID_PHONE);
         assertEquals(expectedPhone, ParserUtil.parsePhone(phoneWithWhitespace));
+    }
+
+    @Test
+    public void parsePhone_groupedWithWhitespace_returnsNormalizedPhone() throws Exception {
+        Phone expectedPhone = new Phone(VALID_PHONE);
+        assertEquals(expectedPhone, ParserUtil.parsePhone("1234  5678"));
+    }
+
+    @Test
+    public void parsePhone_internationalFormatting_returnsNormalizedPhone() throws Exception {
+        Phone expectedPhone = new Phone("+6591234567");
+        assertEquals(expectedPhone, ParserUtil.parsePhone("+65 (9123)-4567"));
+    }
+
+    @Test
+    public void parsePhone_wrongNumberOfDigits_throwsParseException() {
+        assertThrows(ParseException.class, () -> ParserUtil.parsePhone("123456"));
+        assertThrows(ParseException.class, () -> ParserUtil.parsePhone("1234567890123456"));
     }
 
     @Test

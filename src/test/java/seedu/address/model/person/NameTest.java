@@ -1,5 +1,6 @@
 package seedu.address.model.person;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.Assert.assertThrows;
@@ -27,15 +28,18 @@ public class NameTest {
         // invalid name
         assertFalse(Name.isValidName("")); // empty string
         assertFalse(Name.isValidName(" ")); // spaces only
-        assertFalse(Name.isValidName("^")); // only non-alphanumeric characters
-        assertFalse(Name.isValidName("peter*")); // contains non-alphanumeric characters
+        assertFalse(Name.isValidName(".-'")); // allowed punctuation but no letter
+        assertFalse(Name.isValidName("Peter2")); // digits are not allowed
+        assertFalse(Name.isValidName("peter*")); // unsupported punctuation
+        assertFalse(Name.isValidName("Peter\tTan")); // control character
+        assertFalse(Name.isValidName("a".repeat(101))); // more than 100 characters
 
         // valid name
-        assertTrue(Name.isValidName("peter jack")); // alphabets only
-        assertTrue(Name.isValidName("12345")); // numbers only
-        assertTrue(Name.isValidName("peter the 2nd")); // alphanumeric characters
-        assertTrue(Name.isValidName("Capital Tan")); // with capital letters
-        assertTrue(Name.isValidName("David Roger Jackson Ray Jr 2nd")); // long names
+        assertTrue(Name.isValidName("A")); // one character
+        assertTrue(Name.isValidName("a".repeat(100))); // 100 characters
+        assertTrue(Name.isValidName("José O'Connor-Smith Jr.")); // supported punctuation and Unicode letters
+        assertTrue(Name.isValidName("李 小龍")); // international name
+        assertTrue(Name.isValidName("  Peter   Tan  ")); // spaces are normalized
     }
 
     @Test
@@ -44,6 +48,10 @@ public class NameTest {
 
         // same values -> returns true
         assertTrue(name.equals(new Name("Valid Name")));
+
+        // comparison ignores case
+        assertTrue(name.equals(new Name("valid name")));
+        assertEquals(name.hashCode(), new Name("valid name").hashCode());
 
         // same object -> returns true
         assertTrue(name.equals(name));
