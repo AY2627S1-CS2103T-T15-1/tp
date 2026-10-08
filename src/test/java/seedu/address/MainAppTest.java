@@ -3,6 +3,7 @@ package seedu.address;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static seedu.address.testutil.TypicalPersons.ALICE;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -11,6 +12,7 @@ import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import seedu.address.model.AddressBook;
 import seedu.address.model.Model;
 import seedu.address.model.ReadOnlyAddressBook;
 import seedu.address.model.UserPrefs;
@@ -18,6 +20,7 @@ import seedu.address.model.util.SampleDataUtil;
 import seedu.address.storage.JsonAddressBookStorage;
 import seedu.address.storage.JsonUserPrefsStorage;
 import seedu.address.storage.StorageManager;
+import seedu.address.testutil.AddressBookBuilder;
 
 public class MainAppTest {
 
@@ -37,6 +40,20 @@ public class MainAppTest {
         assertEquals(SampleDataUtil.getSampleAddressBook(), model.getAddressBook());
         ReadOnlyAddressBook savedAddressBook = storage.readAddressBook().get();
         assertEquals(model.getAddressBook(), savedAddressBook);
+    }
+
+    @Test
+    public void initModelManager_existingAddressBook_usesSavedData() throws Exception {
+        Path addressBookFilePath = temporaryFolder.resolve("addressbook.json");
+        AddressBook savedAddressBook = new AddressBookBuilder().withPerson(ALICE).build();
+        JsonAddressBookStorage addressBookStorage = new JsonAddressBookStorage(addressBookFilePath);
+        addressBookStorage.saveAddressBook(savedAddressBook);
+        StorageManager storage = new StorageManager(addressBookStorage,
+                new JsonUserPrefsStorage(temporaryFolder.resolve("preferences.json")));
+
+        Model model = new MainApp().initModelManager(storage, new UserPrefs());
+
+        assertEquals(savedAddressBook, model.getAddressBook());
     }
 
     @Test
