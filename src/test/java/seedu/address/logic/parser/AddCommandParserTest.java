@@ -55,6 +55,20 @@ public class AddCommandParserTest {
     }
 
     @Test
+    public void parse_valuesWithoutQuotes_success() {
+        Person expectedPerson = new Person(new Name("John Doe"), new Phone("61234567"));
+        assertParseSuccess(parser, " --name John Doe --phone 6123 4567", new AddCommand(expectedPerson));
+
+        Person singleCharacterName = new Person(new Name("A"), new Phone("6123456"));
+        assertParseSuccess(parser, " --name A --phone 6123456", new AddCommand(singleCharacterName));
+    }
+
+    @Test
+    public void parse_valueWithOnlyOpeningQuote_failure() {
+        assertParseFailure(parser, " --name \"John Doe --phone 61234567", Name.MESSAGE_CONSTRAINTS);
+    }
+
+    @Test
     public void parse_repeatedNonTagValue_failure() {
         String validExpectedPersonString = LONG_NAME_DESC_BOB + LONG_PHONE_DESC_BOB;
 
