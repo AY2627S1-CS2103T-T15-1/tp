@@ -1,23 +1,68 @@
 package seedu.address.commons.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import seedu.address.testutil.AppClassLoader;
+
 public class AppPathsTest {
     @TempDir
     public Path temporaryFolder;
+
+    @Test
+    public void getHomeDirectory_jarCodeSource_usesContainingFolder() throws Exception {
+        Path jar = Files.createFile(temporaryFolder.resolve("app 100%.jar"));
+        Class<?> paths = new AppClassLoader(jar.toUri().toURL()).loadClass(AppPaths.class.getName());
+
+        Path home = (Path) paths.getMethod("getHomeDirectory").invoke(null);
+
+        assertTrue(Files.isSameFile(temporaryFolder, home));
+        assertTrue(home.isAbsolute());
+    }
+
+    @Test
+    public void getHomeDirectory_classesDirectory_usesWorkingDirectory() throws Exception {
+        Class<?> paths = new AppClassLoader(temporaryFolder.toUri().toURL()).loadClass(AppPaths.class.getName());
+
+        Path home = (Path) paths.getMethod("getHomeDirectory").invoke(null);
+
+        assertEquals(Path.of("").toAbsolutePath().normalize(), home);
+    }
+
+    @Test
+    @SuppressWarnings("deprecation") // A deliberately invalid URI cannot be constructed through URL.of(URI, ...).
+    public void getHomeDirectory_invalidCodeSourceUri_failsInsteadOfUsingAnotherFolder() throws Exception {
+        // URL permits a literal space, whereas conversion to URI rejects it.
+        URL validLocation = URI.create("file:/invalid%20folder/app.jar").toURL();
+        URL invalidLocation = new URL(validLocation.toString().replace("%20", " "));
+        Class<?> paths = new AppClassLoader(invalidLocation).loadClass(AppPaths.class.getName());
+
+        InvocationTargetException exception = assertThrows(InvocationTargetException.class, () -> {
+            paths.getMethod("getHomeDirectory").invoke(null);
+        });
+
+        assertInstanceOf(IllegalStateException.class, exception.getCause());
+        assertInstanceOf(URISyntaxException.class, exception.getCause().getCause());
+    }
 
     @Test
     public void getHomeDirectory_packagedJar_usesJarFolderInsteadOfWorkingDirectory() throws Exception {
@@ -41,7 +86,7 @@ public class AppPathsTest {
             assertTrue(Files.isSameFile(home, Path.of(result)),
                     "Expected JAR folder " + home + " but the probe reported " + result);
             assertTrue(Files.exists(home.resolve("addressbook.log.0")), "Log must be created beside the JAR");
-            try (var files = Files.list(workingDirectory)) {
+            try (Stream<Path> files = Files.list(workingDirectory)) {
                 assertEquals(0L, files.count(), "Launching must not create files in the working directory");
             }
         } finally {
