@@ -21,7 +21,8 @@ public class AppPathsTest {
 
     @Test
     public void getHomeDirectory_packagedJar_usesJarFolderInsteadOfWorkingDirectory() throws Exception {
-        Path home = Files.createDirectories(temporaryFolder.resolve("app folder 100%"));
+        // Keep a redundant path segment to exercise different spellings of the same folder on every platform.
+        Path home = Files.createDirectories(temporaryFolder.resolve(".").resolve("app folder 100%"));
         Path workingDirectory = Files.createDirectories(temporaryFolder.resolve("launch folder"));
         Path jar = home.resolve("addressbook.jar");
         try (JarOutputStream output = new JarOutputStream(Files.newOutputStream(jar))) {
@@ -37,7 +38,8 @@ public class AppPathsTest {
             assertTrue(process.waitFor(20, TimeUnit.SECONDS), "Path probe timed out");
             String result = new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8).strip();
             assertEquals(0, process.exitValue(), result);
-            assertEquals(home.toString(), result);
+            assertTrue(Files.isSameFile(home, Path.of(result)),
+                    "Expected JAR folder " + home + " but the probe reported " + result);
             assertTrue(Files.exists(home.resolve("addressbook.log.0")), "Log must be created beside the JAR");
             try (var files = Files.list(workingDirectory)) {
                 assertEquals(0L, files.count(), "Launching must not create files in the working directory");
