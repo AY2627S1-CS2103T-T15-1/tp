@@ -29,7 +29,7 @@ AddressBook Level 3 (AB3) is a **desktop application for managing contacts, opti
 1. Type a command in the command box and press Enter to execute it. For example, type **`help`** and press Enter to open the help window.<br>
    Some example commands you can try:
 
-   * `list` : Lists all contacts.
+   * `list` : Lists all clients in alphabetical order by name.
 
    * `add --name "John Doe" --phone "+65 9123 4567"` : Adds a client named `John Doe` with an international phone number.
 
@@ -104,9 +104,14 @@ Examples:
 
 ### Listing all clients: `list`
 
-Shows a list of all clients in the address book.
+Shows all your clients, sorted alphabetically by name, together with the total number of clients.
 
 Format: `list`
+
+* Clients are sorted by name, ignoring upper and lower case. For example, `alice Tan` is listed before `Bob Lim`.
+* The client list is always kept in this order, including after you `add` or `edit` a client and in the results of `find`.
+* The index numbers used by `view`, `edit` and `delete` follow this order.
+* If a previous command (such as `find`) showed only some clients, `list` shows all of them again.
 
 ### Editing a client: `edit`
 
