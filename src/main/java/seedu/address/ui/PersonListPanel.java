@@ -2,7 +2,9 @@ package seedu.address.ui;
 
 import java.util.logging.Logger;
 
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.css.PseudoClass;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -27,6 +29,8 @@ public class PersonListPanel extends UiPart<Region> {
         super(FXML);
         personListView.setItems(personList);
         personListView.setCellFactory(listView -> new PersonListViewCell());
+        // Refresh the end cards when the list changes so their outer corners stay rounded.
+        personList.addListener((ListChangeListener<Person>) change -> personListView.refresh());
     }
 
     /**
@@ -36,6 +40,9 @@ public class PersonListPanel extends UiPart<Region> {
         @Override
         protected void updateItem(Person person, boolean empty) {
             super.updateItem(person, empty);
+            pseudoClassStateChanged(PseudoClass.getPseudoClass("first-contact"), !empty && getIndex() == 0);
+            pseudoClassStateChanged(PseudoClass.getPseudoClass("last-contact"),
+                    !empty && getIndex() == personListView.getItems().size() - 1);
 
             if (empty || person == null) {
                 setGraphic(null);
