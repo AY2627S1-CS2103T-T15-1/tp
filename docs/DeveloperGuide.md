@@ -517,6 +517,35 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
       
       Use case resumes at step 1.
 
+**Use case: Delete a client**
+
+**MSS**
+
+1.  Trainer requests to view the client roster.
+2.  Cindy shows the client roster.
+3.  Trainer requests to delete a specific client in the roster.
+4.  Cindy deletes the client along with their details and confirms the deletion.
+
+    Use case ends.
+
+**Extensions**
+
+* 2a. The client roster is empty.
+
+  Use case ends.
+
+* 3a. The requested client does not exist in the roster.
+
+    * 3a1. Cindy shows an error message stating that the client does not exist.
+
+      Use case resumes at step 2.
+
+* 3b. The request is in an invalid format.
+
+    * 3b1. Cindy shows an error message describing the expected format.
+
+      Use case resumes at step 3.
+
 ### Non-Functional Requirements
 
 1.  Should work on any _mainstream OS_ as long as it has Java `25` or above installed.
@@ -571,17 +600,17 @@ testers are expected to do more *exploratory* testing.
 
 1. _{ more test cases … }_
 
-### Deleting a person
+### Deleting a client
 
-1. Deleting a person while all persons are being shown
+1. Deleting a client while all clients are being shown
 
-   1. Prerequisites: List all persons using the `list` command, with multiple persons in the list.
+   1. Prerequisites: List all clients using the `list` command, with multiple clients in the list.
 
    1. Test case: `delete 1`<br>
-      Expected: The first contact is deleted from the list. The status message shows the deleted contact's details.
+      Expected: The first client is deleted from the list. The status message shows the deleted client's details.
 
    1. Test case: `delete 0`<br>
-      Expected: No person is deleted. The status message shows error details.
+      Expected: No client is deleted. The status message shows error details.
 
    1. Other incorrect delete commands to try: `delete`, `delete x`, `...` (where x is larger than the list size)<br>
       Expected: Similar to previous.
