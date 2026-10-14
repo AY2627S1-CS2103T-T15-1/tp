@@ -18,6 +18,8 @@ public class Messages {
     public static final String MESSAGE_PERSONS_LISTED_OVERVIEW = "%1$d person(s) listed!";
     public static final String MESSAGE_DUPLICATE_FIELDS =
                 "Multiple values specified for the following single-valued field(s): ";
+    public static final String MESSAGE_PHONE_IN_USE_WARNING =
+            "Warning: This phone number is also used by another client.";
 
     /**
      * Returns an error message indicating the duplicate prefixes.

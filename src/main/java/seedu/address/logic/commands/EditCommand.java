@@ -70,9 +70,15 @@ public class EditCommand extends Command {
             throw new CommandException(MESSAGE_DUPLICATE_PERSON);
         }
 
+        boolean isPhoneChanged = !personToEdit.getPhone().equals(editedPerson.getPhone());
+        boolean isPhoneInUse = isPhoneChanged && model.hasPersonWithPhone(editedPerson.getPhone());
         model.setPerson(personToEdit, editedPerson);
         model.updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS);
-        return new CommandResult(String.format(MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(editedPerson)));
+        String successMessage = String.format(MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(editedPerson));
+        if (isPhoneInUse) {
+            successMessage += "\n" + Messages.MESSAGE_PHONE_IN_USE_WARNING;
+        }
+        return new CommandResult(successMessage);
     }
 
     /**

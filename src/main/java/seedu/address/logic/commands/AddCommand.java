@@ -5,6 +5,7 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME_LONG;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE_LONG;
 
 import seedu.address.commons.util.ToStringBuilder;
+import seedu.address.logic.Messages;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
 import seedu.address.model.person.Person;
@@ -45,8 +46,13 @@ public class AddCommand extends Command {
             throw new CommandException(MESSAGE_DUPLICATE_PERSON);
         }
 
+        boolean isPhoneInUse = model.hasPersonWithPhone(toAdd.getPhone());
         model.addPerson(toAdd);
-        return new CommandResult(String.format(MESSAGE_SUCCESS, toAdd.getName(), toAdd.getPhone()));
+        String successMessage = String.format(MESSAGE_SUCCESS, toAdd.getName(), toAdd.getPhone());
+        if (isPhoneInUse) {
+            successMessage += "\n" + Messages.MESSAGE_PHONE_IN_USE_WARNING;
+        }
+        return new CommandResult(successMessage);
     }
 
     @Override
