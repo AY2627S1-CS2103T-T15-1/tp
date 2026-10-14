@@ -3,9 +3,13 @@ package seedu.address.model;
 import static java.util.Objects.requireNonNull;
 import static seedu.address.commons.util.CollectionUtil.requireAllNonNull;
 
+import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
 
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import seedu.address.commons.core.GuiSettings;
@@ -21,6 +25,7 @@ public class ModelManager implements Model {
     private final AddressBook addressBook;
     private final UserPrefs userPrefs;
     private final FilteredList<Person> filteredPersons;
+    private final ObjectProperty<Person> viewedPerson = new SimpleObjectProperty<>();
 
     /**
      * Initializes a ModelManager with the given addressBook and userPrefs.
@@ -62,6 +67,7 @@ public class ModelManager implements Model {
     @Override
     public void setAddressBook(ReadOnlyAddressBook addressBook) {
         this.addressBook.resetData(addressBook);
+        viewedPerson.set(null);
     }
 
     @Override
@@ -78,6 +84,9 @@ public class ModelManager implements Model {
     @Override
     public void deletePerson(Person target) {
         addressBook.removePerson(target);
+        if (target.equals(viewedPerson.get())) {
+            viewedPerson.set(null);
+        }
     }
 
     @Override
@@ -91,6 +100,9 @@ public class ModelManager implements Model {
         requireAllNonNull(target, editedPerson);
 
         addressBook.setPerson(target, editedPerson);
+        if (target.equals(viewedPerson.get())) {
+            viewedPerson.set(editedPerson);
+        }
     }
 
     //=========== Filtered Person List Accessors =============================================================
@@ -110,6 +122,18 @@ public class ModelManager implements Model {
         filteredPersons.setPredicate(predicate);
     }
 
+    //=========== Viewed Person =============================================================================
+
+    @Override
+    public ObservableValue<Person> getViewedPerson() {
+        return viewedPerson;
+    }
+
+    @Override
+    public void setViewedPerson(Person person) {
+        viewedPerson.set(person);
+    }
+
     @Override
     public boolean equals(Object other) {
         if (other == this) {
@@ -123,7 +147,8 @@ public class ModelManager implements Model {
 
         return addressBook.equals(otherModelManager.addressBook)
                 && userPrefs.equals(otherModelManager.userPrefs)
-                && filteredPersons.equals(otherModelManager.filteredPersons);
+                && filteredPersons.equals(otherModelManager.filteredPersons)
+                && Objects.equals(viewedPerson.get(), otherModelManager.viewedPerson.get());
     }
 
 }

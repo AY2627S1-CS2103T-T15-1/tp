@@ -10,4 +10,9 @@
   </padding>
   <Label text="Client details" styleClass="detail-panel-title" />
   <Label fx:id="placeholderMessage" styleClass="detail-panel-placeholder" wrapText="true" />
+  <VBox fx:id="details" spacing="4">
+    <Label fx:id="name" styleClass="detail-panel-name" wrapText="true" />
+    <Label text="Phone" styleClass="detail-panel-field-name" />
+    <Label fx:id="phone" styleClass="detail-panel-field-value" wrapText="true" />
+  </VBox>
 </VBox>

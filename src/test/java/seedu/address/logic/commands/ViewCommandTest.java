@@ -35,8 +35,9 @@ public class ViewCommandTest {
         String expectedMessage = String.format(ViewCommand.MESSAGE_VIEW_PERSON_SUCCESS,
                 Messages.format(personToView));
 
-        // viewing a person does not change the model
+        // viewing a person only changes which person is being viewed
         ModelManager expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
+        expectedModel.setViewedPerson(personToView);
 
         assertCommandSuccess(viewCommand, model, expectedMessage, expectedModel);
     }
@@ -62,6 +63,7 @@ public class ViewCommandTest {
         // viewing a person keeps the filtered list as it is
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         showPersonAtIndex(expectedModel, INDEX_FIRST_PERSON);
+        expectedModel.setViewedPerson(personToView);
 
         assertCommandSuccess(viewCommand, model, expectedMessage, expectedModel);
     }

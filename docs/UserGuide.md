@@ -163,6 +163,7 @@ Format: `view INDEX`
 * Shows the details of the client at the specified `INDEX`.
 * The index refers to the index number shown in the displayed client list.
 * The index **must be a positive integer** 1, 2, 3, ...
+* The client's details are shown in the panel on the right. The panel updates when that client is edited, and is cleared when that client is deleted.
 
 Examples:
 * `list` followed by `view 2` shows the details of the 2nd client in the address book.

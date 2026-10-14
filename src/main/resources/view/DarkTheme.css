@@ -362,3 +362,22 @@
     -fx-font-size: 13px;
     -fx-text-fill: #bbbbbb;
 }
+
+.detail-panel-name {
+    -fx-font-family: "Segoe UI Semibold";
+    -fx-font-size: 15px;
+    -fx-text-fill: white;
+}
+
+.detail-panel-field-name {
+    -fx-font-family: "Segoe UI";
+    -fx-font-size: 12px;
+    -fx-text-fill: #999999;
+    -fx-padding: 6 0 0 0;
+}
+
+.detail-panel-field-value {
+    -fx-font-family: "Segoe UI";
+    -fx-font-size: 13px;
+    -fx-text-fill: white;
+}

@@ -2,6 +2,7 @@ package seedu.address.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.model.Model.PREDICATE_SHOW_ALL_PERSONS;
 import static seedu.address.testutil.Assert.assertThrows;
@@ -14,7 +15,9 @@ import org.junit.jupiter.api.Test;
 
 import seedu.address.commons.core.GuiSettings;
 import seedu.address.model.person.NameContainsKeywordsPredicate;
+import seedu.address.model.person.Person;
 import seedu.address.testutil.AddressBookBuilder;
+import seedu.address.testutil.PersonBuilder;
 
 public class ModelManagerTest {
 
@@ -74,6 +77,66 @@ public class ModelManagerTest {
     }
 
     @Test
+    public void getViewedPerson_noPersonViewed_returnsNull() {
+        assertNull(modelManager.getViewedPerson().getValue());
+    }
+
+    @Test
+    public void setViewedPerson_validPerson_setsViewedPerson() {
+        modelManager.addPerson(ALICE);
+        modelManager.setViewedPerson(ALICE);
+        assertEquals(ALICE, modelManager.getViewedPerson().getValue());
+
+        // null -> stops viewing
+        modelManager.setViewedPerson(null);
+        assertNull(modelManager.getViewedPerson().getValue());
+    }
+
+    @Test
+    public void setPerson_viewedPersonEdited_updatesViewedPerson() {
+        modelManager.addPerson(ALICE);
+        modelManager.setViewedPerson(ALICE);
+        Person editedAlice = new PersonBuilder(ALICE).withPhone("91234567").build();
+        modelManager.setPerson(ALICE, editedAlice);
+        assertEquals(editedAlice, modelManager.getViewedPerson().getValue());
+    }
+
+    @Test
+    public void setPerson_otherPersonEdited_keepsViewedPerson() {
+        modelManager.addPerson(ALICE);
+        modelManager.addPerson(BENSON);
+        modelManager.setViewedPerson(ALICE);
+        Person editedBenson = new PersonBuilder(BENSON).withPhone("91234567").build();
+        modelManager.setPerson(BENSON, editedBenson);
+        assertEquals(ALICE, modelManager.getViewedPerson().getValue());
+    }
+
+    @Test
+    public void deletePerson_viewedPersonDeleted_clearsViewedPerson() {
+        modelManager.addPerson(ALICE);
+        modelManager.setViewedPerson(ALICE);
+        modelManager.deletePerson(ALICE);
+        assertNull(modelManager.getViewedPerson().getValue());
+    }
+
+    @Test
+    public void deletePerson_otherPersonDeleted_keepsViewedPerson() {
+        modelManager.addPerson(ALICE);
+        modelManager.addPerson(BENSON);
+        modelManager.setViewedPerson(ALICE);
+        modelManager.deletePerson(BENSON);
+        assertEquals(ALICE, modelManager.getViewedPerson().getValue());
+    }
+
+    @Test
+    public void setAddressBook_personViewed_clearsViewedPerson() {
+        modelManager.addPerson(ALICE);
+        modelManager.setViewedPerson(ALICE);
+        modelManager.setAddressBook(new AddressBook());
+        assertNull(modelManager.getViewedPerson().getValue());
+    }
+
+    @Test
     public void equals() {
         AddressBook addressBook = new AddressBookBuilder().withPerson(ALICE).withPerson(BENSON).build();
         AddressBook differentAddressBook = new AddressBook();
@@ -103,6 +166,11 @@ public class ModelManagerTest {
 
         // resets modelManager to initial state for upcoming tests
         modelManager.updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS);
+
+        // different viewed person -> returns false
+        ModelManager modelManagerViewingAlice = new ModelManager(addressBook, userPrefs);
+        modelManagerViewingAlice.setViewedPerson(ALICE);
+        assertFalse(modelManager.equals(modelManagerViewingAlice));
 
         // different userPrefs -> returns false
         UserPrefs differentUserPrefs = new UserPrefs();
