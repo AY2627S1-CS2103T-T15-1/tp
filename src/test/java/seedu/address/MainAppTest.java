@@ -6,12 +6,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.TypicalPersons.ALICE;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import seedu.address.commons.core.LogsCenter;
 import seedu.address.model.AddressBook;
 import seedu.address.model.Model;
 import seedu.address.model.ReadOnlyAddressBook;
@@ -26,6 +28,22 @@ public class MainAppTest {
 
     @TempDir
     public Path temporaryFolder;
+
+    @Test
+    public void defaultFilePaths_useAbsoluteDevelopmentHome() throws Exception {
+        Path home = Path.of("").toAbsolutePath().normalize();
+        Field addressBookPath = MainApp.class.getDeclaredField("ADDRESS_BOOK_FILE_PATH");
+        addressBookPath.setAccessible(true);
+        assertEquals(home.resolve("data/addressbook.json"), addressBookPath.get(null));
+
+        Field preferencesPath = MainApp.class.getDeclaredField("USER_PREFS_FILE_PATH");
+        preferencesPath.setAccessible(true);
+        assertEquals(home.resolve("preferences.json"), preferencesPath.get(null));
+
+        Field logPath = LogsCenter.class.getDeclaredField("LOG_FILE");
+        logPath.setAccessible(true);
+        assertEquals(home.resolve("addressbook.log").toString().replace("%", "%%"), logPath.get(null));
+    }
 
     @Test
     public void initModelManager_missingAddressBook_createsFileWithSampleData() throws Exception {
