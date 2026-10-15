@@ -174,6 +174,7 @@ Format: `view INDEX`
 * Shows the details of the client at the specified `INDEX`.
 * The index refers to the index number shown in the displayed client list.
 * The index **must be a positive integer** 1, 2, 3, ...
+* The client's details open on their own page, in place of the client list. Running `list`, `find`, `add`, `edit`, `delete` or `clear` successfully returns you to the client list.
 
 Examples:
 * `list` followed by `view 2` shows the details of the 2nd client in the address book.

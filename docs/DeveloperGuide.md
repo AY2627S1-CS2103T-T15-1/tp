@@ -501,34 +501,40 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
       Use case resumes at step 3.
 
-**Use case: View a client **
+**Use case: View a client**
 
 **MSS**
 
-1.  Trainer searches for a client by name.
-2.  Cindy displays the client's full details.
+1.  Trainer requests to list all clients, or to find clients by name.
+2.  Cindy shows the matching clients, each with an index.
+3.  Trainer requests to view a client using that client's index.
+4.  Cindy shows the client's full details on a separate page, in place of the client list.
+
     Use case ends.
 
 **Extensions**
 
-* 1a. The requested client does not exist in the roster.
+* 2a. No clients match.
 
-    * 1a1. Cindy shows an error message.
+  Use case ends.
 
-      Use case ends.
+* 3a. The given index is not in the displayed list.
 
-* 1b. Multiple clients have the same name
-
-    * 1b1. Cindy shows the list of clients with that name.
-    * 1b1. Trainer selects client by ID.
+    * 3a1. Cindy shows an error message.
 
       Use case resumes at step 2.
 
-* 1c. Invalid View input
+* 3b. The index is missing or is not a positive integer.
 
-    * 1c1. Cindy shows an error message describing the expected format.
-      
-      Use case resumes at step 1.
+    * 3b1. Cindy shows an error message describing the expected format.
+
+      Use case resumes at step 2.
+
+* 4a. Trainer runs another command that lists or changes clients.
+
+    * 4a1. Cindy returns to the client list.
+
+      Use case ends.
 
 **Use case: Delete a client**
 
