@@ -182,7 +182,17 @@ Format: `exit`
 
 ### Saving the data
 
-AddressBook automatically saves data after every command. You do not need to save manually.
+AddressBook automatically saves data after every successfully executed command. You do not need to save manually.
+
+The **home folder** is the folder containing the AddressBook JAR file. AddressBook uses this folder even when you launch it from another directory. Keep the JAR in a folder where you have permission to write files.
+
+The following files are stored in the home folder:
+
+* `data/addressbook.json`: your contacts, inside the `data` sub-folder.
+* `preferences.json`: your window size and position.
+* Rotating `addressbook.log` files and their lock file: application logs.
+
+If you move the JAR to another folder, close AddressBook first and move the `data` folder and `preferences.json` alongside it to retain your contacts and window preferences. If the data file is missing, AddressBook creates a new one with sample contacts.
 
 ### Editing the data file
 
@@ -204,13 +214,13 @@ _Details coming soon ..._
 ## FAQ
 
 **Q**: How do I transfer my data to another computer?<br>
-**A**: Install the app on the other computer and overwrite the data file it creates with the data file from your previous AddressBook home folder.
+**A**: Close AddressBook, then copy the JAR and its `data` folder to a writable folder on the other computer, keeping them together. You can also copy `preferences.json` to retain your window preferences. If AddressBook has already created a data file on the other computer, back it up before replacing it with your original `data/addressbook.json`.
 
 --------------------------------------------------------------------------------------------------------------------
 
 ## Known issues
 
-1. **When using multiple screens**, if you move the application to a secondary screen, and later switch to using only the primary screen, the GUI will open off-screen. The remedy is to delete the `preferences.json` file created by the application before running the application again.
+1. **When using multiple screens**, if you move the application to a secondary screen, and later switch to using only the primary screen, the GUI will open off-screen. The remedy is to delete `preferences.json` from the folder containing the JAR before running the application again.
 2. **If you minimize the Help Window** and then run the `help` command (or use the `Help` menu, or the keyboard shortcut `F1`) again, the original Help Window will remain minimized, and no new Help Window will appear. The remedy is to manually restore the minimized Help Window.
 
 --------------------------------------------------------------------------------------------------------------------

@@ -149,6 +149,19 @@ The `Storage` component,
 * is implemented by `StorageManager`, which delegates the actual JSON file access to `JsonAddressBookStorage` and `JsonUserPrefsStorage` (one class per data file).
 * depends on some classes in the `Model` component (because the `Storage` component's job is to save/retrieve objects that belong to the `Model`)
 
+#### File locations
+
+`AppPaths#getHomeDirectory()` in `seedu.address.commons.util` provides an absolute, normalized home folder. It resolves the location of its own code source through a URI so that spaces and other encoded characters in the path are handled correctly.
+
+* When packaged in a JAR, the home folder is the folder containing that JAR, regardless of the working directory.
+* When running compiled classes, such as through Gradle during development, the home folder is the working directory (normally the project folder).
+
+`MainApp` resolves `data/addressbook.json` and `preferences.json` against this home folder before constructing the storage objects. `LogsCenter` uses the same helper for its rotating `addressbook.log` files and lock file. It escapes percent characters in the log path because `FileHandler` interprets them as pattern markers.
+
+The application does not search another folder for existing data or fall back to another save location when writing fails. Moving a packaged application therefore requires moving its `data` folder and `preferences.json` alongside the JAR. These paths are anchored to the home folder; the helper does not enforce containment against symbolic links pointing outside it.
+
+`AppPathsTest#getHomeDirectory_packagedJar_usesJarFolderInsteadOfWorkingDirectory()` packages the helper, logging class and a probe into a test JAR. It runs the probe in a separate JVM from a different working directory and verifies that the home folder and generated log are beside the JAR, with no files created in the launch directory. The JAR folder contains spaces and a percent character to cover URI decoding and log-pattern escaping. `MainAppTest#defaultFilePaths_useAbsoluteDevelopmentHome()` verifies the contact, preference and log paths for development runs.
+
 ### Common classes
 
 Classes used by multiple components are in the `seedu.address.commons` package.
