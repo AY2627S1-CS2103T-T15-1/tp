@@ -147,7 +147,7 @@ Format: `delete INDEX`
 
 * Deletes the client at the specified `INDEX`.
 * This cannot be undone, so check the index before you press Enter.
-* The index refers to the index number shown in the displayed person list.
+* The index refers to the index number shown in the displayed client list.
 * The index **must be a positive integer** 1, 2, 3, ...
 
 Examples:
