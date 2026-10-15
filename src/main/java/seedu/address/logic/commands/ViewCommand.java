@@ -19,12 +19,12 @@ public class ViewCommand extends Command {
     public static final String COMMAND_WORD = "view";
 
     public static final String MESSAGE_USAGE = COMMAND_WORD
-            + ": Shows the full details of the person identified "
-            + "by the index number used in the displayed person list.\n"
+            + ": Shows the full details of the client identified "
+            + "by the index number used in the displayed client list.\n"
             + "Parameters: INDEX (must be a positive integer)\n"
             + "Example: " + COMMAND_WORD + " 1";
 
-    public static final String MESSAGE_VIEW_PERSON_SUCCESS = "Viewing person: %1$s";
+    public static final String MESSAGE_VIEW_PERSON_SUCCESS = "Viewing client: %1$s";
 
     private final Index targetIndex;
 
