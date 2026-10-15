@@ -125,7 +125,7 @@ How the parsing works:
 The `Model` component,
 
 * stores the address book data i.e., all `Person` objects (which are contained in a `UniquePersonList` object).
-* stores the `Person` objects selected by the current filter, such as search results, in a separate _filtered_ list. It exposes this list as an unmodifiable `ObservableList<Person>` that the UI can observe and bind to, so the UI updates when the list changes.
+* stores the `Person` objects selected by the current filter, such as search results, in a separate _filtered_ list, which is kept sorted alphabetically by name (case-insensitive). It exposes this list as an unmodifiable `ObservableList<Person>` that the UI can observe and bind to, so the UI updates when the list changes.
 * stores a `UserPrefs` object that represents the user’s preferences (currently, just the GUI settings). This is exposed to the outside as a `ReadOnlyUserPrefs` object.
 * does not depend on any of the other three components (as the `Model` represents data entities of the domain, they should make sense on their own without depending on other components)
 
@@ -366,7 +366,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 **MSS**
 
 1.  Trainer requests to list all clients.
-2.  Cindy shows all clients in the roster, each with an index number, name and phone number, along with the total number of clients.
+2.  Cindy shows all clients in the roster, sorted alphabetically by name, each with an index number, name and phone number, along with the total number of clients.
 
     Use case ends.
 
@@ -374,9 +374,9 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 * 1a. Trainer includes extra parameters in the request.
 
-    * 1a1. Cindy shows an error message stating that the request does not take any parameters.
+    * 1a1. Cindy ignores the extra parameters.
 
-      Use case resumes at step 1.
+      Use case resumes at step 2.
 
 * 2a. The client roster is empty.
 
