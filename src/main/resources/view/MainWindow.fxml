@@ -45,7 +45,11 @@
             <StackPane fx:id="commandBoxPlaceholder" />
             <StackPane fx:id="resultDisplayPlaceholder" VBox.vgrow="ALWAYS" minHeight="80" />
           </VBox>
-          <StackPane fx:id="personListPanelPlaceholder" VBox.vgrow="ALWAYS"/>
+          <HBox spacing="20" VBox.vgrow="ALWAYS">
+            <StackPane fx:id="personListPanelPlaceholder" HBox.hgrow="ALWAYS" />
+            <StackPane fx:id="personDetailPanelPlaceholder" styleClass="pane-with-border"
+                       minWidth="250" prefWidth="300" />
+          </HBox>
         </VBox>
 
         <StackPane fx:id="statusbarPlaceholder" VBox.vgrow="NEVER" />

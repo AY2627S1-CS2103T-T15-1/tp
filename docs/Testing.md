@@ -22,9 +22,13 @@ You can run tests in two ways.
 * **Method 2: Using Gradle**
   * Open a console and run the command `gradlew clean test` (Mac/Linux: `./gradlew clean test`)
 
-`PersonListPanelTest` constructs real JavaFX controls and runs its assertions on the JavaFX application thread.
-It requires a graphical desktop or a virtual display. On Linux without a desktop, install Xvfb and run
+`PersonListPanelTest` and `MainWindowTest` construct real JavaFX controls and run assertions on the JavaFX application thread.
+They require a graphical desktop or a virtual display. On Linux without a desktop, install Xvfb and run
 `xvfb-run --auto-servernum ./gradlew clean test`. Linux CI uses the same virtual-display setup.
+
+`MainWindowTest` opens the main window, fills its panels, checks the initial client-detail message,
+and submits `list` and `exit` through the command box. This catches missing FXML placeholders that
+would otherwise crash the application during startup. Storage uses a temporary directory.
 
 <box type="info" seamless>
 
