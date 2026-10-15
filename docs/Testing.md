@@ -22,6 +22,10 @@ You can run tests in two ways.
 * **Method 2: Using Gradle**
   * Open a console and run the command `gradlew clean test` (Mac/Linux: `./gradlew clean test`)
 
+`PersonListPanelTest` constructs real JavaFX controls and runs its assertions on the JavaFX application thread.
+It requires a graphical desktop or a virtual display. On Linux without a desktop, install Xvfb and run
+`xvfb-run --auto-servernum ./gradlew clean test`. Linux CI uses the same virtual-display setup.
+
 <box type="info" seamless>
 
 **Link**: Read [this Gradle Tutorial from the se-edu/guides](https://se-education.org/guides/tutorials/gradle.html) to learn more about using Gradle.
