@@ -149,11 +149,10 @@ public class ModelManager implements Model {
             return false;
         }
 
-        return addressBook.equals(otherModelManager.addressBook)
-                && userPrefs.equals(otherModelManager.userPrefs)
-                && filteredPersons.equals(otherModelManager.filteredPersons)
-                && Objects.equals(viewedPerson.get(), otherModelManager.viewedPerson.get());
-                && sortedPersons.equals(otherModelManager.sortedPersons);
+    return addressBook.equals(otherModelManager.addressBook)
+            && userPrefs.equals(otherModelManager.userPrefs)
+            && sortedPersons.equals(otherModelManager.sortedPersons)
+            && Objects.equals(viewedPerson.get(), otherModelManager.viewedPerson.get());
     }
 
 }
