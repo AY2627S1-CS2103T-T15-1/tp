@@ -131,6 +131,22 @@
     -fx-text-fill: #bebebe;
 }
 
+/* Reuse the list's text styles while giving only the detail view its own card. */
+.client-detail-container {
+    -fx-background-color: #151515;
+}
+
+.client-detail-card {
+    -fx-background-color: #262626;
+    -fx-background-radius: 34;
+}
+
+.client-detail-card #personHeader,
+.client-detail-card #cardPane {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+}
+
 .command-feedback .scroll-bar,
 .contact-list .scroll-bar {
     -fx-background-color: transparent;

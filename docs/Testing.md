@@ -26,9 +26,11 @@ You can run tests in two ways.
 They require a graphical desktop or a virtual display. On Linux without a desktop, install Xvfb and run
 `xvfb-run --auto-servernum ./gradlew clean test`. Linux CI uses the same virtual-display setup.
 
-`MainWindowTest` opens the main window, fills its panels, checks the initial client-detail message,
-and submits `list` and `exit` through the command box. This catches missing FXML placeholders that
-would otherwise crash the application during startup. Storage uses a temporary directory.
+`MainWindowTest` opens the main window and checks the default client list, `view 1`, an invalid
+`view 99`, returning to the list with `list`, and `exit` through the real command box. It checks
+that errors preserve the current detail card and that all FXML placeholders load successfully.
+Storage uses a temporary directory. The test also checks that the menu bar and status footer
+remain visible. The UI retains the existing command syntax, feedback, and input-clearing behavior.
 
 <box type="info" seamless>
 

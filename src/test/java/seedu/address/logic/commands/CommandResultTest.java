@@ -4,10 +4,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static seedu.address.testutil.TypicalPersons.ALICE;
+import static seedu.address.testutil.TypicalPersons.BENSON;
 
 import org.junit.jupiter.api.Test;
 
 public class CommandResultTest {
+    @Test
+    public void viewResult_selectedClient_isRetainedAndCompared() {
+        CommandResult result = new CommandResult("viewed", ALICE);
+        assertEquals(ALICE, result.getPersonToView().orElseThrow());
+        assertTrue(new CommandResult("viewed").getPersonToView().isEmpty());
+        assertEquals(result, new CommandResult("viewed", ALICE));
+        assertEquals(result.hashCode(), new CommandResult("viewed", ALICE).hashCode());
+        assertNotEquals(result, new CommandResult("viewed", BENSON));
+        assertNotEquals(result, new CommandResult("viewed"));
+    }
+
     @Test
     public void equals() {
         CommandResult commandResult = new CommandResult("feedback");

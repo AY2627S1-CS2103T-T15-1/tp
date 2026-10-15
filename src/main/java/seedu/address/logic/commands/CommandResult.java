@@ -3,8 +3,10 @@ package seedu.address.logic.commands;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import seedu.address.commons.util.ToStringBuilder;
+import seedu.address.model.person.Person;
 
 /**
  * Represents the result of a command execution.
@@ -19,13 +21,28 @@ public class CommandResult {
     /** The application should exit. */
     private final boolean exit;
 
+    /** Client whose detail card should replace the list, if requested. */
+    private final Person personToView;
+
     /**
      * Constructs a {@code CommandResult} with the specified fields.
      */
     public CommandResult(String feedbackToUser, boolean showHelp, boolean exit) {
+        this(feedbackToUser, showHelp, exit, null);
+    }
+
+    private CommandResult(String feedbackToUser, boolean showHelp, boolean exit, Person personToView) {
         this.feedbackToUser = requireNonNull(feedbackToUser);
         this.showHelp = showHelp;
         this.exit = exit;
+        this.personToView = personToView;
+    }
+
+    /**
+     * Constructs a result that displays the specified client's detail card.
+     */
+    public CommandResult(String feedbackToUser, Person personToView) {
+        this(feedbackToUser, false, false, requireNonNull(personToView));
     }
 
     /**
@@ -48,6 +65,10 @@ public class CommandResult {
         return exit;
     }
 
+    public Optional<Person> getPersonToView() {
+        return Optional.ofNullable(personToView);
+    }
+
     @Override
     public boolean equals(Object other) {
         if (other == this) {
@@ -61,12 +82,13 @@ public class CommandResult {
 
         return feedbackToUser.equals(otherCommandResult.feedbackToUser)
                 && showHelp == otherCommandResult.showHelp
-                && exit == otherCommandResult.exit;
+                && exit == otherCommandResult.exit
+                && Objects.equals(personToView, otherCommandResult.personToView);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(feedbackToUser, showHelp, exit);
+        return Objects.hash(feedbackToUser, showHelp, exit, personToView);
     }
 
     @Override

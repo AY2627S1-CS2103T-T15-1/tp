@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static seedu.address.testutil.TypicalPersons.ALICE;
 
 import java.nio.file.Path;
 import java.util.concurrent.CountDownLatch;
@@ -56,7 +57,9 @@ public class MainWindowTest {
             Path dataFile = testFolder.resolve("addressbook.json");
             StorageManager storage = new StorageManager(new JsonAddressBookStorage(dataFile),
                     new JsonUserPrefsStorage(testFolder.resolve("preferences.json")));
-            LogicManager logic = new LogicManager(new ModelManager(), storage);
+            ModelManager model = new ModelManager();
+            model.addPerson(ALICE);
+            LogicManager logic = new LogicManager(model, storage);
             Stage stage = new Stage();
             try {
                 MainWindow window = new MainWindow(stage, logic, dataFile);
@@ -68,18 +71,36 @@ public class MainWindowTest {
                 StackPane details = (StackPane) stage.getScene().lookup("#personDetailPanelPlaceholder");
                 assertNotNull(details);
                 assertFalse(details.getChildren().isEmpty());
-                Label message = (Label) details.lookup("#placeholderMessage");
-                assertEquals("No client selected.\nUse view INDEX to see a client's details.", message.getText());
-                assertTrue(details.isVisible());
-                assertTrue(details.getWidth() > 0);
-                assertTrue(details.getHeight() > 0);
+                StackPane list = (StackPane) stage.getScene().lookup("#personListPanelPlaceholder");
+                assertFalse(details.isVisible());
+                assertTrue(list.isVisible());
+                assertTrue(stage.getScene().lookup("#menuBar").isVisible());
+                assertTrue(stage.getScene().lookup("#statusbarPlaceholder").isVisible());
 
                 TextField command = (TextField) stage.getScene().lookup("#commandTextField");
                 TextArea feedback = (TextArea) stage.getScene().lookup("#resultDisplay");
+                command.setText("view 1");
+                command.fireEvent(new ActionEvent());
+                assertEquals("", command.getText());
+                assertEquals("Viewing person: Alice Pauline; Phone: 94351253", feedback.getText());
+                assertTrue(details.isVisible());
+                assertFalse(list.isVisible());
+                assertEquals("Alice Pauline", ((Label) details.lookup("#name")).getText());
+                assertEquals("94351253", ((Label) details.lookup("#phone")).getText());
+
+                command.setText("view 99");
+                command.fireEvent(new ActionEvent());
+                assertTrue(details.isVisible());
+                assertEquals("Alice Pauline", ((Label) details.lookup("#name")).getText());
+
                 command.setText("list");
                 command.fireEvent(new ActionEvent());
-                assertEquals("No clients yet. Use `add` to add your first client.", feedback.getText());
+                assertEquals("Listed 1 client", feedback.getText());
                 assertEquals("", command.getText());
+                assertTrue(list.isVisible());
+                assertTrue(stage.getScene().lookup("#menuBar").isVisible());
+                assertTrue(stage.getScene().lookup("#statusbarPlaceholder").isVisible());
+                assertFalse(details.isVisible());
 
                 command.setText("exit");
                 command.fireEvent(new ActionEvent());
@@ -92,4 +113,5 @@ public class MainWindowTest {
         Platform.runLater(task);
         task.get(15, TimeUnit.SECONDS);
     }
+
 }

@@ -38,7 +38,7 @@ public class ViewCommandTest {
         // viewing a person does not change the model
         ModelManager expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
 
-        assertCommandSuccess(viewCommand, model, expectedMessage, expectedModel);
+        assertCommandSuccess(viewCommand, model, new CommandResult(expectedMessage, personToView), expectedModel);
     }
 
     @Test
@@ -63,7 +63,7 @@ public class ViewCommandTest {
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         showPersonAtIndex(expectedModel, INDEX_FIRST_PERSON);
 
-        assertCommandSuccess(viewCommand, model, expectedMessage, expectedModel);
+        assertCommandSuccess(viewCommand, model, new CommandResult(expectedMessage, personToView), expectedModel);
     }
 
     @Test
