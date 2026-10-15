@@ -42,9 +42,8 @@ public class AddressBookTest {
 
     @Test
     public void resetData_withDuplicatePersons_throwsDuplicatePersonException() {
-        // Two persons with the same identity fields
-        Person editedAlice = new PersonBuilder(ALICE).withPhone(VALID_PHONE_BOB).build();
-        List<Person> newPersons = List.of(ALICE, editedAlice);
+        Person duplicateAlice = new PersonBuilder(ALICE).build();
+        List<Person> newPersons = List.of(ALICE, duplicateAlice);
         AddressBookStub newData = new AddressBookStub(newPersons);
 
         assertThrows(DuplicatePersonException.class, () -> addressBook.resetData(newData));
@@ -67,10 +66,26 @@ public class AddressBookTest {
     }
 
     @Test
-    public void hasPerson_personWithSameIdentityFieldsInAddressBook_returnsTrue() {
+    public void hasPerson_personWithSameNameAndDifferentPhoneInAddressBook_returnsFalse() {
         addressBook.addPerson(ALICE);
         Person editedAlice = new PersonBuilder(ALICE).withPhone(VALID_PHONE_BOB).build();
-        assertTrue(addressBook.hasPerson(editedAlice));
+        assertFalse(addressBook.hasPerson(editedAlice));
+    }
+
+    @Test
+    public void hasPersonWithPhone_nullPhone_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> addressBook.hasPersonWithPhone(null));
+    }
+
+    @Test
+    public void hasPersonWithPhone_phoneNotInAddressBook_returnsFalse() {
+        assertFalse(addressBook.hasPersonWithPhone(ALICE.getPhone()));
+    }
+
+    @Test
+    public void hasPersonWithPhone_phoneInAddressBook_returnsTrue() {
+        addressBook.addPerson(ALICE);
+        assertTrue(addressBook.hasPersonWithPhone(ALICE.getPhone()));
     }
 
     @Test

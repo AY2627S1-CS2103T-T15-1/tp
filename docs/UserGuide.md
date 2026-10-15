@@ -93,6 +93,12 @@ Phone requirements:
 * Allows digits, spaces, parentheses, and hyphens, with one optional leading `+`.
 * Formatting separators are removed when saved; a leading `+` is preserved.
 
+Duplicate handling:
+
+* A client is considered a duplicate only when both their normalized name and phone number match an existing client.
+* Clients with the same name but different phone numbers can be added.
+* A phone number can be shared by different clients, but the application displays a warning when it is reused.
+
 Invalid values produce these messages:
 
 * Name: `Invalid name: enter 1–100 characters using letters, spaces, apostrophes, hyphens or periods.`

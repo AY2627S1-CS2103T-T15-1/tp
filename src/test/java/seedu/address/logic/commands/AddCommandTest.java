@@ -15,12 +15,14 @@ import org.junit.jupiter.api.Test;
 
 import javafx.collections.ObservableList;
 import seedu.address.commons.core.GuiSettings;
+import seedu.address.logic.Messages;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.AddressBook;
 import seedu.address.model.Model;
 import seedu.address.model.ReadOnlyAddressBook;
 import seedu.address.model.ReadOnlyUserPrefs;
 import seedu.address.model.person.Person;
+import seedu.address.model.person.Phone;
 import seedu.address.testutil.PersonBuilder;
 
 public class AddCommandTest {
@@ -49,6 +51,21 @@ public class AddCommandTest {
         ModelStub modelStub = new ModelStubWithPerson(validPerson);
 
         assertThrows(CommandException.class, AddCommand.MESSAGE_DUPLICATE_PERSON, () -> addCommand.execute(modelStub));
+    }
+
+    @Test
+    public void execute_phoneAlreadyInUse_addSuccessfulWithWarning() throws Exception {
+        ModelStubAcceptingPersonAdded modelStub = new ModelStubAcceptingPersonAdded();
+        Person existingPerson = new PersonBuilder().withName("Alice").withPhone("91234567").build();
+        Person personWithReusedPhone = new PersonBuilder().withName("Bob").withPhone("9123 4567").build();
+        modelStub.addPerson(existingPerson);
+
+        CommandResult commandResult = new AddCommand(personWithReusedPhone).execute(modelStub);
+
+        String expectedMessage = String.format(AddCommand.MESSAGE_SUCCESS, personWithReusedPhone.getName(),
+                personWithReusedPhone.getPhone()) + "\n" + Messages.MESSAGE_PHONE_IN_USE_WARNING;
+        assertEquals(expectedMessage, commandResult.getFeedbackToUser());
+        assertEquals(List.of(existingPerson, personWithReusedPhone), modelStub.personsAdded);
     }
 
     @Test
@@ -122,6 +139,11 @@ public class AddCommandTest {
         }
 
         @Override
+        public boolean hasPersonWithPhone(Phone phone) {
+            throw new AssertionError("This method should not be called.");
+        }
+
+        @Override
         public void deletePerson(Person target) {
             throw new AssertionError("This method should not be called.");
         }
@@ -170,6 +192,12 @@ public class AddCommandTest {
         public boolean hasPerson(Person person) {
             requireNonNull(person);
             return personsAdded.stream().anyMatch(person::isSamePerson);
+        }
+
+        @Override
+        public boolean hasPersonWithPhone(Phone phone) {
+            requireNonNull(phone);
+            return personsAdded.stream().anyMatch(person -> person.getPhone().equals(phone));
         }
 
         @Override
