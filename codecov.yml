@@ -1,0 +1,3 @@
+# The GUI is not covered by automated tests in this project, so it is left out of coverage reports.
+ignore:
+  - "src/main/java/seedu/address/ui"
