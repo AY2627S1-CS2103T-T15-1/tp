@@ -65,4 +65,23 @@ public class NameTest {
         // different values -> returns false
         assertFalse(name.equals(new Name("Other Valid Name")));
     }
+
+    @Test
+    public void compareTo() {
+        Name alice = new Name("Alice");
+
+        // null -> throws NullPointerException
+        assertThrows(NullPointerException.class, () -> alice.compareTo(null));
+
+        // same name with different case -> equal
+        assertEquals(0, alice.compareTo(new Name("aLiCe")));
+
+        // alphabetical order -> negative / positive
+        assertTrue(alice.compareTo(new Name("Bob")) < 0);
+        assertTrue(new Name("Bob").compareTo(alice) > 0);
+
+        // case is ignored when ordering
+        assertTrue(new Name("alice").compareTo(new Name("Bob")) < 0);
+        assertTrue(new Name("ALICE").compareTo(new Name("bob")) < 0);
+    }
 }

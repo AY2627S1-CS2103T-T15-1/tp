@@ -125,7 +125,7 @@ How the parsing works:
 The `Model` component,
 
 * stores the address book data i.e., all `Person` objects (which are contained in a `UniquePersonList` object).
-* stores the `Person` objects selected by the current filter, such as search results, in a separate _filtered_ list. It exposes this list as an unmodifiable `ObservableList<Person>` that the UI can observe and bind to, so the UI updates when the list changes.
+* stores the `Person` objects selected by the current filter, such as search results, in a separate _filtered_ list, which is kept sorted alphabetically by name (case-insensitive). It exposes this list as an unmodifiable `ObservableList<Person>` that the UI can observe and bind to, so the UI updates when the list changes.
 * stores a `UserPrefs` object that represents the user’s preferences (currently, just the GUI settings). This is exposed to the outside as a `ReadOnlyUserPrefs` object.
 * does not depend on any of the other three components (as the `Model` represents data entities of the domain, they should make sense on their own without depending on other components)
 
@@ -148,6 +148,19 @@ The `Storage` component,
 * can save both address book data and user preference data in JSON format, and read them back into corresponding objects.
 * is implemented by `StorageManager`, which delegates the actual JSON file access to `JsonAddressBookStorage` and `JsonUserPrefsStorage` (one class per data file).
 * depends on some classes in the `Model` component (because the `Storage` component's job is to save/retrieve objects that belong to the `Model`)
+
+#### File locations
+
+`AppPaths#getHomeDirectory()` in `seedu.address.commons.util` provides an absolute, normalized home folder. It resolves the location of its own code source through a URI so that spaces and other encoded characters in the path are handled correctly.
+
+* When packaged in a JAR, the home folder is the folder containing that JAR, regardless of the working directory.
+* When running compiled classes, such as through Gradle during development, the home folder is the working directory (normally the project folder).
+
+`MainApp` resolves `data/addressbook.json` and `preferences.json` against this home folder before constructing the storage objects. `LogsCenter` uses the same helper for its rotating `addressbook.log` files and lock file. It escapes percent characters in the log path because `FileHandler` interprets them as pattern markers.
+
+The application does not search another folder for existing data or fall back to another save location when writing fails. Moving a packaged application therefore requires moving its `data` folder and `preferences.json` alongside the JAR. These paths are anchored to the home folder; the helper does not enforce containment against symbolic links pointing outside it.
+
+`AppPathsTest#getHomeDirectory_packagedJar_usesJarFolderInsteadOfWorkingDirectory()` packages the helper, logging class and a probe into a test JAR. It runs the probe in a separate JVM from a different working directory and verifies that the home folder and generated log are beside the JAR, with no files created in the launch directory. The JAR folder contains spaces and a percent character to cover URI decoding and log-pattern escaping. `MainAppTest#defaultFilePaths_useAbsoluteDevelopmentHome()` verifies the contact, preference and log paths for development runs.
 
 ### Common classes
 
@@ -353,7 +366,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 **MSS**
 
 1.  Trainer requests to list all clients.
-2.  Cindy shows all clients in the roster, each with an index number, name and phone number, along with the total number of clients.
+2.  Cindy shows all clients in the roster, sorted alphabetically by name, each with an index number, name and phone number, along with the total number of clients.
 
     Use case ends.
 
@@ -361,9 +374,9 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 * 1a. Trainer includes extra parameters in the request.
 
-    * 1a1. Cindy shows an error message stating that the request does not take any parameters.
+    * 1a1. Cindy ignores the extra parameters.
 
-      Use case resumes at step 1.
+      Use case resumes at step 2.
 
 * 2a. The client roster is empty.
 
@@ -529,6 +542,35 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
       Use case ends.
 
+**Use case: Delete a client**
+
+**MSS**
+
+1.  Trainer requests to view the client roster.
+2.  Cindy shows the client roster.
+3.  Trainer requests to delete a specific client in the roster.
+4.  Cindy deletes the client along with their details and confirms the deletion.
+
+    Use case ends.
+
+**Extensions**
+
+* 2a. The client roster is empty.
+
+  Use case ends.
+
+* 3a. The requested client does not exist in the roster.
+
+    * 3a1. Cindy shows an error message stating that the client does not exist.
+
+      Use case resumes at step 2.
+
+* 3b. The request is in an invalid format.
+
+    * 3b1. Cindy shows an error message describing the expected format.
+
+      Use case resumes at step 3.
+
 ### Non-Functional Requirements
 
 1.  Should work on any _mainstream OS_ as long as it has Java `25` or above installed.
@@ -583,17 +625,17 @@ testers are expected to do more *exploratory* testing.
 
 1. _{ more test cases … }_
 
-### Deleting a person
+### Deleting a client
 
-1. Deleting a person while all persons are being shown
+1. Deleting a client while all clients are being shown
 
-   1. Prerequisites: List all persons using the `list` command, with multiple persons in the list.
+   1. Prerequisites: List all clients using the `list` command, with multiple clients in the list.
 
    1. Test case: `delete 1`<br>
-      Expected: The first contact is deleted from the list. The status message shows the deleted contact's details.
+      Expected: The first client is deleted from the list. The status message shows the deleted client's details.
 
    1. Test case: `delete 0`<br>
-      Expected: No person is deleted. The status message shows error details.
+      Expected: No client is deleted. The status message shows error details.
 
    1. Other incorrect delete commands to try: `delete`, `delete x`, `...` (where x is larger than the list size)<br>
       Expected: Similar to previous.

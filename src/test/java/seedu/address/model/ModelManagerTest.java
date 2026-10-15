@@ -134,6 +134,10 @@ public class ModelManagerTest {
         modelManager.setViewedPerson(ALICE);
         modelManager.setAddressBook(new AddressBook());
         assertNull(modelManager.getViewedPerson().getValue());
+    public void getFilteredPersonList_personsAddedOutOfOrder_sortedByName() {
+        modelManager.addPerson(BENSON);
+        modelManager.addPerson(ALICE);
+        assertEquals(List.of(ALICE, BENSON), modelManager.getFilteredPersonList());
     }
 
     @Test

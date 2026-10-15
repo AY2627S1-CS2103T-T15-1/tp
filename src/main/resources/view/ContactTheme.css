@@ -1,0 +1,143 @@
+/* Scoped to the main window; other windows retain DarkTheme.css. */
+.app-shell {
+    -fx-background-color: #151515;
+    -fx-font-family: "Inter", "Segoe UI", sans-serif;
+}
+
+.app-shell .menu-bar,
+.app-shell .status-bar {
+    -fx-background-color: #151515;
+}
+
+.app-shell .menu-bar .label,
+.app-shell .status-bar .label {
+    -fx-font-family: "Inter", "Segoe UI", sans-serif;
+    -fx-font-size: 12px;
+    -fx-text-fill: #bebebe;
+}
+
+.command-panel {
+    -fx-background-color: #282828;
+    -fx-background-radius: 34;
+}
+
+.command-input {
+    -fx-background-color: transparent;
+}
+
+.app-shell #commandTextField {
+    -fx-background-color: #243526;
+    -fx-background-insets: 0;
+    -fx-background-radius: 48;
+    -fx-border-color: #056200;
+    -fx-border-width: 1;
+    -fx-border-radius: 48;
+    -fx-padding: 12 20;
+    -fx-pref-height: 48;
+    -fx-font-family: "Inter", "Segoe UI", sans-serif;
+    -fx-font-size: 16px;
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: #a1a1a1;
+}
+
+.app-shell #commandTextField:focused {
+    -fx-border-color: #23851e;
+}
+
+.app-shell #commandTextField.error {
+    -fx-border-color: #d06651;
+}
+
+.command-feedback,
+.command-feedback #resultDisplay,
+.command-feedback #resultDisplay .content,
+.command-feedback #resultDisplay .scroll-pane,
+.command-feedback #resultDisplay .viewport {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-border-width: 0;
+}
+
+.command-feedback #resultDisplay {
+    -fx-font-family: "Inter", "Segoe UI", sans-serif;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-padding: 0 14;
+}
+
+.contact-list {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.contact-list .list-cell,
+.contact-list .list-cell:filled:even,
+.contact-list .list-cell:filled:odd,
+.contact-list .list-cell:filled:selected,
+.contact-list .list-cell:empty {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 2 0;
+}
+
+.contact-list #cardPane {
+    -fx-background-color: #282828;
+    -fx-background-radius: 8;
+    -fx-border-color: transparent;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+}
+
+.contact-list .list-cell:filled:selected #cardPane {
+    -fx-background-color: #2d352e;
+    -fx-border-color: #056200;
+}
+
+.contact-list .list-cell:first-contact #cardPane {
+    -fx-background-radius: 34 34 8 8;
+    -fx-border-radius: 34 34 8 8;
+}
+
+.contact-list .list-cell:last-contact #cardPane {
+    -fx-background-radius: 8 8 34 34;
+    -fx-border-radius: 8 8 34 34;
+}
+
+.contact-list .list-cell:first-contact:last-contact #cardPane {
+    -fx-background-radius: 34;
+    -fx-border-radius: 34;
+}
+
+.contact-list .contact-name {
+    -fx-font-family: "Inter", "Segoe UI", sans-serif;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-opacity: 1;
+}
+
+.contact-list .contact-phone,
+.contact-list .contact-index {
+    -fx-font-family: "Inter", "Segoe UI", sans-serif;
+    -fx-font-size: 12px;
+    -fx-font-weight: normal;
+    -fx-text-fill: white;
+    -fx-opacity: 1;
+}
+
+.contact-list .contact-index {
+    -fx-text-fill: #bebebe;
+}
+
+.command-feedback .scroll-bar,
+.contact-list .scroll-bar {
+    -fx-background-color: transparent;
+}
+
+.command-feedback .scroll-bar .thumb,
+.contact-list .scroll-bar .thumb {
+    -fx-background-color: #454545;
+    -fx-background-radius: 8;
+}
