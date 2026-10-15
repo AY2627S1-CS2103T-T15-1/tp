@@ -1,11 +1,16 @@
 package seedu.address.logic.commands;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandSuccess;
 import static seedu.address.logic.commands.CommandTestUtil.showPersonAtIndex;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 import static seedu.address.testutil.TypicalPersons.ALICE;
+import static seedu.address.testutil.TypicalPersons.BENSON;
+import static seedu.address.testutil.TypicalPersons.CARL;
 import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
 import static seedu.address.testutil.TypicalPersons.getTypicalPersons;
+
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,6 +52,15 @@ public class ListCommandTest {
     public void execute_listIsNotFiltered_showsPluralMessage() {
         String expectedMessage = String.format(ListCommand.MESSAGE_SUCCESS_PLURAL, getTypicalPersons().size());
         assertCommandSuccess(new ListCommand(), model, expectedMessage, expectedModel);
+    }
+
+    @Test
+    public void execute_clientsAddedOutOfOrder_showsClientsSortedByName() {
+        Model unsortedModel = new ModelManager(
+                new AddressBookBuilder().withPerson(CARL).withPerson(ALICE).withPerson(BENSON).build(),
+                new UserPrefs());
+        new ListCommand().execute(unsortedModel);
+        assertEquals(List.of(ALICE, BENSON, CARL), unsortedModel.getFilteredPersonList());
     }
 
     @Test

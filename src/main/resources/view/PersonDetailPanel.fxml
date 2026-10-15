@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox styleClass="detail-panel" spacing="8" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
+  <padding>
+    <Insets top="10" right="10" bottom="10" left="10" />
+  </padding>
+  <Label text="Client details" styleClass="detail-panel-title" />
+  <Label fx:id="placeholderMessage" styleClass="detail-panel-placeholder" wrapText="true" />
+</VBox>

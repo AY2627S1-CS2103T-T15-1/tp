@@ -7,7 +7,7 @@ import static seedu.address.commons.util.AppUtil.checkArgument;
  * Represents a Person's name in the address book.
  * Guarantees: immutable; is valid as declared in {@link #isValidName(String)}
  */
-public class Name {
+public class Name implements Comparable<Name> {
 
     public static final String MESSAGE_CONSTRAINTS =
             "Invalid name: enter 1–100 characters using letters, spaces, apostrophes, hyphens or periods.";
@@ -51,6 +51,15 @@ public class Name {
                 .map(codePoint -> Character.toLowerCase(Character.toUpperCase(codePoint)))
                 .forEach(result::appendCodePoint);
         return result.toString();
+    }
+
+    /**
+     * Compares names alphabetically, ignoring case, consistent with {@link #equals(Object)}.
+     */
+    @Override
+    public int compareTo(Name other) {
+        requireNonNull(other);
+        return foldCase(fullName).compareTo(foldCase(other.fullName));
     }
 
     @Override

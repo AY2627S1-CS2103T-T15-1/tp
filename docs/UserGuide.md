@@ -29,7 +29,7 @@ AddressBook Level 3 (AB3) is a **desktop application for managing contacts, opti
 1. Type a command in the command box and press Enter to execute it. For example, type **`help`** and press Enter to open the help window.<br>
    Some example commands you can try:
 
-   * `list` : Lists all contacts.
+   * `list` : Lists all clients in alphabetical order by name.
 
    * `add --name "John Doe" --phone "+65 9123 4567"` : Adds a client named `John Doe` with an international phone number.
 
@@ -104,9 +104,14 @@ Examples:
 
 ### Listing all clients: `list`
 
-Shows a list of all clients in the address book.
+Shows all your clients, sorted alphabetically by name, together with the total number of clients.
 
 Format: `list`
+
+* Clients are sorted by name, ignoring upper and lower case. For example, `alice Tan` is listed before `Bob Lim`.
+* The client list is always kept in this order, including after you `add` or `edit` a client and in the results of `find`.
+* The index numbers used by `view`, `edit` and `delete` follow this order.
+* If a previous command (such as `find`) showed only some clients, `list` shows all of them again.
 
 ### Editing a client: `edit`
 
@@ -147,7 +152,7 @@ Format: `delete INDEX`
 
 * Deletes the client at the specified `INDEX`.
 * This cannot be undone, so check the index before you press Enter.
-* The index refers to the index number shown in the displayed person list.
+* The index refers to the index number shown in the displayed client list.
 * The index **must be a positive integer** 1, 2, 3, ...
 
 Examples:
@@ -182,7 +187,17 @@ Format: `exit`
 
 ### Saving the data
 
-AddressBook automatically saves data after every command. You do not need to save manually.
+AddressBook automatically saves data after every successfully executed command. You do not need to save manually.
+
+The **home folder** is the folder containing the AddressBook JAR file. AddressBook uses this folder even when you launch it from another directory. Keep the JAR in a folder where you have permission to write files.
+
+The following files are stored in the home folder:
+
+* `data/addressbook.json`: your contacts, inside the `data` sub-folder.
+* `preferences.json`: your window size and position.
+* Rotating `addressbook.log` files and their lock file: application logs.
+
+If you move the JAR to another folder, close AddressBook first and move the `data` folder and `preferences.json` alongside it to retain your contacts and window preferences. If the data file is missing, AddressBook creates a new one with sample contacts.
 
 ### Editing the data file
 
@@ -204,13 +219,13 @@ _Details coming soon ..._
 ## FAQ
 
 **Q**: How do I transfer my data to another computer?<br>
-**A**: Install the app on the other computer and overwrite the data file it creates with the data file from your previous AddressBook home folder.
+**A**: Close AddressBook, then copy the JAR and its `data` folder to a writable folder on the other computer, keeping them together. You can also copy `preferences.json` to retain your window preferences. If AddressBook has already created a data file on the other computer, back it up before replacing it with your original `data/addressbook.json`.
 
 --------------------------------------------------------------------------------------------------------------------
 
 ## Known issues
 
-1. **When using multiple screens**, if you move the application to a secondary screen, and later switch to using only the primary screen, the GUI will open off-screen. The remedy is to delete the `preferences.json` file created by the application before running the application again.
+1. **When using multiple screens**, if you move the application to a secondary screen, and later switch to using only the primary screen, the GUI will open off-screen. The remedy is to delete `preferences.json` from the folder containing the JAR before running the application again.
 2. **If you minimize the Help Window** and then run the `help` command (or use the `Help` menu, or the keyboard shortcut `F1`) again, the original Help Window will remain minimized, and no new Help Window will appear. The remedy is to manually restore the minimized Help Window.
 
 --------------------------------------------------------------------------------------------------------------------
