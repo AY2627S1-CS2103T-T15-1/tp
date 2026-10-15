@@ -7,7 +7,6 @@
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.image.Image?>
-<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
@@ -45,7 +44,11 @@
             <StackPane fx:id="commandBoxPlaceholder" />
             <StackPane fx:id="resultDisplayPlaceholder" VBox.vgrow="ALWAYS" minHeight="80" />
           </VBox>
-          <StackPane fx:id="personListPanelPlaceholder" VBox.vgrow="ALWAYS"/>
+          <StackPane alignment="TOP_LEFT" VBox.vgrow="ALWAYS">
+            <StackPane fx:id="personListPanelPlaceholder" />
+            <StackPane fx:id="personDetailPanelPlaceholder" styleClass="client-detail-container"
+                       alignment="TOP_LEFT" visible="false" managed="false" />
+          </StackPane>
         </VBox>
 
         <StackPane fx:id="statusbarPlaceholder" VBox.vgrow="NEVER" />

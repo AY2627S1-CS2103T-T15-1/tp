@@ -17,6 +17,7 @@ import seedu.address.logic.Logic;
 import seedu.address.logic.commands.CommandResult;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.logic.parser.exceptions.ParseException;
+import seedu.address.model.person.Person;
 
 /**
  * The Main Window. Provides the basic application layout containing
@@ -123,6 +124,7 @@ public class MainWindow extends UiPart<Stage> {
 
         personDetailPanel = new PersonDetailPanel();
         personDetailPanelPlaceholder.getChildren().add(personDetailPanel.getRoot());
+        showPersonList();
 
         resultDisplay = new ResultDisplay();
         resultDisplayPlaceholder.getChildren().add(resultDisplay.getRoot());
@@ -189,6 +191,18 @@ public class MainWindow extends UiPart<Stage> {
             logger.info("Result: " + commandResult.getFeedbackToUser());
             resultDisplay.setFeedbackToUser(commandResult.getFeedbackToUser());
 
+            if (commandResult.getPersonToView().isPresent()) {
+                Person person = commandResult.getPersonToView().get();
+                int displayedIndex = logic.getFilteredPersonList().indexOf(person) + 1;
+                personDetailPanel.showPerson(person, displayedIndex);
+                personListPanelPlaceholder.setVisible(false);
+                personListPanelPlaceholder.setManaged(false);
+                personDetailPanelPlaceholder.setVisible(true);
+                personDetailPanelPlaceholder.setManaged(true);
+            } else if (!commandResult.isShowHelp() && !commandResult.isExit()) {
+                showPersonList();
+            }
+
             if (commandResult.isShowHelp()) {
                 handleHelp();
             }
@@ -203,5 +217,15 @@ public class MainWindow extends UiPart<Stage> {
             resultDisplay.setFeedbackToUser(e.getMessage());
             throw e;
         }
+    }
+
+    /**
+     * Returns to the client list after a successful list or data-changing command.
+     */
+    private void showPersonList() {
+        personListPanelPlaceholder.setVisible(true);
+        personListPanelPlaceholder.setManaged(true);
+        personDetailPanelPlaceholder.setVisible(false);
+        personDetailPanelPlaceholder.setManaged(false);
     }
 }

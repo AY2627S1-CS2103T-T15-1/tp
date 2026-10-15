@@ -1,26 +1,31 @@
 package seedu.address.ui;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
+import seedu.address.model.person.Person;
 
 /**
  * Panel that shows the full details of a single person.
  */
 public class PersonDetailPanel extends UiPart<Region> {
 
-    public static final String NO_PERSON_MESSAGE = "No client selected.\nUse view INDEX to see a client's details.";
-
     private static final String FXML = "PersonDetailPanel.fxml";
 
     @FXML
-    private Label placeholderMessage;
+    private StackPane personHeader;
 
     /**
      * Creates an empty {@code PersonDetailPanel}.
      */
     public PersonDetailPanel() {
         super(FXML);
-        placeholderMessage.setText(NO_PERSON_MESSAGE);
+    }
+
+    /**
+     * Displays the client's contact details using the same header as the list cards.
+     */
+    public void showPerson(Person person, int displayedIndex) {
+        personHeader.getChildren().setAll(new PersonCard(person, displayedIndex).getRoot());
     }
 }
