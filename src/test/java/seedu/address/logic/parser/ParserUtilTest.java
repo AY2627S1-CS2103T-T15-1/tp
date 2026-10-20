@@ -2,6 +2,9 @@ package seedu.address.logic.parser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_ID;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME_LONG;
 import static seedu.address.logic.parser.ParserUtil.MESSAGE_INVALID_INDEX;
 import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
@@ -11,10 +14,13 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
+import seedu.address.logic.Messages;
+import seedu.address.logic.commands.PersonSelector;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.person.Address;
 import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
+import seedu.address.model.person.PersonId;
 import seedu.address.model.person.Phone;
 import seedu.address.model.tag.Tag;
 
@@ -33,6 +39,7 @@ public class ParserUtilTest {
     private static final String VALID_TAG_2 = "neighbour";
 
     private static final String WHITESPACE = " \t\r\n";
+    private static final String USAGE = "usage message";
 
     @Test
     public void parseIndex_invalidInput_throwsParseException() {
@@ -219,5 +226,77 @@ public class ParserUtilTest {
         Set<Tag> expectedTagSet = Set.of(new Tag(VALID_TAG_1), new Tag(VALID_TAG_2));
 
         assertEquals(expectedTagSet, actualTagSet);
+    }
+
+    @Test
+    public void parseId_validValue_returnsId() throws Exception {
+        assertEquals(new PersonId(12), ParserUtil.parseId("12"));
+        assertEquals(new PersonId(12), ParserUtil.parseId(WHITESPACE + "12" + WHITESPACE));
+        assertEquals(new PersonId(12), ParserUtil.parseId("\"12\""));
+    }
+
+    @Test
+    public void parseId_invalidValue_throwsParseException() {
+        assertThrows(ParseException.class, PersonId.MESSAGE_CONSTRAINTS, () -> ParserUtil.parseId("0"));
+        assertThrows(ParseException.class, PersonId.MESSAGE_CONSTRAINTS, () -> ParserUtil.parseId("-1"));
+        assertThrows(ParseException.class, PersonId.MESSAGE_CONSTRAINTS, () -> ParserUtil.parseId("+1"));
+        assertThrows(ParseException.class, PersonId.MESSAGE_CONSTRAINTS, () -> ParserUtil.parseId("1 2"));
+        assertThrows(ParseException.class, PersonId.MESSAGE_CONSTRAINTS, () -> ParserUtil.parseId(""));
+        assertThrows(ParseException.class, PersonId.MESSAGE_CONSTRAINTS, () -> ParserUtil.parseId("abc"));
+
+        // too big to be an ID
+        assertThrows(ParseException.class, PersonId.MESSAGE_CONSTRAINTS, ()
+            -> ParserUtil.parseId(Long.toString((long) Integer.MAX_VALUE + 1)));
+    }
+
+    @Test
+    public void parsePersonSelector_id_returnsSelectorById() throws Exception {
+        ArgumentMultimap argMultimap = ArgumentTokenizer.tokenize(" --id 3", PREFIX_ID, PREFIX_NAME_LONG);
+        assertEquals(PersonSelector.byId(new PersonId(3)), ParserUtil.parsePersonSelector(argMultimap, USAGE));
+    }
+
+    @Test
+    public void parsePersonSelector_name_returnsSelectorByName() throws Exception {
+        ArgumentMultimap argMultimap =
+                ArgumentTokenizer.tokenize(" --name \"John  Doe\"", PREFIX_ID, PREFIX_NAME_LONG);
+        assertEquals(PersonSelector.byName("John Doe"), ParserUtil.parsePersonSelector(argMultimap, USAGE));
+    }
+
+    @Test
+    public void parsePersonSelector_invalidInput_throwsParseException() {
+        String invalidFormat = String.format(MESSAGE_INVALID_COMMAND_FORMAT, USAGE);
+
+        // neither --id nor --name
+        assertSelectorFailure("", invalidFormat);
+
+        // text before the arguments
+        assertSelectorFailure("1 --id 3", invalidFormat);
+
+        // both --id and --name
+        assertSelectorFailure(" --id 3 --name John", ParserUtil.MESSAGE_CONFLICTING_SELECTORS);
+
+        // repeated --id
+        assertSelectorFailure(" --id 3 --id 4", Messages.getErrorMessageForDuplicatePrefixes(PREFIX_ID));
+
+        // blank name
+        assertSelectorFailure(" --name \"  \"", ParserUtil.MESSAGE_BLANK_NAME_KEYWORD);
+        assertSelectorFailure(" --name", ParserUtil.MESSAGE_BLANK_NAME_KEYWORD);
+    }
+
+    @Test
+    public void removeOptionalQuotes() {
+        assertEquals("John Doe", ParserUtil.removeOptionalQuotes("\"John Doe\""));
+        assertEquals("John Doe", ParserUtil.removeOptionalQuotes("John Doe"));
+        assertEquals("\"John Doe", ParserUtil.removeOptionalQuotes("\"John Doe"));
+        assertEquals("", ParserUtil.removeOptionalQuotes("\"\""));
+        assertEquals("\"", ParserUtil.removeOptionalQuotes("\""));
+    }
+
+    /**
+     * Asserts that parsing {@code args} into a {@code PersonSelector} fails with {@code expectedMessage}.
+     */
+    private static void assertSelectorFailure(String args, String expectedMessage) {
+        ArgumentMultimap argMultimap = ArgumentTokenizer.tokenize(args, PREFIX_ID, PREFIX_NAME_LONG);
+        assertThrows(ParseException.class, expectedMessage, () -> ParserUtil.parsePersonSelector(argMultimap, USAGE));
     }
 }

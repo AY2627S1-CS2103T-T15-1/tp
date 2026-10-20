@@ -193,8 +193,7 @@ public class MainWindow extends UiPart<Stage> {
 
             if (commandResult.getPersonToView().isPresent()) {
                 Person person = commandResult.getPersonToView().get();
-                int displayedIndex = logic.getFilteredPersonList().indexOf(person) + 1;
-                personDetailPanel.showPerson(person, displayedIndex);
+                personDetailPanel.showPerson(person);
                 personListPanelPlaceholder.setVisible(false);
                 personListPanelPlaceholder.setManaged(false);
                 personDetailPanelPlaceholder.setVisible(true);

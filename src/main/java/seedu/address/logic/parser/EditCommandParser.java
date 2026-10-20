@@ -1,13 +1,15 @@
 package seedu.address.logic.parser;
 
 import static java.util.Objects.requireNonNull;
-import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_ID;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME_LONG;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_TO_NAME;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_TO_PHONE;
+import static seedu.address.logic.parser.ParserUtil.removeOptionalQuotes;
 
-import seedu.address.commons.core.index.Index;
 import seedu.address.logic.commands.EditCommand;
 import seedu.address.logic.commands.EditCommand.EditPersonDescriptor;
+import seedu.address.logic.commands.PersonSelector;
 import seedu.address.logic.parser.exceptions.ParseException;
 
 /**
@@ -22,31 +24,26 @@ public class EditCommandParser implements Parser<EditCommand> {
      */
     public EditCommand parse(String args) throws ParseException {
         requireNonNull(args);
-        ArgumentMultimap argMultimap =
-                ArgumentTokenizer.tokenize(args, PREFIX_NAME, PREFIX_PHONE);
+        ArgumentMultimap argMultimap = ArgumentTokenizer.tokenize(args,
+                PREFIX_ID, PREFIX_NAME_LONG, PREFIX_TO_NAME, PREFIX_TO_PHONE);
 
-        Index index;
-
-        try {
-            index = ParserUtil.parseIndex(argMultimap.getPreamble());
-        } catch (ParseException pe) {
-            throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, EditCommand.MESSAGE_USAGE), pe);
-        }
-
-        argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_NAME, PREFIX_PHONE);
+        PersonSelector selector = ParserUtil.parsePersonSelector(argMultimap, EditCommand.MESSAGE_USAGE);
+        argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_TO_NAME, PREFIX_TO_PHONE);
 
         EditPersonDescriptor editPersonDescriptor = new EditPersonDescriptor();
 
-        if (argMultimap.getValue(PREFIX_NAME).isPresent()) {
-            editPersonDescriptor.setName(ParserUtil.parseName(argMultimap.getValue(PREFIX_NAME).get()));
+        if (argMultimap.getValue(PREFIX_TO_NAME).isPresent()) {
+            editPersonDescriptor.setName(
+                    ParserUtil.parseName(removeOptionalQuotes(argMultimap.getValue(PREFIX_TO_NAME).get())));
         }
-        if (argMultimap.getValue(PREFIX_PHONE).isPresent()) {
-            editPersonDescriptor.setPhone(ParserUtil.parsePhone(argMultimap.getValue(PREFIX_PHONE).get()));
+        if (argMultimap.getValue(PREFIX_TO_PHONE).isPresent()) {
+            editPersonDescriptor.setPhone(
+                    ParserUtil.parsePhone(removeOptionalQuotes(argMultimap.getValue(PREFIX_TO_PHONE).get())));
         }
         if (!editPersonDescriptor.isAnyFieldEdited()) {
             throw new ParseException(EditCommand.MESSAGE_NOT_EDITED);
         }
 
-        return new EditCommand(index, editPersonDescriptor);
+        return new EditCommand(selector, editPersonDescriptor);
     }
 }

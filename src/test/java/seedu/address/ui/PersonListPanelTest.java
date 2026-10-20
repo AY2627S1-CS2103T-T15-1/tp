@@ -61,16 +61,17 @@ public class PersonListPanelTest {
     }
 
     @Test
-    public void updateItem_person_displaysDetailsAndOneBasedIndex() throws Exception {
+    public void updateItem_person_displaysDetailsAndId() throws Exception {
         runOnFxThread(() -> {
-            PersonListPanel panel = new PersonListPanel(FXCollections.observableArrayList(ALICE, BENSON));
+            PersonListPanel panel = new PersonListPanel(FXCollections.observableArrayList(BENSON, ALICE));
             PersonListPanel.PersonListViewCell cell = panel.new PersonListViewCell();
-            cell.updateIndex(1);
+            // Benson is first in the list, but the card shows his ID rather than his position
+            cell.updateIndex(0);
             cell.updateItem(BENSON, false);
 
             assertEquals("Benson Meier", ((Label) cell.getGraphic().lookup("#name")).getText());
             assertEquals("98765432", ((Label) cell.getGraphic().lookup("#phone")).getText());
-            assertEquals("2. ", ((Label) cell.getGraphic().lookup("#id")).getText());
+            assertEquals("#" + BENSON.getId(), ((Label) cell.getGraphic().lookup("#id")).getText());
         });
     }
 

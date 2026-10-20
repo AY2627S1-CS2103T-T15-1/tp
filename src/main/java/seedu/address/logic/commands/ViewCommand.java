@@ -1,52 +1,42 @@
 package seedu.address.logic.commands;
 
-import static java.util.Objects.requireNonNull;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_ID;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME_LONG;
 
-import java.util.List;
-
-import seedu.address.commons.core.index.Index;
 import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.logic.Messages;
-import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
 import seedu.address.model.person.Person;
 
 /**
- * Shows the full details of a person identified using its displayed index from the address book.
+ * Shows the full details of a client, chosen by ID or by name.
  */
-public class ViewCommand extends Command {
+public class ViewCommand extends PersonTargetedCommand {
 
     public static final String COMMAND_WORD = "view";
 
     public static final String MESSAGE_USAGE = COMMAND_WORD
-            + ": Shows the full details of the client identified "
-            + "by the index number used in the displayed client list.\n"
-            + "Parameters: INDEX (must be a positive integer)\n"
-            + "Example: " + COMMAND_WORD + " 1";
+            + ": Shows the full details of a client, chosen by ID or by part of their name.\n"
+            + "Parameters: " + PREFIX_ID + " ID or " + PREFIX_NAME_LONG + " NAME\n"
+            + "Example: " + COMMAND_WORD + " " + PREFIX_ID + " 1";
 
     public static final String MESSAGE_VIEW_PERSON_SUCCESS = "Viewing client: %1$s";
 
-    private final Index targetIndex;
-
     /**
-     * Creates a ViewCommand to show the details of the person at the specified {@code targetIndex}.
+     * Creates a ViewCommand to show the details of the client chosen by {@code selector}.
      */
-    public ViewCommand(Index targetIndex) {
-        this.targetIndex = targetIndex;
+    public ViewCommand(PersonSelector selector) {
+        super(selector);
     }
 
     @Override
-    public CommandResult execute(Model model) throws CommandException {
-        requireNonNull(model);
-        List<Person> lastShownList = model.getFilteredPersonList();
+    protected CommandResult executeOn(Person target, Model model) {
+        return new CommandResult(String.format(MESSAGE_VIEW_PERSON_SUCCESS, Messages.format(target)), target);
+    }
 
-        if (targetIndex.getZeroBased() >= lastShownList.size()) {
-            throw new CommandException(Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
-        }
-
-        Person personToView = lastShownList.get(targetIndex.getZeroBased());
-        return new CommandResult(String.format(MESSAGE_VIEW_PERSON_SUCCESS, Messages.format(personToView)),
-                personToView);
+    @Override
+    protected String getCommandWord() {
+        return COMMAND_WORD;
     }
 
     @Override
@@ -60,13 +50,13 @@ public class ViewCommand extends Command {
             return false;
         }
 
-        return targetIndex.equals(otherViewCommand.targetIndex);
+        return selector.equals(otherViewCommand.selector);
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .add("targetIndex", targetIndex)
+                .add("selector", selector)
                 .toString();
     }
 }

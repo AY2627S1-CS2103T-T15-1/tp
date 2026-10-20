@@ -1,15 +1,15 @@
 package seedu.address.logic.commands;
 
 import static java.util.Objects.requireNonNull;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_ID;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME_LONG;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_TO_NAME;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_TO_PHONE;
 import static seedu.address.model.Model.PREDICATE_SHOW_ALL_PERSONS;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import seedu.address.commons.core.index.Index;
 import seedu.address.commons.util.CollectionUtil;
 import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.logic.Messages;
@@ -20,50 +20,40 @@ import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
 
 /**
- * Edits the details of an existing person in the address book.
+ * Edits the details of an existing client, chosen by ID or by name.
  */
-public class EditCommand extends Command {
+public class EditCommand extends PersonTargetedCommand {
 
     public static final String COMMAND_WORD = "edit";
 
-    public static final String MESSAGE_USAGE = COMMAND_WORD + ": Edits the details of the person identified "
-            + "by the index number used in the displayed person list. "
+    public static final String MESSAGE_USAGE = COMMAND_WORD + ": Edits the details of a client, "
+            + "chosen by ID or by part of their name. "
             + "Existing values will be overwritten by the input values.\n"
-            + "Parameters: INDEX (must be a positive integer) "
-            + "[" + PREFIX_NAME + "NAME] "
-            + "[" + PREFIX_PHONE + "PHONE]\n"
-            + "Example: " + COMMAND_WORD + " 1 "
-            + PREFIX_PHONE + "91234567";
+            + "Parameters: " + PREFIX_ID + " ID or " + PREFIX_NAME_LONG + " NAME, then "
+            + "[" + PREFIX_TO_NAME + " NEW_NAME] "
+            + "[" + PREFIX_TO_PHONE + " NEW_PHONE]\n"
+            + "Example: " + COMMAND_WORD + " " + PREFIX_ID + " 1 "
+            + PREFIX_TO_PHONE + " 91234567";
 
-    public static final String MESSAGE_EDIT_PERSON_SUCCESS = "Edited person: %1$s";
+    public static final String MESSAGE_EDIT_PERSON_SUCCESS = "Edited client: %1$s";
     public static final String MESSAGE_NOT_EDITED = "At least one field to edit must be provided.";
-    public static final String MESSAGE_DUPLICATE_PERSON = "This person already exists in the address book.";
+    public static final String MESSAGE_DUPLICATE_PERSON = "This client already exists in the address book.";
 
-    private final Index index;
     private final EditPersonDescriptor editPersonDescriptor;
 
     /**
-     * @param index of the person in the filtered person list to edit
-     * @param editPersonDescriptor details to edit the person with
+     * @param selector chooses the client to edit
+     * @param editPersonDescriptor details to edit the client with
      */
-    public EditCommand(Index index, EditPersonDescriptor editPersonDescriptor) {
-        requireNonNull(index);
+    public EditCommand(PersonSelector selector, EditPersonDescriptor editPersonDescriptor) {
+        super(selector);
         requireNonNull(editPersonDescriptor);
 
-        this.index = index;
         this.editPersonDescriptor = new EditPersonDescriptor(editPersonDescriptor);
     }
 
     @Override
-    public CommandResult execute(Model model) throws CommandException {
-        requireNonNull(model);
-        List<Person> lastShownList = model.getFilteredPersonList();
-
-        if (index.getZeroBased() >= lastShownList.size()) {
-            throw new CommandException(Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
-        }
-
-        Person personToEdit = lastShownList.get(index.getZeroBased());
+    protected CommandResult executeOn(Person personToEdit, Model model) throws CommandException {
         Person editedPerson = createEditedPerson(personToEdit, editPersonDescriptor);
 
         if (!personToEdit.isSamePerson(editedPerson) && model.hasPerson(editedPerson)) {
@@ -79,6 +69,11 @@ public class EditCommand extends Command {
             successMessage += "\n" + Messages.MESSAGE_PHONE_IN_USE_WARNING;
         }
         return new CommandResult(successMessage);
+    }
+
+    @Override
+    protected String getCommandWord() {
+        return COMMAND_WORD;
     }
 
     /**
@@ -105,14 +100,14 @@ public class EditCommand extends Command {
             return false;
         }
 
-        return index.equals(otherEditCommand.index)
+        return selector.equals(otherEditCommand.selector)
                 && editPersonDescriptor.equals(otherEditCommand.editPersonDescriptor);
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .add("index", index)
+                .add("selector", selector)
                 .add("editPersonDescriptor", editPersonDescriptor)
                 .toString();
     }
