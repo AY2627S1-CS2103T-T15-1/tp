@@ -367,7 +367,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 **MSS**
 
 1.  Trainer requests to list all clients.
-2.  Cindy shows all clients in the roster, sorted alphabetically by name, each with an index number, name and phone number, along with the total number of clients.
+2.  Cindy shows all clients in the roster, sorted alphabetically by name, each with their client ID, name and phone number, along with the total number of clients.
 
     Use case ends.
 
@@ -409,6 +409,12 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
     * 3a1. Cindy shows an error message stating that the client does not exist.
 
       Use case resumes at step 2.
+
+* 3b. The trainer chooses the client by name, and more than one client's name contains that name.
+
+    * 3b1. Cindy lists those clients, with their client IDs, without updating any of them, and asks the trainer to choose one by ID.
+
+      Use case resumes at step 3.
 
 * 5a. Trainer does not provide any updated contact details.
 
@@ -507,8 +513,8 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 **MSS**
 
 1.  Trainer requests to list all clients, or to find clients by name.
-2.  Cindy shows the matching clients, each with an index.
-3.  Trainer requests to view a client using that client's index.
+2.  Cindy shows the matching clients, each with their client ID.
+3.  Trainer requests to view a client, giving either the client's ID or part of the client's name.
 4.  Cindy shows the client's full details on a separate page, in place of the client list.
 
     Use case ends.
@@ -519,17 +525,23 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
   Use case ends.
 
-* 3a. The given index is not in the displayed list.
+* 3a. No client has the given ID, or no client's name contains the given name.
 
     * 3a1. Cindy shows an error message.
 
       Use case resumes at step 2.
 
-* 3b. The index is missing or is not a positive integer.
+* 3b. The given ID is not a positive whole number, or the trainer gives both an ID and a name, or neither.
 
     * 3b1. Cindy shows an error message describing the expected format.
 
       Use case resumes at step 2.
+
+* 3c. More than one client's name contains the given name.
+
+    * 3c1. Cindy lists those clients, with their client IDs, and asks the trainer to choose one by ID.
+
+      Use case resumes at step 3.
 
 * 4a. Trainer runs another command that lists or changes clients.
 
@@ -566,6 +578,12 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
       Use case resumes at step 3.
 
+* 3c. The trainer chooses the client by name, and more than one client's name contains that name.
+
+    * 3c1. Cindy lists those clients, with their client IDs, without deleting any of them, and asks the trainer to choose one by ID.
+
+      Use case resumes at step 3.
+
 ### Non-Functional Requirements
 
 1.  Should work on any _mainstream OS_ as long as it has Java `25` or above installed.
@@ -579,6 +597,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 ### Glossary
 
 * **Client**: A person who receives fitness coaching from a trainer and whose information is managed in Cindy
+* **Client ID**: A positive whole number that Cindy gives a client when they are added. It never changes, and it is never given to another client, even after the client it belonged to is deleted
 * **Client progress**: Changes in a client's recorded fitness metrics or exercise performance over time
 * **Client record**: The information Cindy stores about a client, including contact details, training sessions, and progress entries
 * **Client roster**: The collection of client records managed by a trainer in Cindy
@@ -626,14 +645,17 @@ testers are expected to do more *exploratory* testing.
 
    1. Prerequisites: List all clients using the `list` command, with multiple clients in the list.
 
-   1. Test case: `delete 1`<br>
-      Expected: The first client is deleted from the list. The status message shows the deleted client's details.
+   1. Test case: `delete --id 1`<br>
+      Expected: The client with ID 1 is deleted from the list. The status message shows the deleted client's details.
 
-   1. Test case: `delete 0`<br>
+   1. Test case: `delete --id 0`<br>
       Expected: No client is deleted. The status message shows error details.
 
-   1. Other incorrect delete commands to try: `delete`, `delete x`, `...` (where x is larger than the list size)<br>
-      Expected: Similar to previous.
+   1. Test case: `delete --name a` (where the names of several clients contain `a`)<br>
+      Expected: No client is deleted. The list shows only the clients whose names contain `a`, and the status message asks you to choose one with `--id`.
+
+   1. Other incorrect delete commands to try: `delete`, `delete 1`, `delete --id x` (where no client has the ID x), `delete --id 1 --name a`<br>
+      Expected: No client is deleted. The status message shows error details.
 
 1. _{ more test cases … }_
 

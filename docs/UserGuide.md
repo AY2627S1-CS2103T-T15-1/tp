@@ -33,7 +33,7 @@ Cindy is a **desktop application that helps freelance gym trainers manage their 
 
    * `add --name "John Doe" --phone "+65 9123 4567"` : Adds a client named `John Doe` with an international phone number.
 
-   * `delete 3` : Deletes the 3rd client shown in the current list.
+   * `delete --id 3` : Deletes the client with ID 3. Each client's ID is shown as `#ID` on their card.
 
    * `clear` : Deletes all clients.
 
@@ -53,7 +53,15 @@ Cindy is a **desktop application that helps freelance gym trainers manage their 
   For example, in `add --name "NAME"`, replace `NAME` with a value such as `John Doe`.
 
 * Items in square brackets are optional.<br>
-  For example, `edit INDEX [n/NAME]` can be used as `edit 1 n/John Doe`.
+  For example, `edit --id ID [--to-name NEW_NAME] [--to-phone NEW_PHONE]` can be used as `edit --id 1 --to-name John Doe`.
+
+* Values can be wrapped in double quotes, which is useful for values containing spaces.<br>
+  For example, `--name "John Doe"` and `--name John Doe` mean the same.
+
+* Commands that act on one client (`view`, `edit` and `delete`) choose the client with either `--id ID` or `--name NAME`, but not both:
+  * `--id ID` chooses the client with that ID. Every client's ID is shown as `#ID` on their card, e.g. `#3`.
+  * `--name NAME` chooses the client whose name contains `NAME`, ignoring upper and lower case. For example, `--name john` matches `John`, `John Doe` and `Johnny Tan`.
+  * If more than one client's name contains `NAME`, Cindy does not act on any of them. Instead, it lists those clients and asks you to run the command again with `--id`, using one of the IDs shown.
 
 * Parameters can be in any order.<br>
   For example, if the command specifies `--name "NAME" --phone "PHONE_NUMBER"`, the two parameters can be reversed.
@@ -78,6 +86,8 @@ Format: `help`
 Adds a client using their name and mandatory phone number.
 
 Format: `add --name "NAME" --phone "PHONE_NUMBER"`
+
+Cindy gives every new client a unique ID number, shown in the message after the client is added (e.g. `New client added: John Doe (ID: 7); Phone: +6591234567`). A client keeps the same ID for as long as they are in Cindy, and an ID is never given to another client, even after the client it belonged to is deleted.
 
 Name requirements:
 
@@ -116,22 +126,22 @@ Format: `list`
 
 * Clients are sorted by name, ignoring upper and lower case. For example, `alice Tan` is listed before `Bob Lim`.
 * The client list is always kept in this order, including after you `add` or `edit` a client and in the results of `find`.
-* The index numbers used by `view`, `edit` and `delete` follow this order.
 * If a previous command (such as `find`) showed only some clients, `list` shows all of them again.
 
 ### Editing a client: `edit`
 
 Edits an existing client's name or phone number.
 
-Format: `edit INDEX [n/NAME] [p/PHONE]`
+Format: `edit --id ID [--to-name NEW_NAME] [--to-phone NEW_PHONE]` or `edit --name NAME [--to-name NEW_NAME] [--to-phone NEW_PHONE]`
 
-* Edits the client at the specified `INDEX`. The index refers to the index number shown in the displayed client list. The index **must be a positive integer** 1, 2, 3, ...
-* At least one of the optional fields must be provided.
-* Existing values will be updated to the input values.
+* Edits the client chosen by `--id` or `--name`, as described in [the notes about the command format](#features).
+* At least one of `--to-name` and `--to-phone` must be provided.
+* Existing values will be updated to the input values. New names and phone numbers follow the same rules as in `add`.
+* Editing a client does not change their ID.
 
 Examples:
-*  `edit 1 p/91234567` Edits the phone number of the 1st client to be `91234567`.
-*  `edit 2 n/Betsy Crower` Edits the name of the 2nd client to be `Betsy Crower`.
+*  `edit --id 1 --to-phone 91234567` Edits the phone number of the client with ID 1 to be `91234567`.
+*  `edit --name Betsy --to-name "Betsy Crower"` Edits the name of the only client whose name contains `Betsy` to be `Betsy Crower`.
 
 ### Locating clients by name: `find`
 
@@ -154,31 +164,28 @@ Examples:
 
 Deletes the specified client record from Cindy.
 
-Format: `delete INDEX`
+Format: `delete --id ID` or `delete --name NAME`
 
-* Deletes the client at the specified `INDEX`.
-* This cannot be undone, so check the index before you press Enter.
-* The index refers to the index number shown in the displayed client list.
-* The index **must be a positive integer** 1, 2, 3, ...
+* Deletes the client chosen by `--id` or `--name`, as described in [the notes about the command format](#features).
+* This cannot be undone, so check the ID before you press Enter.
+* The ID of a deleted client is never given to another client.
 
 Examples:
-* `list` followed by `delete 2` deletes the 2nd client in the full client list.
-* `find Betsy` followed by `delete 1` deletes the 1st client in the results of the `find` command.
+* `delete --id 2` deletes the client with ID 2.
+* `delete --name Betsy` deletes the only client whose name contains `Betsy`. If several clients' names contain `Betsy`, they are listed instead, and nothing is deleted.
 
 ### Viewing a client: `view`
 
 Shows the name and phone number of the specified client.
 
-Format: `view INDEX`
+Format: `view --id ID` or `view --name NAME`
 
-* Shows the details of the client at the specified `INDEX`.
-* The index refers to the index number shown in the displayed client list.
-* The index **must be a positive integer** 1, 2, 3, ...
+* Shows the details of the client chosen by `--id` or `--name`, as described in [the notes about the command format](#features).
 * The client's details open on their own page, in place of the client list. Running `list`, `find`, `add`, `edit`, `delete` or `clear` successfully returns you to the client list.
 
 Examples:
-* `list` followed by `view 2` shows the details of the 2nd client in the full client list.
-* `find Betsy` followed by `view 1` shows the details of the 1st client in the results of the `find` command.
+* `view --id 2` shows the details of the client with ID 2.
+* `view --name alex` shows the details of the only client whose name contains `alex`, such as `Alex Yeoh`. If several clients' names contain `alex`, they are listed instead, so that you can choose one with `view --id`.
 
 ### Clearing all entries: `clear`
 
@@ -243,9 +250,9 @@ Action     | Format, Examples
 -----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 **Add**    | `add --name "NAME" --phone "PHONE_NUMBER"` <br> e.g., `add --name "James Ho" --phone "+65 9123 4567"`
 **Clear**  | `clear`
-**Delete** | `delete INDEX`<br> e.g., `delete 3`
-**Edit**   | `edit INDEX [n/NAME] [p/PHONE_NUMBER]`<br> e.g., `edit 2 n/James Lee`
+**Delete** | `delete --id ID` or `delete --name NAME`<br> e.g., `delete --id 3`
+**Edit**   | `edit --id ID [--to-name NEW_NAME] [--to-phone NEW_PHONE]` (or `--name NAME` instead of `--id ID`)<br> e.g., `edit --id 2 --to-name "James Lee"`
 **Find**   | `find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find James Jake`
 **List**   | `list`
-**View**   | `view INDEX`<br> e.g., `view 2`
+**View**   | `view --id ID` or `view --name NAME`<br> e.g., `view --id 2`
 **Help**   | `help`
