@@ -9,7 +9,6 @@ import java.util.stream.Stream;
 import seedu.address.logic.commands.AddCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.person.Name;
-import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
 
 /**
@@ -35,9 +34,7 @@ public class AddCommandParser implements Parser<AddCommand> {
         Name name = ParserUtil.parseName(removeOptionalQuotes(argMultimap.getValue(PREFIX_NAME_LONG).get()));
         Phone phone = ParserUtil.parsePhone(removeOptionalQuotes(argMultimap.getValue(PREFIX_PHONE_LONG).get()));
 
-        Person person = new Person(name, phone);
-
-        return new AddCommand(person);
+        return new AddCommand(name, phone);
     }
 
     /**

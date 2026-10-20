@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import seedu.address.commons.exceptions.IllegalValueException;
 import seedu.address.commons.util.JsonUtil;
 import seedu.address.model.AddressBook;
+import seedu.address.model.person.PersonId;
 import seedu.address.testutil.TypicalPersons;
 
 public class JsonSerializableAddressBookTest {
@@ -20,6 +21,9 @@ public class JsonSerializableAddressBookTest {
     private static final Path TYPICAL_PERSONS_FILE = TEST_DATA_FOLDER.resolve("typicalPersonsAddressBook.json");
     private static final Path INVALID_PERSON_FILE = TEST_DATA_FOLDER.resolve("invalidPersonAddressBook.json");
     private static final Path DUPLICATE_PERSON_FILE = TEST_DATA_FOLDER.resolve("duplicatePersonAddressBook.json");
+    private static final Path DUPLICATE_ID_FILE = TEST_DATA_FOLDER.resolve("duplicateIdAddressBook.json");
+    private static final Path LEGACY_PERSONS_FILE =
+            TEST_DATA_FOLDER.resolve("legacyPersonsWithoutIdsAddressBook.json");
 
     @Test
     public void toModelType_typicalPersonsFile_success() throws Exception {
@@ -48,11 +52,69 @@ public class JsonSerializableAddressBookTest {
     @Test
     public void toModelType_sameNameAndDifferentPhone_success() throws Exception {
         List<JsonAdaptedPerson> persons = List.of(
-                new JsonAdaptedPerson("Alice Pauline", "94351253"),
-                new JsonAdaptedPerson("Alice Pauline", "81234567"));
-        JsonSerializableAddressBook data = new JsonSerializableAddressBook(persons);
+                new JsonAdaptedPerson(1, "Alice Pauline", "94351253"),
+                new JsonAdaptedPerson(2, "Alice Pauline", "81234567"));
+        JsonSerializableAddressBook data = new JsonSerializableAddressBook(persons, 3);
 
         assertEquals(2, data.toModelType().getPersonList().size());
     }
 
+    @Test
+    public void toModelType_legacyFileWithoutIds_assignsIdsInFileOrder() throws Exception {
+        JsonSerializableAddressBook dataFromFile = JsonUtil.readJsonFile(LEGACY_PERSONS_FILE,
+                JsonSerializableAddressBook.class).get();
+        assertEquals(TypicalPersons.getTypicalAddressBook(), dataFromFile.toModelType());
+    }
+
+    @Test
+    public void toModelType_duplicateIds_throwsIllegalValueException() throws Exception {
+        JsonSerializableAddressBook dataFromFile = JsonUtil.readJsonFile(DUPLICATE_ID_FILE,
+                JsonSerializableAddressBook.class).get();
+        assertThrows(IllegalValueException.class, JsonSerializableAddressBook.MESSAGE_DUPLICATE_ID,
+                dataFromFile::toModelType);
+    }
+
+    @Test
+    public void toModelType_someIdsMissing_assignsIdsAfterLargestSavedId() throws Exception {
+        List<JsonAdaptedPerson> persons = List.of(
+                new JsonAdaptedPerson(4, "Alice Pauline", "94351253"),
+                new JsonAdaptedPerson(null, "Benson Meier", "98765432"));
+        AddressBook addressBook = new JsonSerializableAddressBook(persons, null).toModelType();
+
+        assertEquals(new PersonId(5), addressBook.getPersonList().get(1).getId());
+        assertEquals(new PersonId(6), addressBook.getNextPersonId());
+    }
+
+    @Test
+    public void toModelType_savedNextIdLargerThanAllIds_keepsSavedNextId() throws Exception {
+        List<JsonAdaptedPerson> persons = List.of(new JsonAdaptedPerson(1, "Alice Pauline", "94351253"));
+        AddressBook addressBook = new JsonSerializableAddressBook(persons, 10).toModelType();
+
+        assertEquals(new PersonId(10), addressBook.getNextPersonId());
+    }
+
+    @Test
+    public void toModelType_savedNextIdNotLargerThanAllIds_usesIdAfterLargestId() throws Exception {
+        List<JsonAdaptedPerson> persons = List.of(new JsonAdaptedPerson(7, "Alice Pauline", "94351253"));
+        AddressBook addressBook = new JsonSerializableAddressBook(persons, 3).toModelType();
+
+        assertEquals(new PersonId(8), addressBook.getNextPersonId());
+    }
+
+    @Test
+    public void toModelType_invalidNextId_throwsIllegalValueException() {
+        JsonSerializableAddressBook data = new JsonSerializableAddressBook(List.of(), 0);
+        assertThrows(IllegalValueException.class, JsonSerializableAddressBook.MESSAGE_INVALID_NEXT_ID,
+                data::toModelType);
+    }
+
+    @Test
+    public void constructor_fromAddressBook_savesNextId() throws Exception {
+        AddressBook original = TypicalPersons.getTypicalAddressBook();
+        original.removePerson(TypicalPersons.GEORGE);
+        AddressBook roundTripped = new JsonSerializableAddressBook(original).toModelType();
+
+        assertEquals(original, roundTripped);
+        assertEquals(TypicalPersons.GEORGE.getId().next(), roundTripped.getNextPersonId());
+    }
 }

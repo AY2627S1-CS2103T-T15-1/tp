@@ -3,10 +3,12 @@ package seedu.address.model;
 import static java.util.Objects.requireNonNull;
 
 import java.util.List;
+import java.util.Objects;
 
 import javafx.collections.ObservableList;
 import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.model.person.Person;
+import seedu.address.model.person.PersonId;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.UniquePersonList;
 
@@ -16,7 +18,10 @@ import seedu.address.model.person.UniquePersonList;
  */
 public class AddressBook implements ReadOnlyAddressBook {
 
+    private static final PersonId FIRST_PERSON_ID = new PersonId(1);
+
     private final UniquePersonList persons = new UniquePersonList();
+    private PersonId nextPersonId = FIRST_PERSON_ID;
 
     public AddressBook() {}
 
@@ -36,6 +41,21 @@ public class AddressBook implements ReadOnlyAddressBook {
      */
     public void setPersons(List<Person> persons) {
         this.persons.setPersons(persons);
+        nextPersonId = FIRST_PERSON_ID;
+        persons.forEach(this::reserveIdOf);
+    }
+
+    /**
+     * Sets the ID to give the next person added to the address book.
+     * {@code nextPersonId} must be greater than the ID of every person in the address book.
+     */
+    public void setNextPersonId(PersonId nextPersonId) {
+        requireNonNull(nextPersonId);
+        if (persons.asUnmodifiableObservableList().stream()
+                .anyMatch(person -> person.getId().compareTo(nextPersonId) >= 0)) {
+            throw new IllegalArgumentException("The next person ID must be greater than every existing person ID.");
+        }
+        this.nextPersonId = nextPersonId;
     }
 
     /**
@@ -45,6 +65,7 @@ public class AddressBook implements ReadOnlyAddressBook {
         requireNonNull(newData);
 
         setPersons(newData.getPersonList());
+        setNextPersonId(newData.getNextPersonId());
     }
 
     //// person-level operations
@@ -58,6 +79,15 @@ public class AddressBook implements ReadOnlyAddressBook {
     }
 
     /**
+     * Returns true if a person with the given {@code id} exists in the address book.
+     */
+    public boolean hasPersonWithId(PersonId id) {
+        requireNonNull(id);
+        return persons.asUnmodifiableObservableList().stream()
+                .anyMatch(person -> person.getId().equals(id));
+    }
+
+    /**
      * Returns true if a person with {@code phone} exists in the address book.
      */
     public boolean hasPersonWithPhone(Phone phone) {
@@ -68,10 +98,24 @@ public class AddressBook implements ReadOnlyAddressBook {
 
     /**
      * Adds a person to the address book.
-     * The person must not already exist in the address book.
+     * The person must not already exist in the address book, and no other person may have the same ID.
      */
     public void addPerson(Person p) {
+        requireNonNull(p);
+        if (hasPersonWithId(p.getId())) {
+            throw new IllegalArgumentException("Another person already has the ID " + p.getId() + ".");
+        }
         persons.add(p);
+        reserveIdOf(p);
+    }
+
+    /**
+     * Ensures that the ID of {@code person} will not be given to any person added later.
+     */
+    private void reserveIdOf(Person person) {
+        if (person.getId().compareTo(nextPersonId) >= 0) {
+            nextPersonId = person.getId().next();
+        }
     }
 
     /**
@@ -81,6 +125,7 @@ public class AddressBook implements ReadOnlyAddressBook {
      */
     public void setPerson(Person target, Person editedPerson) {
         requireNonNull(editedPerson);
+        assert target.getId().equals(editedPerson.getId()) : "Editing a person should not change their ID";
 
         persons.setPerson(target, editedPerson);
     }
@@ -99,12 +144,18 @@ public class AddressBook implements ReadOnlyAddressBook {
     public String toString() {
         return new ToStringBuilder(this)
                 .add("persons", persons)
+                .add("nextPersonId", nextPersonId)
                 .toString();
     }
 
     @Override
     public ObservableList<Person> getPersonList() {
         return persons.asUnmodifiableObservableList();
+    }
+
+    @Override
+    public PersonId getNextPersonId() {
+        return nextPersonId;
     }
 
     @Override
@@ -118,11 +169,12 @@ public class AddressBook implements ReadOnlyAddressBook {
             return false;
         }
 
-        return persons.equals(otherAddressBook.persons);
+        return persons.equals(otherAddressBook.persons)
+                && nextPersonId.equals(otherAddressBook.nextPersonId);
     }
 
     @Override
     public int hashCode() {
-        return persons.hashCode();
+        return Objects.hash(persons, nextPersonId);
     }
 }

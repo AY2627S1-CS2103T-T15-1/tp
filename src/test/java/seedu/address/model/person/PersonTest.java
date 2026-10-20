@@ -19,6 +19,9 @@ public class PersonTest {
         // same object -> returns true
         assertTrue(ALICE.isSamePerson(ALICE));
 
+        // same name and phone, different ID -> returns true
+        assertTrue(ALICE.isSamePerson(new PersonBuilder(ALICE).withId(99).build()));
+
         // null -> returns false
         assertFalse(ALICE.isSamePerson(null));
 
@@ -63,6 +66,9 @@ public class PersonTest {
         // different person -> returns false
         assertFalse(ALICE.equals(BOB));
 
+        // different ID -> returns false
+        assertFalse(ALICE.equals(new PersonBuilder(ALICE).withId(99).build()));
+
         // different name -> returns false
         Person editedAlice = new PersonBuilder(ALICE).withName(VALID_NAME_BOB).build();
         assertFalse(ALICE.equals(editedAlice));
@@ -75,8 +81,8 @@ public class PersonTest {
 
     @Test
     public void toStringMethod() {
-        String expected = Person.class.getCanonicalName() + "{name=" + ALICE.getName() + ", phone=" + ALICE.getPhone()
-                + "}";
+        String expected = Person.class.getCanonicalName() + "{id=" + ALICE.getId() + ", name=" + ALICE.getName()
+                + ", phone=" + ALICE.getPhone() + "}";
         assertEquals(expected, ALICE.toString());
     }
 }

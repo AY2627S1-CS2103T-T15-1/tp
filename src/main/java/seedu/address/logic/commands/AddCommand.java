@@ -8,7 +8,9 @@ import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
+import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
+import seedu.address.model.person.Phone;
 
 /**
  * Adds a person to the address book.
@@ -25,30 +27,35 @@ public class AddCommand extends Command {
             + PREFIX_NAME_LONG + " \"John Doe\" "
             + PREFIX_PHONE_LONG + " \"+65 9123 4567\"";
 
-    public static final String MESSAGE_SUCCESS = "New client added: %1$s; Phone: %2$s";
+    public static final String MESSAGE_SUCCESS = "New client added: %1$s";
     public static final String MESSAGE_DUPLICATE_PERSON = "This client already exists in the address book.";
 
-    private final Person toAdd;
+    private final Name name;
+    private final Phone phone;
 
     /**
-     * Creates an AddCommand to add the specified {@code Person}
+     * Creates an AddCommand to add a client with the specified {@code name} and {@code phone}.
+     * The client is given the next available ID when the command is executed.
      */
-    public AddCommand(Person person) {
-        requireNonNull(person);
-        toAdd = person;
+    public AddCommand(Name name, Phone phone) {
+        requireNonNull(name);
+        requireNonNull(phone);
+        this.name = name;
+        this.phone = phone;
     }
 
     @Override
     public CommandResult execute(Model model) throws CommandException {
         requireNonNull(model);
 
+        Person toAdd = new Person(model.getNextPersonId(), name, phone);
         if (model.hasPerson(toAdd)) {
             throw new CommandException(MESSAGE_DUPLICATE_PERSON);
         }
 
         boolean isPhoneInUse = model.hasPersonWithPhone(toAdd.getPhone());
         model.addPerson(toAdd);
-        String successMessage = String.format(MESSAGE_SUCCESS, toAdd.getName(), toAdd.getPhone());
+        String successMessage = String.format(MESSAGE_SUCCESS, Messages.format(toAdd));
         if (isPhoneInUse) {
             successMessage += "\n" + Messages.MESSAGE_PHONE_IN_USE_WARNING;
         }
@@ -66,13 +73,15 @@ public class AddCommand extends Command {
             return false;
         }
 
-        return toAdd.equals(otherAddCommand.toAdd);
+        return name.equals(otherAddCommand.name)
+                && phone.equals(otherAddCommand.phone);
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .add("toAdd", toAdd)
+                .add("name", name)
+                .add("phone", phone)
                 .toString();
     }
 }

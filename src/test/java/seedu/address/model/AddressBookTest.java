@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import seedu.address.model.person.Person;
+import seedu.address.model.person.PersonId;
 import seedu.address.model.person.exceptions.DuplicatePersonException;
 import seedu.address.testutil.PersonBuilder;
 
@@ -89,13 +90,69 @@ public class AddressBookTest {
     }
 
     @Test
+    public void getNextPersonId_emptyAddressBook_returnsFirstId() {
+        assertEquals(new PersonId(1), addressBook.getNextPersonId());
+    }
+
+    @Test
+    public void addPerson_validPerson_reservesItsId() {
+        addressBook.addPerson(new PersonBuilder(ALICE).withId(5).build());
+        assertEquals(new PersonId(6), addressBook.getNextPersonId());
+    }
+
+    @Test
+    public void addPerson_personWithSmallerId_keepsNextId() {
+        addressBook.addPerson(new PersonBuilder(ALICE).withId(5).build());
+        addressBook.addPerson(new PersonBuilder().withId(2).withName("Bob Choo").build());
+        assertEquals(new PersonId(6), addressBook.getNextPersonId());
+    }
+
+    @Test
+    public void addPerson_idAlreadyInUse_throwsIllegalArgumentException() {
+        addressBook.addPerson(ALICE);
+        Person differentPersonWithSameId = new PersonBuilder().withId(ALICE.getId().value).withName("Bob Choo")
+                .build();
+        assertThrows(IllegalArgumentException.class, () -> addressBook.addPerson(differentPersonWithSameId));
+    }
+
+    @Test
+    public void removePerson_lastAddedPerson_doesNotFreeItsId() {
+        addressBook.addPerson(ALICE);
+        addressBook.removePerson(ALICE);
+        assertEquals(ALICE.getId().next(), addressBook.getNextPersonId());
+    }
+
+    @Test
+    public void hasPersonWithId() {
+        addressBook.addPerson(ALICE);
+        assertTrue(addressBook.hasPersonWithId(ALICE.getId()));
+        assertFalse(addressBook.hasPersonWithId(ALICE.getId().next()));
+    }
+
+    @Test
+    public void setNextPersonId_notLargerThanExistingIds_throwsIllegalArgumentException() {
+        addressBook.addPerson(ALICE);
+        assertThrows(IllegalArgumentException.class, () -> addressBook.setNextPersonId(ALICE.getId()));
+    }
+
+    @Test
+    public void resetData_addressBookWithLargerNextId_copiesNextId() {
+        AddressBook source = new AddressBook();
+        source.addPerson(ALICE);
+        source.setNextPersonId(new PersonId(20));
+        addressBook.resetData(source);
+        assertEquals(new PersonId(20), addressBook.getNextPersonId());
+    }
+
+    @Test
     public void getPersonList_modifyList_throwsUnsupportedOperationException() {
         assertThrows(UnsupportedOperationException.class, () -> addressBook.getPersonList().remove(0));
     }
 
     @Test
     public void toStringMethod() {
-        String expected = AddressBook.class.getCanonicalName() + "{persons=" + addressBook.getPersonList() + "}";
+        String expected = AddressBook.class.getCanonicalName() + "{persons=" + addressBook.getPersonList()
+                + ", nextPersonId=" + addressBook.getNextPersonId() + "}";
         assertEquals(expected, addressBook.toString());
     }
 
@@ -112,6 +169,12 @@ public class AddressBookTest {
         @Override
         public ObservableList<Person> getPersonList() {
             return persons;
+        }
+
+        @Override
+        public PersonId getNextPersonId() {
+            return persons.stream().map(Person::getId).max(PersonId::compareTo)
+                    .map(PersonId::next).orElse(new PersonId(1));
         }
     }
 

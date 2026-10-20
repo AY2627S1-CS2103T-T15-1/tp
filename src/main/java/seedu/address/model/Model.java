@@ -5,6 +5,7 @@ import java.util.function.Predicate;
 import javafx.collections.ObservableList;
 import seedu.address.commons.core.GuiSettings;
 import seedu.address.model.person.Person;
+import seedu.address.model.person.PersonId;
 import seedu.address.model.person.Phone;
 
 /**
@@ -46,6 +47,11 @@ public interface Model {
      * Returns true if a person with {@code phone} exists in the address book.
      */
     boolean hasPersonWithPhone(Phone phone);
+
+    /**
+     * Returns the ID to give the next person added to the address book.
+     */
+    PersonId getNextPersonId();
 
     /**
      * Deletes the given person.

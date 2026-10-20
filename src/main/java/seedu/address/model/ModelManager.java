@@ -13,6 +13,7 @@ import javafx.collections.transformation.SortedList;
 import seedu.address.commons.core.GuiSettings;
 import seedu.address.commons.core.LogsCenter;
 import seedu.address.model.person.Person;
+import seedu.address.model.person.PersonId;
 import seedu.address.model.person.Phone;
 
 /**
@@ -84,6 +85,11 @@ public class ModelManager implements Model {
     public boolean hasPersonWithPhone(Phone phone) {
         requireNonNull(phone);
         return addressBook.hasPersonWithPhone(phone);
+    }
+
+    @Override
+    public PersonId getNextPersonId() {
+        return addressBook.getNextPersonId();
     }
 
     @Override
