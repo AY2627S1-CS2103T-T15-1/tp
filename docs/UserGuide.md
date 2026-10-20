@@ -62,6 +62,7 @@ Cindy is a **desktop application that helps freelance gym trainers manage their 
   * `--id ID` chooses the client with that ID. Every client's ID is shown as `#ID` on their card, e.g. `#3`.
   * `--name NAME` chooses the client whose name contains `NAME`, ignoring upper and lower case. For example, `--name john` matches `John`, `John Doe` and `Johnny Tan`.
   * If more than one client's name contains `NAME`, Cindy does not act on any of them. Instead, it lists those clients and asks you to run the command again with `--id`, using one of the IDs shown.
+  * Both `--id` and `--name` search all your clients, not only the clients currently shown. For example, after `find Alice` shows only Alice, `delete --name Bob` still deletes Bob. Check the result message, which names the client acted on.
 
 * Parameters can be in any order.<br>
   For example, if the command specifies `--name "NAME" --phone "PHONE_NUMBER"`, the two parameters can be reversed.
@@ -87,7 +88,7 @@ Adds a client using their name and mandatory phone number.
 
 Format: `add --name "NAME" --phone "PHONE_NUMBER"`
 
-Cindy gives every new client a unique ID number, shown in the message after the client is added (e.g. `New client added: John Doe (ID: 7); Phone: +6591234567`). A client keeps the same ID for as long as they are in Cindy, and an ID is never given to another client, even after the client it belonged to is deleted.
+Cindy gives every new client a unique ID number, shown in the message after the client is added (e.g. `New client added: John Doe (ID: 7); Phone: +6591234567`). A client keeps the same ID for as long as they are in Cindy, and an ID is never given to another client, even after the client it belonged to is deleted. The only exception is `clear`: it deletes all clients and starts the numbering again, so the next client added after `clear` gets ID 1.
 
 Name requirements:
 
@@ -168,7 +169,7 @@ Format: `delete --id ID` or `delete --name NAME`
 
 * Deletes the client chosen by `--id` or `--name`, as described in [the notes about the command format](#features).
 * This cannot be undone, so check the ID before you press Enter.
-* The ID of a deleted client is never given to another client.
+* The ID of a deleted client is not given to another client, unless you later run `clear`, which starts the numbering again from 1.
 
 Examples:
 * `delete --id 2` deletes the client with ID 2.
@@ -192,6 +193,8 @@ Examples:
 Deletes all clients from Cindy.
 
 Format: `clear`
+
+* Client IDs start again from 1 after `clear`, so the next client you add gets ID 1. IDs you noted down before clearing no longer refer to the same clients.
 
 ### Exiting the program: `exit`
 

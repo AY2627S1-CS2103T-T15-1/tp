@@ -597,7 +597,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 ### Glossary
 
 * **Client**: A person who receives fitness coaching from a trainer and whose information is managed in Cindy
-* **Client ID**: A positive whole number that Cindy gives a client when they are added. It never changes, and it is never given to another client, even after the client it belonged to is deleted
+* **Client ID**: A positive whole number that Cindy gives a client when they are added. It never changes, and it is never given to another client, even after the client it belonged to is deleted, unless all clients are cleared, which starts the numbering again from 1
 * **Client progress**: Changes in a client's recorded fitness metrics or exercise performance over time
 * **Client record**: The information Cindy stores about a client, including contact details, training sessions, and progress entries
 * **Client roster**: The collection of client records managed by a trainer in Cindy
