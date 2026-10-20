@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.AddCommand;
 import seedu.address.model.person.Name;
-import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
 
 public class AddCommandParserTest {
@@ -30,37 +29,37 @@ public class AddCommandParserTest {
 
     @Test
     public void parse_requiredFieldsPresent_success() {
-        Person expectedPerson = new Person(BOB.getName(), BOB.getPhone());
+        AddCommand expectedCommand = new AddCommand(BOB.getName(), BOB.getPhone());
 
         // whitespace only preamble
         assertParseSuccess(parser, PREAMBLE_WHITESPACE + LONG_NAME_DESC_BOB + LONG_PHONE_DESC_BOB,
-                new AddCommand(expectedPerson));
+                expectedCommand);
 
         // order of fields does not matter
-        assertParseSuccess(parser, LONG_PHONE_DESC_BOB + LONG_NAME_DESC_BOB, new AddCommand(expectedPerson));
+        assertParseSuccess(parser, LONG_PHONE_DESC_BOB + LONG_NAME_DESC_BOB, expectedCommand);
     }
 
     @Test
     public void parse_valuesWithExtraWhitespace_success() {
-        Person localClient = new Person(new Name("John Doe"), new Phone("61234567"));
-        assertParseSuccess(parser, " --name \"John Doe\" --phone \"6123 4567\"", new AddCommand(localClient));
+        AddCommand addLocalClient = new AddCommand(new Name("John Doe"), new Phone("61234567"));
+        assertParseSuccess(parser, " --name \"John Doe\" --phone \"6123 4567\"", addLocalClient);
 
-        Person internationalClient = new Person(new Name("John Doe"), new Phone("+6591234567"));
+        AddCommand addInternationalClient = new AddCommand(new Name("John Doe"), new Phone("+6591234567"));
         assertParseSuccess(parser, " --name \"John Doe\" --phone \"+65 9123 4567\"",
-                new AddCommand(internationalClient));
+                addInternationalClient);
 
-        Person normalizedClient = new Person(new Name("Bob Choo"), new Phone("+651234567"));
+        AddCommand addNormalizedClient = new AddCommand(new Name("Bob Choo"), new Phone("+651234567"));
         assertParseSuccess(parser, " --name \"  Bob   Choo  \" --phone \"+65 (123)-4567\"",
-                new AddCommand(normalizedClient));
+                addNormalizedClient);
     }
 
     @Test
     public void parse_valuesWithoutQuotes_success() {
-        Person expectedPerson = new Person(new Name("John Doe"), new Phone("61234567"));
-        assertParseSuccess(parser, " --name John Doe --phone 6123 4567", new AddCommand(expectedPerson));
+        AddCommand expectedCommand = new AddCommand(new Name("John Doe"), new Phone("61234567"));
+        assertParseSuccess(parser, " --name John Doe --phone 6123 4567", expectedCommand);
 
-        Person singleCharacterName = new Person(new Name("A"), new Phone("6123456"));
-        assertParseSuccess(parser, " --name A --phone 6123456", new AddCommand(singleCharacterName));
+        AddCommand addSingleCharacterName = new AddCommand(new Name("A"), new Phone("6123456"));
+        assertParseSuccess(parser, " --name A --phone 6123456", addSingleCharacterName);
     }
 
     @Test

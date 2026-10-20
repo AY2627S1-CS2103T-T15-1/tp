@@ -82,7 +82,7 @@ public class MainWindowTest {
                 command.setText("view 1");
                 command.fireEvent(new ActionEvent());
                 assertEquals("", command.getText());
-                assertEquals("Viewing client: Alice Pauline; Phone: 94351253", feedback.getText());
+                assertEquals("Viewing client: Alice Pauline (ID: 1); Phone: 94351253", feedback.getText());
                 assertTrue(details.isVisible());
                 assertFalse(list.isVisible());
                 assertEquals("Alice Pauline", ((Label) details.lookup("#name")).getText());

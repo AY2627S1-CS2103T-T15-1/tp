@@ -22,6 +22,13 @@ public class AddCommandIntegrationTest {
 
     private Model model;
 
+    /**
+     * Returns an {@code AddCommand} that adds a client with the name and phone of {@code person}.
+     */
+    private static AddCommand addCommandFor(Person person) {
+        return new AddCommand(person.getName(), person.getPhone());
+    }
+
     @BeforeEach
     public void setUp() {
         model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
@@ -29,43 +36,57 @@ public class AddCommandIntegrationTest {
 
     @Test
     public void execute_newPerson_success() {
-        Person validPerson = new PersonBuilder().build();
+        Person validPerson = new PersonBuilder().withId(model.getNextPersonId().value).build();
 
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         expectedModel.addPerson(validPerson);
 
-        assertCommandSuccess(new AddCommand(validPerson), model,
-                String.format(AddCommand.MESSAGE_SUCCESS, validPerson.getName(), validPerson.getPhone()),
-                expectedModel);
+        assertCommandSuccess(addCommandFor(validPerson), model,
+                String.format(AddCommand.MESSAGE_SUCCESS, Messages.format(validPerson)), expectedModel);
+    }
+
+    @Test
+    public void execute_afterLastPersonDeleted_doesNotReuseId() {
+        Person lastPerson = model.getAddressBook().getPersonList().stream()
+                .max((first, second) -> first.getId().compareTo(second.getId())).get();
+        model.deletePerson(lastPerson);
+        Person validPerson = new PersonBuilder().withId(lastPerson.getId().value + 1).build();
+
+        Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
+        expectedModel.addPerson(validPerson);
+
+        assertCommandSuccess(addCommandFor(validPerson), model,
+                String.format(AddCommand.MESSAGE_SUCCESS, Messages.format(validPerson)), expectedModel);
     }
 
     @Test
     public void execute_duplicatePerson_throwsCommandException() {
         Person personInList = model.getAddressBook().getPersonList().get(0);
-        assertCommandFailure(new AddCommand(personInList), model,
+        assertCommandFailure(addCommandFor(personInList), model,
                 AddCommand.MESSAGE_DUPLICATE_PERSON);
     }
 
     @Test
     public void execute_sameNameAndDifferentPhone_success() {
-        Person sameNameDifferentPhone = new PersonBuilder(ALICE).withPhone("81234567").build();
+        Person sameNameDifferentPhone = new PersonBuilder(ALICE).withId(model.getNextPersonId().value)
+                .withPhone("81234567").build();
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         expectedModel.addPerson(sameNameDifferentPhone);
 
-        assertCommandSuccess(new AddCommand(sameNameDifferentPhone), model,
-                String.format(AddCommand.MESSAGE_SUCCESS, sameNameDifferentPhone.getName(),
-                        sameNameDifferentPhone.getPhone()), expectedModel);
+        assertCommandSuccess(addCommandFor(sameNameDifferentPhone), model,
+                String.format(AddCommand.MESSAGE_SUCCESS, Messages.format(sameNameDifferentPhone)), expectedModel);
     }
 
     @Test
     public void execute_phoneAlreadyInUse_successWithWarning() {
-        Person personWithReusedPhone = new PersonBuilder().withName("Alicia").withPhone(ALICE.getPhone().value).build();
+        Person personWithReusedPhone = new PersonBuilder().withId(model.getNextPersonId().value)
+                .withName("Alicia").withPhone(ALICE.getPhone().value).build();
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         expectedModel.addPerson(personWithReusedPhone);
-        String expectedMessage = String.format(AddCommand.MESSAGE_SUCCESS, personWithReusedPhone.getName(),
-                personWithReusedPhone.getPhone()) + "\n" + Messages.MESSAGE_PHONE_IN_USE_WARNING;
+        String expectedMessage = String.format(AddCommand.MESSAGE_SUCCESS, Messages.format(personWithReusedPhone))
+                + "\n" + Messages.MESSAGE_PHONE_IN_USE_WARNING;
 
-        assertCommandSuccess(new AddCommand(personWithReusedPhone), model, expectedMessage, expectedModel);
+        assertCommandSuccess(addCommandFor(personWithReusedPhone), model, expectedMessage, expectedModel);
     }
 
 }

@@ -91,7 +91,7 @@ public class EditCommand extends Command {
         Name updatedName = editPersonDescriptor.getName().orElse(personToEdit.getName());
         Phone updatedPhone = editPersonDescriptor.getPhone().orElse(personToEdit.getPhone());
 
-        return new Person(updatedName, updatedPhone);
+        return new Person(personToEdit.getId(), updatedName, updatedPhone);
     }
 
     @Override

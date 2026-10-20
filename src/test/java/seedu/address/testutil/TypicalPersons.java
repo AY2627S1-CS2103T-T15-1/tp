@@ -17,29 +17,31 @@ import seedu.address.model.person.Person;
  */
 public class TypicalPersons {
 
-    public static final Person ALICE = new PersonBuilder().withName("Alice Pauline").withPhone("94351253").build();
-    public static final Person BENSON = new PersonBuilder().withName("Benson Meier").withPhone("98765432").build();
-    public static final Person CARL = new PersonBuilder().withName("Carl Kurz").withPhone("95352563")
+    public static final Person ALICE = new PersonBuilder().withId(1)
+            .withName("Alice Pauline").withPhone("94351253").build();
+    public static final Person BENSON = new PersonBuilder().withId(2)
+            .withName("Benson Meier").withPhone("98765432").build();
+    public static final Person CARL = new PersonBuilder().withId(3).withName("Carl Kurz").withPhone("95352563")
             .build();
-    public static final Person DANIEL = new PersonBuilder().withName("Daniel Meier").withPhone("87652533")
+    public static final Person DANIEL = new PersonBuilder().withId(4).withName("Daniel Meier").withPhone("87652533")
             .build();
-    public static final Person ELLE = new PersonBuilder().withName("Elle Meyer").withPhone("94822240")
+    public static final Person ELLE = new PersonBuilder().withId(5).withName("Elle Meyer").withPhone("94822240")
             .build();
-    public static final Person FIONA = new PersonBuilder().withName("Fiona Kunz").withPhone("94824270")
+    public static final Person FIONA = new PersonBuilder().withId(6).withName("Fiona Kunz").withPhone("94824270")
             .build();
-    public static final Person GEORGE = new PersonBuilder().withName("George Best").withPhone("94824420")
+    public static final Person GEORGE = new PersonBuilder().withId(7).withName("George Best").withPhone("94824420")
             .build();
 
     // Manually added
-    public static final Person HOON = new PersonBuilder().withName("Hoon Meier").withPhone("84824240")
+    public static final Person HOON = new PersonBuilder().withId(8).withName("Hoon Meier").withPhone("84824240")
             .build();
-    public static final Person IDA = new PersonBuilder().withName("Ida Mueller").withPhone("84821310")
+    public static final Person IDA = new PersonBuilder().withId(9).withName("Ida Mueller").withPhone("84821310")
             .build();
 
     // Manually added - Person's details found in {@code CommandTestUtil}
-    public static final Person AMY = new PersonBuilder().withName(VALID_NAME_AMY).withPhone(VALID_PHONE_AMY)
+    public static final Person AMY = new PersonBuilder().withId(10).withName(VALID_NAME_AMY).withPhone(VALID_PHONE_AMY)
             .build();
-    public static final Person BOB = new PersonBuilder().withName(VALID_NAME_BOB).withPhone(VALID_PHONE_BOB)
+    public static final Person BOB = new PersonBuilder().withId(11).withName(VALID_NAME_BOB).withPhone(VALID_PHONE_BOB)
             .build();
 
     public static final String KEYWORD_MATCHING_MEIER = "Meier"; // A keyword that matches MEIER

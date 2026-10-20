@@ -11,17 +11,24 @@ import seedu.address.commons.util.ToStringBuilder;
 public class Person {
 
     // Identity fields
+    private final PersonId id;
     private final Name name;
     private final Phone phone;
 
     /**
      * Every field must be present and not null.
      */
-    public Person(Name name, Phone phone) {
+    public Person(PersonId id, Name name, Phone phone) {
+        Objects.requireNonNull(id);
         Objects.requireNonNull(name);
         Objects.requireNonNull(phone);
+        this.id = id;
         this.name = name;
         this.phone = phone;
+    }
+
+    public PersonId getId() {
+        return id;
     }
 
     public Name getName() {
@@ -62,19 +69,21 @@ public class Person {
             return false;
         }
 
-        return name.equals(otherPerson.name)
+        return id.equals(otherPerson.id)
+                && name.equals(otherPerson.name)
                 && phone.equals(otherPerson.phone);
     }
 
     @Override
     public int hashCode() {
         // use this method for custom fields hashing instead of implementing your own
-        return Objects.hash(name, phone);
+        return Objects.hash(id, name, phone);
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
+                .add("id", id)
                 .add("name", name)
                 .add("phone", phone)
                 .toString();
