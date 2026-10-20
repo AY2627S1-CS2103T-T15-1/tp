@@ -90,6 +90,30 @@ public class AddressBookTest {
     }
 
     @Test
+    public void equals() {
+        AddressBook withAlice = new AddressBook();
+        withAlice.addPerson(ALICE);
+        AddressBook withAliceCopy = new AddressBook(withAlice);
+
+        // same values -> returns true
+        assertTrue(withAlice.equals(withAliceCopy));
+        assertEquals(withAlice.hashCode(), withAliceCopy.hashCode());
+
+        // same object -> returns true
+        assertTrue(withAlice.equals(withAlice));
+
+        // null -> returns false
+        assertFalse(withAlice.equals(null));
+
+        // different types -> returns false
+        assertFalse(withAlice.equals(5));
+
+        // same persons, different next ID -> returns false
+        withAliceCopy.setNextPersonId(new PersonId(50));
+        assertFalse(withAlice.equals(withAliceCopy));
+    }
+
+    @Test
     public void getNextPersonId_emptyAddressBook_returnsFirstId() {
         assertEquals(new PersonId(1), addressBook.getNextPersonId());
     }
