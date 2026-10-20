@@ -1,6 +1,9 @@
 package seedu.address.logic.parser;
 
 import static java.util.Objects.requireNonNull;
+import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_ID;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME_LONG;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -8,10 +11,12 @@ import java.util.Set;
 
 import seedu.address.commons.core.index.Index;
 import seedu.address.commons.util.StringUtil;
+import seedu.address.logic.commands.PersonSelector;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.person.Address;
 import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
+import seedu.address.model.person.PersonId;
 import seedu.address.model.person.Phone;
 import seedu.address.model.tag.Tag;
 
@@ -21,6 +26,10 @@ import seedu.address.model.tag.Tag;
 public class ParserUtil {
 
     public static final String MESSAGE_INVALID_INDEX = "Index must be a positive integer.";
+    public static final String MESSAGE_CONFLICTING_SELECTORS =
+            "Choose the client using either " + PREFIX_ID + " or " + PREFIX_NAME_LONG + ", not both.";
+    public static final String MESSAGE_BLANK_NAME_KEYWORD =
+            "Enter part of the client's name after " + PREFIX_NAME_LONG + ".";
 
     /**
      * Parses {@code oneBasedIndex} into an {@code Index} and returns it. Leading and trailing whitespaces will be
@@ -33,6 +42,65 @@ public class ParserUtil {
             throw new ParseException(MESSAGE_INVALID_INDEX);
         }
         return Index.fromOneBased(Integer.parseInt(trimmedIndex));
+    }
+
+    /**
+     * Parses {@code id} into a {@code PersonId} and returns it.
+     * Leading and trailing whitespaces and optional surrounding quotes will be removed.
+     *
+     * @throws ParseException if the given {@code id} is not a positive whole number.
+     */
+    public static PersonId parseId(String id) throws ParseException {
+        requireNonNull(id);
+        String trimmedId = removeOptionalQuotes(id.trim()).trim();
+        if (!StringUtil.isNonZeroUnsignedInteger(trimmedId)) {
+            throw new ParseException(PersonId.MESSAGE_CONSTRAINTS);
+        }
+        return new PersonId(Integer.parseInt(trimmedId));
+    }
+
+    /**
+     * Parses the {@code --id} or {@code --name} argument in {@code argMultimap} into a {@code PersonSelector}.
+     * Exactly one of the two must be given, and nothing may come before them.
+     *
+     * @param messageUsage The usage message of the command, shown if neither argument is given.
+     * @throws ParseException if neither or both arguments are given, either is given more than once,
+     *     or the given value is invalid.
+     */
+    public static PersonSelector parsePersonSelector(ArgumentMultimap argMultimap, String messageUsage)
+            throws ParseException {
+        requireNonNull(argMultimap);
+        requireNonNull(messageUsage);
+        boolean hasId = argMultimap.getValue(PREFIX_ID).isPresent();
+        boolean hasName = argMultimap.getValue(PREFIX_NAME_LONG).isPresent();
+
+        if (!argMultimap.getPreamble().isEmpty() || (!hasId && !hasName)) {
+            throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, messageUsage));
+        }
+        if (hasId && hasName) {
+            throw new ParseException(MESSAGE_CONFLICTING_SELECTORS);
+        }
+        argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_ID, PREFIX_NAME_LONG);
+
+        if (hasId) {
+            return PersonSelector.byId(parseId(argMultimap.getValue(PREFIX_ID).get()));
+        }
+        String nameKeyword = removeOptionalQuotes(argMultimap.getValue(PREFIX_NAME_LONG).get().trim());
+        if (nameKeyword.isBlank()) {
+            throw new ParseException(MESSAGE_BLANK_NAME_KEYWORD);
+        }
+        return PersonSelector.byName(nameKeyword);
+    }
+
+    /**
+     * Returns {@code value} without the double quotes around it, if it starts and ends with one.
+     */
+    public static String removeOptionalQuotes(String value) {
+        requireNonNull(value);
+        if (value.length() >= 2 && value.startsWith("\"") && value.endsWith("\"")) {
+            return value.substring(1, value.length() - 1);
+        }
+        return value;
     }
 
     /**

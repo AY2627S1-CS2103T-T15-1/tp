@@ -33,12 +33,12 @@ public class PersonCard extends UiPart<Region> {
     private Label phone;
 
     /**
-     * Creates a {@code PersonCard} with the given {@code Person} and index to display.
+     * Creates a {@code PersonCard} that displays the given {@code Person}, including their ID.
      */
-    public PersonCard(Person person, int displayedIndex) {
+    public PersonCard(Person person) {
         super(FXML);
         this.person = person;
-        id.setText(displayedIndex + ". ");
+        id.setText("#" + person.getId());
         name.setText(person.getName().fullName);
         phone.setText(person.getPhone().value);
     }

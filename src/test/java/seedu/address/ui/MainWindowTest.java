@@ -79,7 +79,7 @@ public class MainWindowTest {
 
                 TextField command = (TextField) stage.getScene().lookup("#commandTextField");
                 TextArea feedback = (TextArea) stage.getScene().lookup("#resultDisplay");
-                command.setText("view 1");
+                command.setText("view --id 1");
                 command.fireEvent(new ActionEvent());
                 assertEquals("", command.getText());
                 assertEquals("Viewing client: Alice Pauline (ID: 1); Phone: 94351253", feedback.getText());
@@ -87,8 +87,9 @@ public class MainWindowTest {
                 assertFalse(list.isVisible());
                 assertEquals("Alice Pauline", ((Label) details.lookup("#name")).getText());
                 assertEquals("94351253", ((Label) details.lookup("#phone")).getText());
+                assertEquals("#1", ((Label) details.lookup("#id")).getText());
 
-                command.setText("view 99");
+                command.setText("view --id 99");
                 command.fireEvent(new ActionEvent());
                 assertTrue(details.isVisible());
                 assertEquals("Alice Pauline", ((Label) details.lookup("#name")).getText());

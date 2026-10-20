@@ -25,7 +25,7 @@ public class PersonDetailPanel extends UiPart<Region> {
     /**
      * Displays the client's contact details using the same header as the list cards.
      */
-    public void showPerson(Person person, int displayedIndex) {
-        personHeader.getChildren().setAll(new PersonCard(person, displayedIndex).getRoot());
+    public void showPerson(Person person) {
+        personHeader.getChildren().setAll(new PersonCard(person).getRoot());
     }
 }
