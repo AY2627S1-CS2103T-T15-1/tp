@@ -78,7 +78,9 @@ public class NoteCommandTest {
         PersonSelector selector = PersonSelector.byName("Meier");
         NoteCommand noteCommand = new NoteCommand(selector, KNEE_NOTE);
 
-        String expectedMessage = selector.getMultipleMatchesMessage(List.of(BENSON, DANIEL), NoteCommand.COMMAND_WORD);
+        // the example is a complete note command, including the note
+        String expectedMessage = selector.getMultipleMatchesMessage(List.of(BENSON, DANIEL),
+                "note --id 2 --note \"" + KNEE_NOTE.value + "\"");
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
         expectedModel.updateFilteredPersonList(selector::matches);
 

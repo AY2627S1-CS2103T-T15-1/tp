@@ -54,6 +54,11 @@ public class NoteCommand extends PersonTargetedCommand {
     }
 
     @Override
+    protected String getArgumentsAfterSelector() {
+        return " " + PREFIX_NOTE + " " + quote(note.value);
+    }
+
+    @Override
     public boolean equals(Object other) {
         if (other == this) {
             return true;
