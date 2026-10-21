@@ -1,6 +1,7 @@
 package seedu.address.logic.parser;
 
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_GROUP;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME_LONG;
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseFailure;
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseSuccess;
@@ -13,6 +14,7 @@ import seedu.address.logic.Messages;
 import seedu.address.logic.commands.FindCommand;
 import seedu.address.logic.commands.PersonSelector;
 import seedu.address.model.person.PersonId;
+import seedu.address.model.tag.Tag;
 
 public class FindCommandParserTest {
 
@@ -48,5 +50,50 @@ public class FindCommandParserTest {
                 ParserUtil.withUsage(ParserUtil.MESSAGE_INVALID_PHONE_KEYWORD, FindCommand.MESSAGE_USAGE));
         assertParseFailure(parser, " --name Alice --name Bob", ParserUtil.withUsage(
                 Messages.getErrorMessageForDuplicatePrefixes(PREFIX_NAME_LONG), FindCommand.MESSAGE_USAGE));
+    }
+
+    @Test
+    public void parse_groupOnly_returnsFindCommandWithGroup() {
+        FindCommand expectedCommand = new FindCommand(List.of(), new Tag("morning"));
+        assertParseSuccess(parser, " --group morning", expectedCommand);
+
+        // group ignores upper and lower case, and may be in quotes
+        assertParseSuccess(parser, " --group \"Morning\"", expectedCommand);
+
+        // client types can be used as groups
+        assertParseSuccess(parser, " --group GYM", new FindCommand(List.of(), Tag.GYM));
+    }
+
+    @Test
+    public void parse_groupAndOtherFilters_returnsFindCommandWithAll() {
+        assertParseSuccess(parser, " --group rehab --name Alice",
+                new FindCommand(List.of(PersonSelector.byName("Alice")), new Tag("rehab")));
+    }
+
+    @Test
+    public void parse_invalidGroup_throwsParseExceptionWithUsage() {
+        String expectedMessage =
+                ParserUtil.withUsage(FindCommandParser.MESSAGE_INVALID_GROUP, FindCommand.MESSAGE_USAGE);
+        assertParseFailure(parser, " --group", expectedMessage);
+        assertParseFailure(parser, " --group early birds", expectedMessage);
+        assertParseFailure(parser, " --group rehab!", expectedMessage);
+    }
+
+    @Test
+    public void parse_groupWithInvalidOtherFilter_throwsParseExceptionWithUsage() {
+        assertParseFailure(parser, " --group rehab --phone abc",
+                ParserUtil.withUsage(ParserUtil.MESSAGE_INVALID_PHONE_KEYWORD, FindCommand.MESSAGE_USAGE));
+    }
+
+    @Test
+    public void parse_groupWithPreamble_throwsParseException() {
+        assertParseFailure(parser, " rehab --group morning",
+                String.format(MESSAGE_INVALID_COMMAND_FORMAT, FindCommand.MESSAGE_USAGE));
+    }
+
+    @Test
+    public void parse_repeatedGroup_throwsParseException() {
+        assertParseFailure(parser, " --group morning --group rehab", ParserUtil.withUsage(
+                Messages.getErrorMessageForDuplicatePrefixes(PREFIX_GROUP), FindCommand.MESSAGE_USAGE));
     }
 }
