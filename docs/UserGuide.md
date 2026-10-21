@@ -58,7 +58,7 @@ Cindy is a **desktop application that helps freelance gym trainers manage their 
 * Values can be wrapped in double quotes, which is useful for values containing spaces.<br>
   For example, `--name "John Doe"` and `--name John Doe` mean the same.
 
-* Commands that act on one client (`view`, `edit`, `delete` and `tag`) choose the client with either `--id ID` or `--name NAME`, but not both:
+* Commands that act on one client (`view`, `edit`, `delete`, `note`, `inactive`, `active` and `tag`) choose the client with either `--id ID` or `--name NAME`, but not both. `inactive` and `active` also accept `--phone PHONE` instead:
   * `--id ID` chooses the client with that ID. Every client's ID is shown as `#ID` on their card, e.g. `#3`.
   * `--name NAME` chooses the client whose name contains `NAME`, ignoring upper and lower case. For example, `--name john` matches `John`, `John Doe` and `Johnny Tan`.
   * If more than one client's name contains `NAME`, Cindy does not act on any of them. Instead, it lists those clients and asks you to run the command again with `--id`, using one of the IDs shown.
@@ -189,6 +189,38 @@ Examples:
 * `view --id 2` shows the details of the client with ID 2.
 * `view --name alex` shows the details of the only client whose name contains `alex`, such as `Alex Yeoh`. If several clients' names contain `alex`, they are listed instead, so that you can choose one with `view --id`.
 
+### Adding or editing a client's note: `note`
+
+Gives a client a note, such as their training preferences or injuries, replacing any note they already have.
+
+Format: `note --id ID --note "TEXT"` or `note --name NAME --note "TEXT"`
+
+* Changes the note of the client chosen by `--id` or `--name`, as described in [the notes about the command format](#features).
+* The note must be in double quotes, and can have up to 500 characters on a single line.
+* Each client has at most one note. Running `note` again replaces the note, so to change part of a note, type the whole new note.
+* `--note ""` removes the client's note.
+* After the note is changed, the client's details page opens and shows the note.
+* The note cannot contain text that looks like a parameter, such as ` --id`, as Cindy would treat it as the start of another parameter.
+
+Examples:
+* `note --id 3 --note "Knee injury, avoid lunges"` gives the client with ID 3 that note.
+* `note --name bernice --note ""` removes the note of the only client whose name contains `bernice`.
+
+### Marking a client as inactive or active: `inactive`, `active`
+
+Marks a client as inactive, e.g. a former client or a client who has paused training, or as active again.
+
+Format: `inactive --id ID`, `inactive --name NAME` or `inactive --phone PHONE`, and the same for `active`
+
+* Changes the client chosen by `--id`, `--name` or `--phone`, as described in [the notes about the command format](#features).
+* `--phone` chooses the client whose phone number contains the digits in `PHONE`. Spaces, parentheses and hyphens in `PHONE` are ignored. If several clients' phone numbers contain them, Cindy lists those clients and asks you to choose one with `--id`, as it does for `--name`.
+* Inactive clients stay in Cindy, with all their details. Their card is dimmed and labelled `Inactive`.
+* Marking a client who is already inactive as inactive (or an active client as active) changes nothing.
+
+Examples:
+* `inactive --id 4` marks the client with ID 4 as inactive.
+* `active --phone 9123 4567` marks the client whose phone number contains `91234567` as active again.
+
 ### Labelling a client as a gym or personal client: `tag`
 
 Labels a client as a client you train at a gym, or a client you train personally.
@@ -274,5 +306,7 @@ Action     | Format, Examples
 **Find**   | `find [--name NAME] [--phone PHONE] [--id ID]` (at least one)<br> e.g., `find --name james`
 **List**   | `list`
 **View**   | `view --id ID` or `view --name NAME`<br> e.g., `view --id 2`
+**Note**   | `note --id ID --note "TEXT"` (or `--name NAME` instead of `--id ID`)<br> e.g., `note --id 3 --note "Knee injury"`
+**Inactive** / **Active** | `inactive --id ID` or `active --id ID` (or `--name NAME` or `--phone PHONE` instead of `--id ID`)<br> e.g., `inactive --id 4`
 **Tag**    | `tag --id ID --type gym` or `tag --id ID --type personal` (or `--name NAME` instead of `--id ID`)<br> e.g., `tag --id 2 --type gym`
 **Help**   | `help`

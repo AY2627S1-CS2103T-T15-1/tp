@@ -19,10 +19,13 @@ import seedu.address.logic.commands.ExitCommand;
 import seedu.address.logic.commands.FindCommand;
 import seedu.address.logic.commands.HelpCommand;
 import seedu.address.logic.commands.ListCommand;
+import seedu.address.logic.commands.NoteCommand;
 import seedu.address.logic.commands.PersonSelector;
+import seedu.address.logic.commands.SetActiveCommand;
 import seedu.address.logic.commands.TagCommand;
 import seedu.address.logic.commands.ViewCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
+import seedu.address.model.person.Note;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonId;
 import seedu.address.model.tag.Tag;
@@ -66,6 +69,21 @@ public class AddressBookParserTest {
         EditCommand command = (EditCommand) parser.parseCommand(EditCommand.COMMAND_WORD + " --id 1 "
                 + PersonUtil.getEditPersonDescriptorDetails(descriptor));
         assertEquals(new EditCommand(PersonSelector.byId(new PersonId(1)), descriptor), command);
+    }
+
+    @Test
+    public void parseCommand_note() throws Exception {
+        NoteCommand command = (NoteCommand) parser.parseCommand(NoteCommand.COMMAND_WORD
+                + " --id 1 --note \"Knee injury\"");
+        assertEquals(new NoteCommand(PersonSelector.byId(new PersonId(1)), new Note("Knee injury")), command);
+    }
+
+    @Test
+    public void parseCommand_activeAndInactive() throws Exception {
+        assertEquals(new SetActiveCommand(PersonSelector.byId(new PersonId(1)), true),
+                parser.parseCommand(SetActiveCommand.COMMAND_WORD_ACTIVE + " --id 1"));
+        assertEquals(new SetActiveCommand(PersonSelector.byPhone("9123"), false),
+                parser.parseCommand(SetActiveCommand.COMMAND_WORD_INACTIVE + " --phone 9123"));
     }
 
     @Test
