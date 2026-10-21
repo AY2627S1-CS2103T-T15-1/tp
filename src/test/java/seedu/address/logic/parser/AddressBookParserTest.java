@@ -23,12 +23,16 @@ import seedu.address.logic.commands.ListCommand;
 import seedu.address.logic.commands.PersonSelector;
 import seedu.address.logic.commands.ViewCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
+import seedu.address.model.Model;
+import seedu.address.model.ModelManager;
+import seedu.address.model.UserPrefs;
 import seedu.address.model.person.NameContainsKeywordsPredicate;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonId;
 import seedu.address.testutil.EditPersonDescriptorBuilder;
 import seedu.address.testutil.PersonBuilder;
 import seedu.address.testutil.PersonUtil;
+import seedu.address.testutil.TypicalPersons;
 
 public class AddressBookParserTest {
 
@@ -45,6 +49,17 @@ public class AddressBookParserTest {
     public void parseCommand_clear() throws Exception {
         assertTrue(parser.parseCommand(ClearCommand.COMMAND_WORD) instanceof ClearCommand);
         assertTrue(parser.parseCommand(ClearCommand.COMMAND_WORD + " 3") instanceof ClearCommand);
+    }
+
+    @Test
+    public void parseCommand_clear_preservesClientsAndNextId() throws Exception {
+        Model model = new ModelManager(TypicalPersons.getTypicalAddressBook(), new UserPrefs());
+        Model expectedModel = new ModelManager(TypicalPersons.getTypicalAddressBook(), new UserPrefs());
+
+        parser.parseCommand(ClearCommand.COMMAND_WORD).execute(model);
+
+        assertEquals(expectedModel, model);
+        assertEquals(expectedModel.getNextPersonId(), model.getNextPersonId());
     }
 
     @Test
