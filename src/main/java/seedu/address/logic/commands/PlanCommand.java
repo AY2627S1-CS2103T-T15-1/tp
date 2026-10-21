@@ -21,8 +21,8 @@ public class PlanCommand extends PersonTargetedCommand {
 
     public static final String MESSAGE_USAGE = COMMAND_WORD
             + ": Sets or replaces a client's workout plan, chosen by ID or by part of their name.\n"
-            + "Parameters: " + PREFIX_ID + " ID or " + PREFIX_NAME_LONG + " NAME, then " + PREFIX_NOTE + " TEXT\n"
-            + "Quotes around TEXT are optional. Use " + PREFIX_NOTE + " \"\" to clear the plan.\n"
+            + "Parameters: " + PREFIX_ID + " ID or " + PREFIX_NAME_LONG + " NAME, then " + PREFIX_NOTE + " \"TEXT\"\n"
+            + "TEXT must be in double quotes. Use " + PREFIX_NOTE + " \"\" to clear the plan.\n"
             + "Example: " + COMMAND_WORD + " " + PREFIX_ID + " 2 " + PREFIX_NOTE + " \"Squats: 3 sets of 12\"";
 
     public static final String MESSAGE_PLAN_SUCCESS = "Updated workout plan for client: %1$s";

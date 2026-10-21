@@ -28,17 +28,25 @@ public class PlanCommandParserTest {
     }
 
     @Test
-    public void parse_quotedAndUnquotedNote_success() {
+    public void parse_quotedNote_success() {
         PlanCommand expected = new PlanCommand(SELECT_ID, new LongFormText(PLAN));
-        assertParseSuccess(parser, " --id 2 --note " + PLAN, expected);
         assertParseSuccess(parser, " --id 2 --note \"" + PLAN + "\"", expected);
-        assertParseSuccess(parser, " --id \"2\" --note " + PLAN, expected);
+        assertParseSuccess(parser, " --id \"2\" --note \"" + PLAN + "\"", expected);
+    }
+
+    @Test
+    public void parse_unquotedOrIncompleteQuotes_failure() {
+        for (String note : new String[] {"Squats", "\"Squats", "Squats\"", "", "\""}) {
+            assertParseFailure(parser, " --id 2 --note " + note,
+                    ParserUtil.withUsage("Put text in double quotes, e.g. \"TEXT\". Use \"\" to clear it.",
+                            PlanCommand.MESSAGE_USAGE));
+        }
     }
 
     @Test
     public void parse_nameWithOptionalQuotes_success() {
         PlanCommand expected = new PlanCommand(PersonSelector.byName("Alice Pauline"), new LongFormText(PLAN));
-        assertParseSuccess(parser, " --name Alice Pauline --note " + PLAN, expected);
+        assertParseSuccess(parser, " --name Alice Pauline --note \"" + PLAN + "\"", expected);
         assertParseSuccess(parser, " --name \"Alice Pauline\" --note \"" + PLAN + "\"", expected);
     }
 
@@ -49,30 +57,30 @@ public class PlanCommandParserTest {
     }
 
     @Test
-    public void parse_newlineEscapes_convertsWithOrWithoutQuotes() {
+    public void parse_newlineEscapes_convertsInsideQuotes() {
         PlanCommand expected = new PlanCommand(SELECT_ID, new LongFormText("Squats\nPush-ups\n\nRest"));
         assertParseSuccess(parser, " --id 2 --note \"Squats\\nPush-ups\\n\\nRest\"", expected);
-        assertParseSuccess(parser, " --id 2 --note Squats\\nPush-ups\\n\\nRest", expected);
     }
 
     @Test
     public void parse_otherBackslashes_preservesText() {
         String note = "Rest\\t60s; tempo \\ 3-1-2";
-        assertParseSuccess(parser, " --id 2 --note " + note, new PlanCommand(SELECT_ID, new LongFormText(note)));
+        assertParseSuccess(parser, " --id 2 --note \"" + note + "\"",
+                new PlanCommand(SELECT_ID, new LongFormText(note)));
     }
 
     @Test
     public void parse_emptyNote_clearsPlan() {
         PlanCommand expected = new PlanCommand(SELECT_ID, new LongFormText(""));
         assertParseSuccess(parser, " --id 2 --note \"\"", expected);
-        assertParseSuccess(parser, " --id 2 --note", expected);
-        assertParseSuccess(parser, " --note --id 2", expected);
+        assertParseSuccess(parser, " --note \"\" --id 2", expected);
     }
 
     @Test
     public void parse_noteText_preservesInternalSpacesPunctuationAndQuotes() {
         String note = "Squats: 3 x 12;  rest 60s. Coach says \"steady\".";
-        assertParseSuccess(parser, " --id 2 --note " + note, new PlanCommand(SELECT_ID, new LongFormText(note)));
+        assertParseSuccess(parser, " --id 2 --note \"" + note + "\"",
+                new PlanCommand(SELECT_ID, new LongFormText(note)));
     }
 
     @Test

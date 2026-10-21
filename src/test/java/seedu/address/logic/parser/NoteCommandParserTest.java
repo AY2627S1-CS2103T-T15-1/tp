@@ -50,7 +50,7 @@ public class NoteCommandParserTest {
     @Test
     public void parse_noteWithoutQuotes_failure() {
         String expectedMessage =
-                ParserUtil.withUsage(NoteCommandParser.MESSAGE_NOTE_NOT_QUOTED, NoteCommand.MESSAGE_USAGE);
+                ParserUtil.withUsage(ParserUtil.MESSAGE_TEXT_NOT_QUOTED, NoteCommand.MESSAGE_USAGE);
         assertParseFailure(parser, " --id 2 --note Knee injury", expectedMessage);
         assertParseFailure(parser, " --id 2 --note \"Knee injury", expectedMessage);
         assertParseFailure(parser, " --id 2 --note", expectedMessage);

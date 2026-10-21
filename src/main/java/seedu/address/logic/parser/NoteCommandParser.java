@@ -11,15 +11,11 @@ import java.util.Optional;
 import seedu.address.logic.commands.NoteCommand;
 import seedu.address.logic.commands.PersonSelector;
 import seedu.address.logic.parser.exceptions.ParseException;
-import seedu.address.model.LongFormText;
 
 /**
  * Parses input arguments and creates a new NoteCommand object
  */
 public class NoteCommandParser implements Parser<NoteCommand> {
-
-    public static final String MESSAGE_NOTE_NOT_QUOTED = "Put the note in double quotes, e.g. "
-            + PREFIX_NOTE + " \"Knee injury\". Use " + PREFIX_NOTE + " \"\" to remove the note.";
 
     /**
      * Parses the given {@code String} of arguments in the context of the NoteCommand
@@ -39,26 +35,10 @@ public class NoteCommandParser implements Parser<NoteCommand> {
 
         try {
             argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_NOTE);
-            return new NoteCommand(selector, parseQuotedNote(noteValue.get()));
+            return new NoteCommand(selector, ParserUtil.parseLongFormText(noteValue.get()));
         } catch (ParseException pe) {
             throw new ParseException(ParserUtil.withUsage(pe.getMessage(), NoteCommand.MESSAGE_USAGE), pe);
         }
-    }
-
-    /**
-     * Parses {@code quotedNote}, which must be surrounded by double quotes, into long-form text.
-     *
-     * @throws ParseException if {@code quotedNote} is not surrounded by double quotes.
-     */
-    private static LongFormText parseQuotedNote(String quotedNote) throws ParseException {
-        String trimmedNote = quotedNote.trim();
-        boolean isQuoted = trimmedNote.length() >= 2 && trimmedNote.startsWith("\"") && trimmedNote.endsWith("\"");
-        if (!isQuoted) {
-            throw new ParseException(MESSAGE_NOTE_NOT_QUOTED);
-        }
-
-        String noteText = trimmedNote.substring(1, trimmedNote.length() - 1);
-        return new LongFormText(noteText);
     }
 
 }

@@ -90,7 +90,7 @@ public class LogicManagerTest {
         assertEquals("Squats: 3 sets of 12",
                 savedData.readAddressBook().get().getPersonList().get(0).getWorkoutPlan().value);
 
-        logic.execute("plan --name Amy --note Push-ups: 3 sets of 10");
+        logic.execute("plan --name Amy --note \"Push-ups: 3 sets of 10\"");
         assertEquals("Push-ups: 3 sets of 10",
                 savedData.readAddressBook().get().getPersonList().get(0).getWorkoutPlan().value);
 
