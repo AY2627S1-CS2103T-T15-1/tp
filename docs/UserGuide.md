@@ -157,6 +157,7 @@ Format: `plan --id ID --note TEXT` or `plan --name NAME --note TEXT`
 * Replaces the entire plan immediately, while preserving the client's ID, name, and phone number.
 * Use `--note ""` to clear the plan. A bare `--note` also clears it; omitting `--note` is an error.
 * The plan is saved automatically. Editing a client's contact details with `edit` preserves their plan.
+* After an update, the client's detail view opens with the workout plan in its own card. Empty plans have no card.
 * Avoid ` --id`, ` --name`, and ` --note` inside the note: these are interpreted as command prefixes even inside quotes.
 
 Examples:
@@ -198,12 +199,12 @@ Examples:
 
 ### Viewing a client: `view`
 
-Shows the name and phone number of the specified client.
+Shows the name, phone number, and workout plan (if present) of the specified client.
 
 Format: `view --id ID` or `view --name NAME`
 
 * Shows the details of the client chosen by `--id` or `--name`, as described in [the notes about the command format](#features).
-* The client's details open on their own page, in place of the client list. Running `list`, `find`, `add`, `edit`, `plan`, `delete` or `clear` successfully returns you to the client list.
+* The client's details open on their own page, in place of the client list. Running `list`, `find`, `add`, `edit`, `delete` or `clear` successfully returns you to the client list.
 
 Examples:
 * `view --id 2` shows the details of the client with ID 2.

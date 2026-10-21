@@ -1,8 +1,12 @@
 package seedu.address.ui;
 
+import static java.util.Objects.requireNonNull;
+
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import seedu.address.model.person.Person;
 
 /**
@@ -15,6 +19,12 @@ public class PersonDetailPanel extends UiPart<Region> {
     @FXML
     private StackPane personHeader;
 
+    @FXML
+    private VBox workoutPlanCard;
+
+    @FXML
+    private Label workoutPlanText;
+
     /**
      * Creates an empty {@code PersonDetailPanel}.
      */
@@ -23,9 +33,15 @@ public class PersonDetailPanel extends UiPart<Region> {
     }
 
     /**
-     * Displays the client's contact details using the same header as the list cards.
+     * Displays the client's contact details and their workout plan, if present.
      */
     public void showPerson(Person person) {
+        requireNonNull(person);
         personHeader.getChildren().setAll(new PersonCard(person).getRoot());
+        String plan = person.getWorkoutPlan();
+        boolean hasPlan = !plan.isBlank();
+        workoutPlanText.setText(hasPlan ? plan : "");
+        workoutPlanCard.setVisible(hasPlan);
+        workoutPlanCard.setManaged(hasPlan);
     }
 }

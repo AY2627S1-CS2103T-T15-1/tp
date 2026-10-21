@@ -131,7 +131,7 @@
     -fx-text-fill: #bebebe;
 }
 
-/* Reuse the list's text styles while giving only the detail view its own card. */
+/* Reuse the list's text styles for the detail view's contact and workout plan cards. */
 .client-detail-container {
     -fx-background-color: #151515;
 }
@@ -145,6 +145,17 @@
 .client-detail-card #cardPane {
     -fx-background-color: transparent;
     -fx-border-width: 0;
+}
+
+.client-detail-scroll,
+.client-detail-scroll > .viewport {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-border-width: 0;
+}
+
+.contact-list .workout-plan-text {
+    -fx-font-size: 14px;
 }
 
 .command-feedback .scroll-bar,

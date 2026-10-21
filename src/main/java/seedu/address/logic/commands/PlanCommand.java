@@ -42,7 +42,7 @@ public class PlanCommand extends PersonTargetedCommand {
         Person updated = new Person(target.getId(), target.getName(), target.getPhone(), workoutPlan);
         model.setPerson(target, updated);
         model.updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS);
-        return new CommandResult(String.format(MESSAGE_PLAN_SUCCESS, Messages.format(updated)));
+        return new CommandResult(String.format(MESSAGE_PLAN_SUCCESS, Messages.format(updated)), updated);
     }
 
     @Override

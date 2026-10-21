@@ -127,6 +127,7 @@ public class PlanCommandTest {
         expectedModel.setPerson(target, updated);
         String message = String.format(PlanCommand.MESSAGE_PLAN_SUCCESS, Messages.format(updated));
 
-        assertCommandSuccess(new PlanCommand(selector, plan), model, message, expectedModel);
+        assertCommandSuccess(new PlanCommand(selector, plan), model,
+                new CommandResult(message, updated), expectedModel);
     }
 }
