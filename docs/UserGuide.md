@@ -276,6 +276,25 @@ Format: `clear` or `clear --confirm`
 * Client IDs start again from 1 after `clear --confirm`, even if there are already no clients, so the next client you add gets ID 1. IDs you noted down before clearing no longer refer to the same clients.
 * Only the exact flag `--confirm` is accepted. Unknown arguments, extra text, or repeated flags (e.g. `clear --confirm --confirm`) produce an error and leave your clients unchanged.
 
+### Recalling previous commands: Up / Down
+
+Click the command box and press **Up** to recall your most recently submitted command. Press Up again to browse older commands, or **Down** to browse newer ones. Recalling a command only fills the command box; press **Enter** to execute it.
+
+* Cindy remembers up to **50 commands** from the current session. Once the history is full, each new entry replaces the oldest. Closing Cindy clears this history.
+* Both successful and failed commands are remembered. Empty or whitespace-only submissions are ignored, and consecutive identical commands occupy one entry. Command text, including spaces, is preserved.
+* Up stops at the oldest entry without wrapping around. With no history, Up and Down leave your text unchanged.
+* Text you were typing before pressing Up is saved as a draft. Press Down past the newest entry to restore it.
+* Editing a recalled command ends browsing and makes the edited text your new draft. It does not change the stored command.
+* After submitting a command, browsing starts again from the newest entry. Successful commands clear the box; failed commands stay in the box for correction.
+* These shortcuts apply only in the command box, with no Shift, Ctrl, Alt or Command/Windows key held down.
+
+Example:
+
+1. Run `list`, then run `find Alice`.
+1. Type `find Bob` without pressing Enter.
+1. Press Up to recall `find Alice`, then Up again to recall `list`.
+1. Press Down twice to return to your unfinished `find Bob` command.
+
 ### Exiting the program: `exit`
 
 Exits the program.
@@ -343,3 +362,4 @@ Action     | Format, Examples
 **Inactive** / **Active** | `inactive --id ID` or `active --id ID` (or `--name NAME` or `--phone PHONE` instead of `--id ID`)<br> e.g., `inactive --id 4`
 **Tag**    | `tag --id ID --type gym` or `tag --id ID --type personal` (or `--name NAME` instead of `--id ID`)<br> e.g., `tag --id 2 --type gym`
 **Help**   | `help`
+**Recall commands** | Up / Down while the command box has focus; Enter executes the recalled command
