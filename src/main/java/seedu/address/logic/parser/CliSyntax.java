@@ -16,5 +16,9 @@ public class CliSyntax {
     public static final Prefix PREFIX_TYPE = new Prefix("--type");
     public static final Prefix PREFIX_GROUP = new Prefix("--group");
     public static final Prefix PREFIX_UNTAG = new Prefix("--untag");
+    public static final Prefix PREFIX_DELETE = new Prefix("--delete");
+    public static final Prefix PREFIX_MOVE = new Prefix("--move");
+    public static final Prefix PREFIX_FROM = new Prefix("--from");
+    public static final Prefix PREFIX_TO = new Prefix("--to");
 
 }
