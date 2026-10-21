@@ -27,6 +27,7 @@ public class PlanCommand extends PersonTargetedCommand {
             + "Example: " + COMMAND_WORD + " " + PREFIX_ID + " 2 " + PREFIX_PLAN + " \"Squats: 3 sets of 12\"";
 
     public static final String MESSAGE_PLAN_SUCCESS = "Updated workout plan for client: %1$s";
+    public static final String MESSAGE_PLAN_REMOVED = "Removed workout plan for client: %1$s";
 
     private final LongFormText workoutPlan;
 
@@ -44,7 +45,8 @@ public class PlanCommand extends PersonTargetedCommand {
         Person updated = target.withWorkoutPlan(workoutPlan);
         model.setPerson(target, updated);
         model.updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS);
-        return new CommandResult(String.format(MESSAGE_PLAN_SUCCESS, Messages.format(updated)), updated);
+        String messageFormat = workoutPlan.isBlank() ? MESSAGE_PLAN_REMOVED : MESSAGE_PLAN_SUCCESS;
+        return new CommandResult(String.format(messageFormat, Messages.format(updated)), updated);
     }
 
     @Override

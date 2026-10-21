@@ -71,7 +71,16 @@ public class PlanCommandTest {
     public void execute_emptyPlan_clearsPlan() {
         Person withPlan = new PersonBuilder(ALICE).withWorkoutPlan(WORKOUT_PLAN).build();
         model.setPerson(ALICE, withPlan);
-        assertPlanSuccess(PersonSelector.byId(ALICE.getId()), withPlan, "");
+        assertPlanSuccess(PersonSelector.byId(ALICE.getId()), withPlan, "",
+                "Removed workout plan for client: %1$s");
+    }
+
+    @Test
+    public void execute_whitespaceOnlyPlan_reportsRemoval() {
+        Person withPlan = new PersonBuilder(ALICE).withWorkoutPlan(WORKOUT_PLAN).build();
+        model.setPerson(ALICE, withPlan);
+        assertPlanSuccess(PersonSelector.byId(ALICE.getId()), withPlan, " \t\n",
+                "Removed workout plan for client: %1$s");
     }
 
     @Test
@@ -132,10 +141,14 @@ public class PlanCommandTest {
     }
 
     private void assertPlanSuccess(PersonSelector selector, Person target, String plan) {
+        assertPlanSuccess(selector, target, plan, PlanCommand.MESSAGE_PLAN_SUCCESS);
+    }
+
+    private void assertPlanSuccess(PersonSelector selector, Person target, String plan, String messageFormat) {
         Person updated = new PersonBuilder(target).withWorkoutPlan(plan).build();
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
         expectedModel.setPerson(target, updated);
-        String message = String.format(PlanCommand.MESSAGE_PLAN_SUCCESS, Messages.format(updated));
+        String message = String.format(messageFormat, Messages.format(updated));
 
         assertCommandSuccess(new PlanCommand(selector, new LongFormText(plan)), model,
                 new CommandResult(message, updated), expectedModel);
