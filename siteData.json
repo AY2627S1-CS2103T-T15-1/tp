@@ -51,6 +51,7 @@
         "storage-component": "Storage component",
         "common-classes": "Common classes",
         "implementation": "Implementation",
+        "command-history": "Command history",
         "proposed-undo-redo-feature": "[Proposed] Undo/redo feature",
         "proposed-data-archiving": "[Proposed] Data archiving",
         "documentation-logging-testing-dev-ops": "Documentation, logging, testing, dev-ops",
@@ -63,6 +64,7 @@
         "appendix-instructions-for-manual-testing": "Appendix: Instructions for manual testing",
         "launch-and-shutdown": "Launch and shutdown",
         "deleting-a-client": "Deleting a client",
+        "recalling-commands": "Recalling commands",
         "saving-data": "Saving data"
       },
       "headingKeywords": {}
@@ -122,6 +124,7 @@
         "marking-a-client-as-inactive-or-active-inactive-active": "Marking a client as inactive or active: inactive, active",
         "labelling-a-client-as-a-gym-or-personal-client-tag": "Labelling a client as a gym or personal client: tag",
         "clearing-all-entries-clear": "Clearing all entries: clear",
+        "recalling-previous-commands-up-down": "Recalling previous commands: Up / Down",
         "exiting-the-program-exit": "Exiting the program: exit",
         "saving-the-data": "Saving the data",
         "editing-the-data-file": "Editing the data file",
