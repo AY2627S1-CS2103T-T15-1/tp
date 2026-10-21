@@ -58,7 +58,7 @@ Cindy is a **desktop application that helps freelance gym trainers manage their 
 * Values can be wrapped in double quotes, which is useful for values containing spaces.<br>
   For example, `--name "John Doe"` and `--name John Doe` mean the same.
 
-* Commands that act on one client (`view`, `edit`, `delete`, `note`, `inactive` and `active`) choose the client with either `--id ID` or `--name NAME`, but not both. `inactive` and `active` also accept `--phone PHONE` instead:
+* Commands that act on one client (`view`, `edit`, `delete`, `note`, `inactive`, `active` and `tag`) choose the client with either `--id ID` or `--name NAME`, but not both. `inactive` and `active` also accept `--phone PHONE` instead:
   * `--id ID` chooses the client with that ID. Every client's ID is shown as `#ID` on their card, e.g. `#3`.
   * `--name NAME` chooses the client whose name contains `NAME`, ignoring upper and lower case. For example, `--name john` matches `John`, `John Doe` and `Johnny Tan`.
   * If more than one client's name contains `NAME`, Cindy does not act on any of them. Instead, it lists those clients and asks you to run the command again with `--id`, using one of the IDs shown.
@@ -221,6 +221,21 @@ Examples:
 * `inactive --id 4` marks the client with ID 4 as inactive.
 * `active --phone 9123 4567` marks the client whose phone number contains `91234567` as active again.
 
+### Labelling a client as a gym or personal client: `tag`
+
+Labels a client as a client you train at a gym, or a client you train personally.
+
+Format: `tag --id ID --type TYPE` or `tag --name NAME --type TYPE`, where `TYPE` is `gym` or `personal`
+
+* Labels the client chosen by `--id` or `--name`, as described in [the notes about the command format](#features).
+* `TYPE` ignores upper and lower case, so `--type Gym` is the same as `--type gym`.
+* A client is either a gym client or a personal client, so labelling a gym client as `personal` replaces their `gym` label, and the other way round. Other tags of the client are kept.
+* The label is shown as a tag on the client's card.
+
+Examples:
+* `tag --id 2 --type gym` labels the client with ID 2 as a gym client.
+* `tag --name bernice --type personal` labels the only client whose name contains `bernice` as a personal client.
+
 ### Clearing all entries: `clear`
 
 Deletes all clients from Cindy.
@@ -293,4 +308,5 @@ Action     | Format, Examples
 **View**   | `view --id ID` or `view --name NAME`<br> e.g., `view --id 2`
 **Note**   | `note --id ID --note "TEXT"` (or `--name NAME` instead of `--id ID`)<br> e.g., `note --id 3 --note "Knee injury"`
 **Inactive** / **Active** | `inactive --id ID` or `active --id ID` (or `--name NAME` or `--phone PHONE` instead of `--id ID`)<br> e.g., `inactive --id 4`
+**Tag**    | `tag --id ID --type gym` or `tag --id ID --type personal` (or `--name NAME` instead of `--id ID`)<br> e.g., `tag --id 2 --type gym`
 **Help**   | `help`
