@@ -114,7 +114,7 @@
         "adding-a-client-add": "Adding a client: add",
         "listing-all-clients-list": "Listing all clients: list",
         "editing-a-client-edit": "Editing a client: edit",
-        "locating-clients-by-name-find": "Locating clients by name: find",
+        "finding-clients-find": "Finding clients: find",
         "deleting-a-client-delete": "Deleting a client: delete",
         "viewing-a-client-view": "Viewing a client: view",
         "clearing-all-entries-clear": "Clearing all entries: clear",
