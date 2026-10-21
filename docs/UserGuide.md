@@ -264,6 +264,22 @@ Examples:
 * `tag --id 2 --type gym` labels the client with ID 2 as a gym client.
 * `tag --name bernice --type personal` labels the only client whose name contains `bernice` as a personal client.
 
+### Creating a group: `group`
+
+Creates a group of clients, such as clients you train in the morning or clients in rehab. A group must be created before clients can be added to it.
+
+Format: `group --name GROUP`
+
+* `GROUP` is made of letters and digits only, with no spaces, e.g. `morning` or `batch2`.
+* `GROUP` ignores upper and lower case, so `group --name Morning` creates the group `morning`.
+* Each group can only be created once.
+* `gym` and `personal` are built-in labels, not groups. Use [`tag --type`](#labelling-a-client-as-a-gym-or-personal-client-tag) to label a client as a gym or personal client.
+* A group is kept even when no client is in it.
+
+Examples:
+* `group --name morning` creates the group `morning`.
+* `group --name Rehab` creates the group `rehab`.
+
 ### Clearing all entries: `clear`
 
 Deletes all clients from Cindy.
@@ -338,4 +354,5 @@ Action     | Format, Examples
 **Note**   | `note --id ID --note "TEXT"` (or `--name NAME` instead of `--id ID`)<br> e.g., `note --id 3 --note "Knee injury"`
 **Inactive** / **Active** | `inactive --id ID` or `active --id ID` (or `--name NAME` or `--phone PHONE` instead of `--id ID`)<br> e.g., `inactive --id 4`
 **Tag**    | `tag --id ID --type gym` or `tag --id ID --type personal` (or `--name NAME` instead of `--id ID`)<br> e.g., `tag --id 2 --type gym`
+**Group**  | `group --name GROUP`<br> e.g., `group --name morning`
 **Help**   | `help`
