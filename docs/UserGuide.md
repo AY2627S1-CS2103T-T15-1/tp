@@ -62,7 +62,7 @@ Cindy is a **desktop application that helps freelance gym trainers manage their 
   * `--id ID` chooses the client with that ID. Every client's ID is shown as `#ID` on their card, e.g. `#3`.
   * `--name NAME` chooses the client whose name contains `NAME`, ignoring upper and lower case. For example, `--name john` matches `John`, `John Doe` and `Johnny Tan`.
   * If more than one client's name contains `NAME`, Cindy does not act on any of them. Instead, it lists those clients and asks you to run the command again with `--id`, using one of the IDs shown.
-  * Both `--id` and `--name` search all your clients, not only the clients currently shown. For example, after `find Alice` shows only Alice, `delete --name Bob` still deletes Bob. Check the result message, which names the client acted on.
+  * Both `--id` and `--name` search all your clients, not only the clients currently shown. For example, after `find --name Alice` shows only Alice, `delete --name Bob` still deletes Bob. Check the result message, which names the client acted on.
 
 * Parameters can be in any order.<br>
   For example, if the command specifies `--name "NAME" --phone "PHONE_NUMBER"`, the two parameters can be reversed.
@@ -144,22 +144,23 @@ Examples:
 *  `edit --id 1 --to-phone 91234567` Edits the phone number of the client with ID 1 to be `91234567`.
 *  `edit --name Betsy --to-name "Betsy Crower"` Edits the name of the only client whose name contains `Betsy` to be `Betsy Crower`.
 
-### Locating clients by name: `find`
+### Finding clients: `find`
 
-Finds clients whose names contain any of the given keywords.
+Finds clients by name, phone number or ID, and shows only those clients in the list.
 
-Format: `find KEYWORD [MORE_KEYWORDS]`
+Format: `find [--name NAME] [--phone PHONE] [--id ID]`
 
-* The search is case-insensitive; for example, `hans` matches `Hans`.
-* Keyword order does not matter; for example, `Hans Bo` matches `Bo Hans`.
-* The search considers only names.
-* Only full words match; for example, `Han` does not match `Hans`.
-* Clients matching at least one keyword are returned (an `OR` search); for example, `Hans Bo` returns `Hans Gruber` and `Bo Yang`.
+* At least one of `--name`, `--phone` and `--id` must be given.
+* `--name` finds clients whose names contain `NAME`, ignoring upper and lower case. For example, `--name han` finds `Hans` and `Johan Lee`.
+* `--phone` finds clients whose phone numbers contain the digits in `PHONE`. Spaces, parentheses and hyphens in `PHONE` are ignored, so `--phone 9123 4567` finds `91234567`.
+* `--id` finds the client with that ID.
+* If you give more than one of them, only clients that match all of them are found.
+* The clients found are still sorted by name. Use `list` to show all clients again.
 
 Examples:
-* `find John` returns `john` and `John Doe`
-* `find alex david` returns `Alex Yeoh`, `David Li`<br>
-  ![result for 'find alex david'](images/findAlexDavidResult.png)
+* `find --name alex` finds `Alex Yeoh` and `Alexis Tan`.
+* `find --phone 9123` finds every client whose phone number contains `9123`.
+* `find --name tan --phone 8` finds clients whose names contain `tan` and whose phone numbers contain `8`.
 
 ### Deleting a client: `delete`
 
@@ -255,7 +256,7 @@ Action     | Format, Examples
 **Clear**  | `clear`
 **Delete** | `delete --id ID` or `delete --name NAME`<br> e.g., `delete --id 3`
 **Edit**   | `edit --id ID [--to-name NEW_NAME] [--to-phone NEW_PHONE]` (or `--name NAME` instead of `--id ID`)<br> e.g., `edit --id 2 --to-name "James Lee"`
-**Find**   | `find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find James Jake`
+**Find**   | `find [--name NAME] [--phone PHONE] [--id ID]` (at least one)<br> e.g., `find --name james`
 **List**   | `list`
 **View**   | `view --id ID` or `view --name NAME`<br> e.g., `view --id 2`
 **Help**   | `help`

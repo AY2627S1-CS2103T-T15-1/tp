@@ -37,6 +37,7 @@ public class ViewCommandParserTest {
         assertParseFailure(parser, "", expectedMessage);
 
         // invalid ID
-        assertParseFailure(parser, " --id 0", PersonId.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, " --id 0",
+                ParserUtil.withUsage(PersonId.MESSAGE_CONSTRAINTS, ViewCommand.MESSAGE_USAGE));
     }
 }
