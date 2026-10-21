@@ -1,8 +1,12 @@
 package seedu.address.ui;
 
+import static java.util.Objects.requireNonNull;
+
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Region;
 import seedu.address.logic.commands.CommandResult;
 import seedu.address.logic.commands.exceptions.CommandException;
@@ -17,6 +21,8 @@ public class CommandBox extends UiPart<Region> {
     private static final String FXML = "CommandBox.fxml";
 
     private final CommandExecutor commandExecutor;
+    private final CommandHistory commandHistory = new CommandHistory();
+    private boolean isRecallingCommand;
 
     @FXML
     private TextField commandTextField;
@@ -26,9 +32,38 @@ public class CommandBox extends UiPart<Region> {
      */
     public CommandBox(CommandExecutor commandExecutor) {
         super(FXML);
-        this.commandExecutor = commandExecutor;
-        // calls #setStyleToDefault() whenever there is a change to the text of the command box.
-        commandTextField.textProperty().addListener((unused1, unused2, unused3) -> setStyleToDefault());
+        this.commandExecutor = requireNonNull(commandExecutor);
+        commandTextField.textProperty().addListener((unused1, unused2, unused3) -> {
+            setStyleToDefault();
+            if (!isRecallingCommand) {
+                commandHistory.resetNavigation();
+            }
+        });
+        commandTextField.addEventFilter(KeyEvent.KEY_PRESSED, this::handleHistoryKeyPressed);
+    }
+
+    /**
+     * Recalls commands with unmodified arrow keys without executing them.
+     */
+    private void handleHistoryKeyPressed(KeyEvent event) {
+        if (event.isShiftDown() || event.isControlDown() || event.isAltDown() || event.isMetaDown()) {
+            return;
+        }
+        if (event.getCode() != KeyCode.UP && event.getCode() != KeyCode.DOWN) {
+            return;
+        }
+
+        String currentText = commandTextField.getText();
+        String recalledText = event.getCode() == KeyCode.UP
+                ? commandHistory.previous(currentText) : commandHistory.next(currentText);
+        isRecallingCommand = true;
+        try {
+            commandTextField.setText(recalledText);
+            commandTextField.positionCaret(recalledText.length());
+        } finally {
+            isRecallingCommand = false;
+        }
+        event.consume();
     }
 
     /**
@@ -37,10 +72,11 @@ public class CommandBox extends UiPart<Region> {
     @FXML
     private void handleCommandEntered() {
         String commandText = commandTextField.getText();
-        if (commandText.equals("")) {
+        if (commandText.isBlank()) {
             return;
         }
 
+        commandHistory.record(commandText);
         try {
             commandExecutor.execute(commandText);
             commandTextField.setText("");
