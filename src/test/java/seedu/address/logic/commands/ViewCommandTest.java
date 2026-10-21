@@ -73,8 +73,7 @@ public class ViewCommandTest {
         PersonSelector selector = PersonSelector.byName("meier");
         ViewCommand viewCommand = new ViewCommand(selector);
 
-        String expectedMessage = selector.getMultipleMatchesMessage(List.of(BENSON, DANIEL),
-                ViewCommand.COMMAND_WORD);
+        String expectedMessage = selector.getMultipleMatchesMessage(List.of(BENSON, DANIEL), "view --id 2");
 
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         expectedModel.updateFilteredPersonList(selector::matches);

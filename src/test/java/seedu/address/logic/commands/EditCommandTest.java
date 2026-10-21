@@ -116,7 +116,9 @@ public class EditCommandTest {
         EditCommand editCommand = new EditCommand(selector,
                 new EditPersonDescriptorBuilder().withPhone(VALID_PHONE_BOB).build());
 
-        String expectedMessage = selector.getMultipleMatchesMessage(List.of(BENSON, DANIEL), EditCommand.COMMAND_WORD);
+        // the example is a complete edit command, including the new phone number
+        String expectedMessage = selector.getMultipleMatchesMessage(List.of(BENSON, DANIEL),
+                "edit --id 2 --to-phone \"" + VALID_PHONE_BOB + "\"");
 
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
         expectedModel.updateFilteredPersonList(selector::matches);
