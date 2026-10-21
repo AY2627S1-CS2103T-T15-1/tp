@@ -12,7 +12,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import seedu.address.commons.exceptions.IllegalValueException;
 import seedu.address.model.LongFormText;
 import seedu.address.model.person.Name;
-import seedu.address.model.person.Note;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonId;
 import seedu.address.model.person.Phone;
@@ -145,11 +144,7 @@ class JsonAdaptedPerson {
         final Phone modelPhone = new Phone(phone);
 
         // A missing note, active status or tag list means the client was saved before these details existed
-        String noteText = note == null ? "" : note;
-        if (!Note.isValidNote(noteText)) {
-            throw new IllegalValueException(Note.MESSAGE_CONSTRAINTS);
-        }
-        final Note modelNote = new Note(noteText);
+        final LongFormText modelNote = new LongFormText(note);
 
         final boolean modelIsActive = active == null || active;
 

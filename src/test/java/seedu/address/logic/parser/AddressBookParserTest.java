@@ -27,7 +27,6 @@ import seedu.address.logic.commands.TagCommand;
 import seedu.address.logic.commands.ViewCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.LongFormText;
-import seedu.address.model.person.Note;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonId;
 import seedu.address.model.tag.Tag;
@@ -83,7 +82,7 @@ public class AddressBookParserTest {
     public void parseCommand_note() throws Exception {
         NoteCommand command = (NoteCommand) parser.parseCommand(NoteCommand.COMMAND_WORD
                 + " --id 1 --note \"Knee injury\"");
-        assertEquals(new NoteCommand(PersonSelector.byId(new PersonId(1)), new Note("Knee injury")), command);
+        assertEquals(new NoteCommand(PersonSelector.byId(new PersonId(1)), new LongFormText("Knee injury")), command);
     }
 
     @Test

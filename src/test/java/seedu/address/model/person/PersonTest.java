@@ -134,7 +134,7 @@ public class PersonTest {
     @Test
     public void constructor_withoutDetails_createsActivePersonWithoutNoteOrTags() {
         Person person = new Person(ALICE.getId(), ALICE.getName(), ALICE.getPhone());
-        assertTrue(person.getNote().isEmpty());
+        assertTrue(person.getNote().isBlank());
         assertTrue(person.isActive());
         assertTrue(person.getTags().isEmpty());
     }
@@ -143,7 +143,8 @@ public class PersonTest {
     public void withMethods_changeOnlyTheGivenDetail() {
         Person person = new PersonBuilder(ALICE).withNote("Old note").withTags("gym").withWorkoutPlan("Squats").build();
 
-        assertEquals(new PersonBuilder(person).withNote("New note").build(), person.withNote(new Note("New note")));
+        assertEquals(new PersonBuilder(person).withNote("New note").build(),
+                person.withNote(new LongFormText("New note")));
         assertEquals(new PersonBuilder(person).withActive(false).build(), person.withActive(false));
         assertEquals(new PersonBuilder(person).withTags("personal").build(),
                 person.withTags(Set.of(new Tag("personal"))));

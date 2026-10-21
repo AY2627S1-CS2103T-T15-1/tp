@@ -67,6 +67,19 @@ public class LogicManagerTest {
     }
 
     @Test
+    public void execute_longQuotedNote_savesFullText() throws Exception {
+        model.addPerson(new PersonBuilder(AMY).withId(1).build());
+        String text = "a".repeat(501);
+
+        CommandResult result = logic.execute("note --id 1 --note \"" + text + "\"");
+
+        assertEquals(text, result.getPersonToView().orElseThrow().getNote().value);
+        JsonAddressBookStorage savedData =
+                new JsonAddressBookStorage(temporaryFolder.resolve("addressBook.json"));
+        assertEquals(text, savedData.readAddressBook().orElseThrow().getPersonList().get(0).getNote().value);
+    }
+
+    @Test
     public void execute_planCommands_updatesAndSavesPlan() throws Exception {
         model.addPerson(new PersonBuilder(AMY).withId(1).build());
         JsonAddressBookStorage savedData =

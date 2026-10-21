@@ -21,7 +21,7 @@ public class Person {
     private final Phone phone;
 
     // Data fields
-    private final Note note;
+    private final LongFormText note;
     private final LongFormText workoutPlan;
     private final boolean isActive;
     private final Set<Tag> tags = new HashSet<>();
@@ -31,13 +31,13 @@ public class Person {
      * Every field must be present and not null.
      */
     public Person(PersonId id, Name name, Phone phone) {
-        this(id, name, phone, Note.EMPTY, true, Set.of());
+        this(id, name, phone, new LongFormText(""), true, Set.of());
     }
 
     /**
      * Every field must be present and not null.
      */
-    public Person(PersonId id, Name name, Phone phone, Note note, boolean isActive, Set<Tag> tags) {
+    public Person(PersonId id, Name name, Phone phone, LongFormText note, boolean isActive, Set<Tag> tags) {
         this(id, name, phone, note, isActive, tags, new LongFormText(""));
     }
 
@@ -45,13 +45,13 @@ public class Person {
      * Creates an active person with a workout plan, no note and no tags.
      */
     public Person(PersonId id, Name name, Phone phone, LongFormText workoutPlan) {
-        this(id, name, phone, Note.EMPTY, true, Set.of(), workoutPlan);
+        this(id, name, phone, new LongFormText(""), true, Set.of(), workoutPlan);
     }
 
     /**
      * Creates a person with all details. Every argument must be present and not null.
      */
-    public Person(PersonId id, Name name, Phone phone, Note note, boolean isActive, Set<Tag> tags,
+    public Person(PersonId id, Name name, Phone phone, LongFormText note, boolean isActive, Set<Tag> tags,
             LongFormText workoutPlan) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(name);
@@ -79,7 +79,7 @@ public class Person {
         return phone;
     }
 
-    public Note getNote() {
+    public LongFormText getNote() {
         return note;
     }
 
@@ -102,7 +102,7 @@ public class Person {
     /**
      * Returns a copy of this person with {@code note} as their note.
      */
-    public Person withNote(Note note) {
+    public Person withNote(LongFormText note) {
         return new Person(id, name, phone, note, isActive, tags, workoutPlan);
     }
 

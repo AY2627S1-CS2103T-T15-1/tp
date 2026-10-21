@@ -31,7 +31,8 @@ public class JsonAddressBookStorageTest {
     @Test
     public void readAndSaveAddressBook_workoutPlan_preservesText() throws Exception {
         String plan = "Squats: 3 sets of 12\nCoach says \"keep steady\"; warm-up --name drills; literal \\n";
-        Person client = new PersonBuilder(ALICE).withWorkoutPlan(plan).withNote("Knee injury")
+        String note = "  " + "Training preferences. ".repeat(30) + "\nRest\\nLiteral  ";
+        Person client = new PersonBuilder(ALICE).withWorkoutPlan(plan).withNote(note)
                 .withActive(false).withTags("gym").build();
         AddressBook original = new AddressBook();
         original.addPerson(client);

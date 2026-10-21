@@ -112,6 +112,42 @@ public class PersonDetailPanelTest {
     }
 
     @Test
+    public void showPerson_blankNote_hidesSectionWhilePreservingWorkoutPlan() throws Exception {
+        runOnFxThread(() -> {
+            PersonDetailPanel panel = new PersonDetailPanel();
+            for (String text : new String[] {null, "", " \t\n"}) {
+                panel.showPerson(new PersonBuilder(ALICE).withNote("Previous note").build());
+                panel.showPerson(new PersonBuilder(ALICE).withNote(text).withWorkoutPlan("Squats").build());
+                Region content = (Region) ((ScrollPane) panel.getRoot()).getContent();
+                assertFalse(content.lookup("#noteSection").isVisible());
+                assertFalse(content.lookup("#noteSection").isManaged());
+                assertTrue(content.lookup("#workoutPlanCard").isVisible());
+                assertEquals("Squats", getPlanLabel(panel).getText());
+            }
+        });
+    }
+
+    @Test
+    public void showPerson_longMultilineNote_wrapsAndScrolls() throws Exception {
+        runOnFxThread(() -> {
+            String text = "Training preferences. ".repeat(100) + "\nRest";
+            PersonDetailPanel panel = new PersonDetailPanel();
+            panel.showPerson(new PersonBuilder(ALICE).withNote(text).build());
+            ScrollPane scroll = (ScrollPane) panel.getRoot();
+            new Scene(scroll, 360, 300);
+            scroll.resize(360, 300);
+            scroll.applyCss();
+            scroll.layout();
+
+            Label label = (Label) scroll.getContent().lookup("#note");
+            assertEquals(text, label.getText());
+            assertTrue(label.isWrapText());
+            assertTrue(label.getWidth() <= scroll.getViewportBounds().getWidth());
+            assertTrue(label.getHeight() > scroll.getViewportBounds().getHeight());
+        });
+    }
+
+    @Test
     public void showPerson_allDetails_displaysNoteTagsStatusAndPlan() throws Exception {
         runOnFxThread(() -> {
             PersonDetailPanel panel = new PersonDetailPanel();

@@ -11,7 +11,7 @@ import java.util.Optional;
 import seedu.address.logic.commands.NoteCommand;
 import seedu.address.logic.commands.PersonSelector;
 import seedu.address.logic.parser.exceptions.ParseException;
-import seedu.address.model.person.Note;
+import seedu.address.model.LongFormText;
 
 /**
  * Parses input arguments and creates a new NoteCommand object
@@ -46,11 +46,11 @@ public class NoteCommandParser implements Parser<NoteCommand> {
     }
 
     /**
-     * Parses {@code quotedNote}, which must be surrounded by double quotes, into a {@code Note}.
+     * Parses {@code quotedNote}, which must be surrounded by double quotes, into long-form text.
      *
-     * @throws ParseException if {@code quotedNote} is not surrounded by double quotes or the note is invalid.
+     * @throws ParseException if {@code quotedNote} is not surrounded by double quotes.
      */
-    private static Note parseQuotedNote(String quotedNote) throws ParseException {
+    private static LongFormText parseQuotedNote(String quotedNote) throws ParseException {
         String trimmedNote = quotedNote.trim();
         boolean isQuoted = trimmedNote.length() >= 2 && trimmedNote.startsWith("\"") && trimmedNote.endsWith("\"");
         if (!isQuoted) {
@@ -58,10 +58,7 @@ public class NoteCommandParser implements Parser<NoteCommand> {
         }
 
         String noteText = trimmedNote.substring(1, trimmedNote.length() - 1);
-        if (!Note.isValidNote(noteText)) {
-            throw new ParseException(Note.MESSAGE_CONSTRAINTS);
-        }
-        return new Note(noteText);
+        return new LongFormText(noteText);
     }
 
 }

@@ -5,7 +5,6 @@ import java.util.Set;
 
 import seedu.address.model.LongFormText;
 import seedu.address.model.person.Name;
-import seedu.address.model.person.Note;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonId;
 import seedu.address.model.person.Phone;
@@ -22,7 +21,7 @@ public class PersonBuilder {
     private PersonId id;
     private Name name;
     private Phone phone;
-    private Note note;
+    private LongFormText note;
     private LongFormText workoutPlan = new LongFormText("");
     private boolean isActive;
     private Set<Tag> tags;
@@ -34,7 +33,7 @@ public class PersonBuilder {
         id = new PersonId(DEFAULT_ID);
         name = new Name(DEFAULT_NAME);
         phone = new Phone(DEFAULT_PHONE);
-        note = Note.EMPTY;
+        note = new LongFormText("");
         isActive = true;
         tags = new HashSet<>();
     }
@@ -77,10 +76,10 @@ public class PersonBuilder {
     }
 
     /**
-     * Sets the {@code Note} of the {@code Person} that we are building.
+     * Sets the long-form note of the person being built.
      */
     public PersonBuilder withNote(String note) {
-        this.note = new Note(note);
+        this.note = new LongFormText(note);
         return this;
     }
 

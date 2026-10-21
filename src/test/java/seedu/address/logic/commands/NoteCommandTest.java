@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandFailure;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandSuccess;
+import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalPersons.ALICE;
 import static seedu.address.testutil.TypicalPersons.BENSON;
 import static seedu.address.testutil.TypicalPersons.DANIEL;
@@ -16,10 +17,10 @@ import org.junit.jupiter.api.Test;
 
 import seedu.address.logic.Messages;
 import seedu.address.model.AddressBook;
+import seedu.address.model.LongFormText;
 import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
-import seedu.address.model.person.Note;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonId;
 import seedu.address.testutil.PersonBuilder;
@@ -29,9 +30,25 @@ import seedu.address.testutil.PersonBuilder;
  */
 public class NoteCommandTest {
 
-    private static final Note KNEE_NOTE = new Note("Knee injury, avoid lunges");
+    private static final LongFormText KNEE_NOTE = new LongFormText("Knee injury, avoid lunges");
 
     private Model model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
+
+    @Test
+    public void constructor_nullArguments_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> new NoteCommand(null, KNEE_NOTE));
+        assertThrows(NullPointerException.class, () -> new NoteCommand(PersonSelector.byId(ALICE.getId()), null));
+    }
+
+    @Test
+    public void execute_whitespaceNote_reportsRemoval() {
+        Person editedPerson = new PersonBuilder(ALICE).withNote("   ").build();
+        Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
+        expectedModel.setPerson(ALICE, editedPerson);
+        String message = String.format(NoteCommand.MESSAGE_NOTE_REMOVED, Messages.format(editedPerson));
+        NoteCommand command = new NoteCommand(PersonSelector.byId(ALICE.getId()), new LongFormText("   "));
+        assertCommandSuccess(command, model, new CommandResult(message, editedPerson), expectedModel);
+    }
 
     @Test
     public void execute_newNote_success() {
@@ -64,7 +81,7 @@ public class NoteCommandTest {
     public void execute_emptyNote_removesNote() {
         Person personWithNote = new PersonBuilder(ALICE).withNote("Old note").build();
         model.setPerson(ALICE, personWithNote);
-        NoteCommand noteCommand = new NoteCommand(PersonSelector.byId(ALICE.getId()), Note.EMPTY);
+        NoteCommand noteCommand = new NoteCommand(PersonSelector.byId(ALICE.getId()), new LongFormText(""));
 
         String expectedMessage = String.format(NoteCommand.MESSAGE_NOTE_REMOVED, Messages.format(ALICE));
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
@@ -125,7 +142,7 @@ public class NoteCommandTest {
         assertFalse(noteCommand.equals(new NoteCommand(PersonSelector.byId(BENSON.getId()), KNEE_NOTE)));
 
         // different note -> returns false
-        assertFalse(noteCommand.equals(new NoteCommand(PersonSelector.byId(ALICE.getId()), Note.EMPTY)));
+        assertFalse(noteCommand.equals(new NoteCommand(PersonSelector.byId(ALICE.getId()), new LongFormText(""))));
     }
 
     @Test

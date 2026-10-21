@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.NoteCommand;
 import seedu.address.logic.commands.PersonSelector;
-import seedu.address.model.person.Note;
+import seedu.address.model.LongFormText;
 import seedu.address.model.person.PersonId;
 
 public class NoteCommandParserTest {
@@ -24,15 +24,15 @@ public class NoteCommandParserTest {
     public void parse_validArgs_returnsNoteCommand() {
         // by ID
         assertParseSuccess(parser, " --id 2 --note \"Knee injury\"",
-                new NoteCommand(PersonSelector.byId(new PersonId(2)), new Note("Knee injury")));
+                new NoteCommand(PersonSelector.byId(new PersonId(2)), new LongFormText("Knee injury")));
 
         // by name, with arguments in a different order
         assertParseSuccess(parser, " --note \"Prefers mornings\" --name john",
-                new NoteCommand(PersonSelector.byName("john"), new Note("Prefers mornings")));
+                new NoteCommand(PersonSelector.byName("john"), new LongFormText("Prefers mornings")));
 
         // empty note removes the note
         assertParseSuccess(parser, " --id 2 --note \"\"",
-                new NoteCommand(PersonSelector.byId(new PersonId(2)), Note.EMPTY));
+                new NoteCommand(PersonSelector.byId(new PersonId(2)), new LongFormText("")));
     }
 
     @Test
@@ -57,9 +57,10 @@ public class NoteCommandParserTest {
     }
 
     @Test
-    public void parse_invalidNote_failure() {
-        assertParseFailure(parser, " --id 2 --note \"" + "a".repeat(Note.MAX_LENGTH + 1) + "\"",
-                ParserUtil.withUsage(Note.MESSAGE_CONSTRAINTS, NoteCommand.MESSAGE_USAGE));
+    public void parse_longNote_preservesFullText() {
+        String text = "  " + "a".repeat(501) + "  ";
+        assertParseSuccess(parser, " --id 2 --note \"" + text + "\"",
+                new NoteCommand(PersonSelector.byId(new PersonId(2)), new LongFormText(text)));
     }
 
     @Test

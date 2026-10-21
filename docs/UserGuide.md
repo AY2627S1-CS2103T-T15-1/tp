@@ -220,7 +220,8 @@ Gives a client a note, such as their training preferences or injuries, replacing
 Format: `note --id ID --note "TEXT"` or `note --name NAME --note "TEXT"`
 
 * Changes the note of the client chosen by `--id` or `--name`, as described in [the notes about the command format](#features).
-* The note must be in double quotes, and can have up to 500 characters on a single line.
+* The note must be in double quotes. There is no fixed character limit.
+* Note text is preserved, including spaces inside the quotes. Empty or whitespace-only notes are hidden from the detail view.
 * Each client has at most one note. Running `note` again replaces the note, so to change part of a note, type the whole new note.
 * `--note ""` removes the client's note.
 * After the note is changed, the client's details page opens and shows the note.
