@@ -14,25 +14,25 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
 import seedu.address.logic.commands.AddSessionCommand;
+import seedu.address.logic.commands.EditSessionCommand;
 import seedu.address.logic.commands.PersonSelector;
+import seedu.address.logic.commands.SessionCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.session.Session;
 
 /**
  * Parses arguments for the {@code session} command.
  */
-public class SessionCommandParser implements Parser<AddSessionCommand> {
+public class SessionCommandParser implements Parser<SessionCommand> {
 
     public static final String MESSAGE_ACTION_REQUIRED =
             "Choose exactly one session action: --add or --edit.";
-    public static final String MESSAGE_EDIT_NOT_AVAILABLE =
-            "Session editing is not available yet.";
 
     /**
-     * Parses the given arguments and creates an {@code AddSessionCommand}.
+     * Parses the given arguments and creates a session command.
      */
     @Override
-    public AddSessionCommand parse(String args) throws ParseException {
+    public SessionCommand parse(String args) throws ParseException {
         requireNonNull(args);
         ArgumentMultimap argMultimap = ArgumentTokenizer.tokenize(args, PREFIX_ADD, PREFIX_EDIT,
                 PREFIX_ID, PREFIX_NAME_LONG, PREFIX_DATE, PREFIX_NOTE);
@@ -44,21 +44,25 @@ public class SessionCommandParser implements Parser<AddSessionCommand> {
         if (hasAdd == hasEdit) {
             throw new ParseException(MESSAGE_ACTION_REQUIRED);
         }
-        if (hasEdit) {
-            throw new ParseException(MESSAGE_EDIT_NOT_AVAILABLE);
-        }
-        if (!argMultimap.getValue(PREFIX_ADD).orElse("").isEmpty()) {
-            throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, AddSessionCommand.MESSAGE_USAGE));
+
+        String messageUsage = hasAdd ? AddSessionCommand.MESSAGE_USAGE : EditSessionCommand.MESSAGE_USAGE;
+        if (!argMultimap.getValue(hasAdd ? PREFIX_ADD : PREFIX_EDIT).orElse("").isEmpty()) {
+            throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, messageUsage));
         }
 
-        PersonSelector selector = ParserUtil.parsePersonSelector(argMultimap, AddSessionCommand.MESSAGE_USAGE);
+        PersonSelector selector = ParserUtil.parsePersonSelector(argMultimap, messageUsage);
         String dateValue = argMultimap.getValue(PREFIX_DATE)
                 .orElseThrow(() -> new ParseException(
-                        String.format(MESSAGE_INVALID_COMMAND_FORMAT, AddSessionCommand.MESSAGE_USAGE)));
+                        String.format(MESSAGE_INVALID_COMMAND_FORMAT, messageUsage)));
         LocalDate date = parseDate(removeOptionalQuotes(dateValue));
-        String note = argMultimap.getValue(PREFIX_NOTE).map(ParserUtil::removeOptionalQuotes).orElse("");
+        if (hasEdit && argMultimap.getValue(PREFIX_NOTE).isEmpty()) {
+            throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, messageUsage));
+        }
 
-        return new AddSessionCommand(selector, date, note);
+        String note = argMultimap.getValue(PREFIX_NOTE).map(ParserUtil::removeOptionalQuotes).orElse("");
+        return hasAdd
+                ? new AddSessionCommand(selector, date, note)
+                : new EditSessionCommand(selector, date, note);
     }
 
     private static LocalDate parseDate(String date) throws ParseException {

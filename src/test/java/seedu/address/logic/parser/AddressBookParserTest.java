@@ -18,6 +18,7 @@ import seedu.address.logic.commands.ClearCommand;
 import seedu.address.logic.commands.DeleteCommand;
 import seedu.address.logic.commands.EditCommand;
 import seedu.address.logic.commands.EditCommand.EditPersonDescriptor;
+import seedu.address.logic.commands.EditSessionCommand;
 import seedu.address.logic.commands.ExitCommand;
 import seedu.address.logic.commands.FindCommand;
 import seedu.address.logic.commands.HelpCommand;
@@ -102,6 +103,14 @@ public class AddressBookParserTest {
                 "session --add --id 1 --date 2026-10-21 --note Worked on squat form");
         assertEquals(new AddSessionCommand(PersonSelector.byId(new PersonId(1)),
                 LocalDate.of(2026, 10, 21), "Worked on squat form"), command);
+    }
+
+    @Test
+    public void parseCommand_sessionEdit() throws Exception {
+        EditSessionCommand command = (EditSessionCommand) parser.parseCommand(
+                "session --edit --id 1 --date 2026-10-21 --note Improved squat depth");
+        assertEquals(new EditSessionCommand(PersonSelector.byId(new PersonId(1)),
+                LocalDate.of(2026, 10, 21), "Improved squat depth"), command);
     }
 
     @Test

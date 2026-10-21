@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.AddSessionCommand;
+import seedu.address.logic.commands.EditSessionCommand;
 import seedu.address.logic.commands.PersonSelector;
 import seedu.address.model.person.PersonId;
 import seedu.address.model.session.Session;
@@ -61,12 +62,28 @@ public class SessionCommandParserTest {
     }
 
     @Test
+    public void parse_editWithNote_success() {
+        EditSessionCommand expectedCommand = new EditSessionCommand(
+                PersonSelector.byId(new PersonId(2)), DATE, "Improved squat depth");
+
+        assertParseSuccess(parser,
+                " --edit --id 2 --date 2026-10-21 --note Improved squat depth", expectedCommand);
+    }
+
+    @Test
+    public void parse_editWithEmptyNote_success() {
+        EditSessionCommand expectedCommand = new EditSessionCommand(
+                PersonSelector.byName("Alice Pauline"), DATE, "");
+
+        assertParseSuccess(parser,
+                " --name Alice Pauline --date 2026-10-21 --note --edit", expectedCommand);
+    }
+
+    @Test
     public void parse_invalidAction_failure() {
         assertParseFailure(parser, " --id 2 --date 2026-10-21", SessionCommandParser.MESSAGE_ACTION_REQUIRED);
         assertParseFailure(parser, " --add --edit --id 2 --date 2026-10-21",
                 SessionCommandParser.MESSAGE_ACTION_REQUIRED);
-        assertParseFailure(parser, " --edit --id 2 --date 2026-10-21",
-                SessionCommandParser.MESSAGE_EDIT_NOT_AVAILABLE);
         assertParseFailure(parser, " --add unexpected --id 2 --date 2026-10-21", MESSAGE_INVALID_FORMAT);
     }
 
@@ -74,6 +91,8 @@ public class SessionCommandParserTest {
     public void parse_missingRequiredField_failure() {
         assertParseFailure(parser, " --add --date 2026-10-21", MESSAGE_INVALID_FORMAT);
         assertParseFailure(parser, " --add --id 2", MESSAGE_INVALID_FORMAT);
+        assertParseFailure(parser, " --edit --id 2 --date 2026-10-21",
+                String.format(MESSAGE_INVALID_COMMAND_FORMAT, EditSessionCommand.MESSAGE_USAGE));
     }
 
     @Test
