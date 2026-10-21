@@ -15,6 +15,7 @@ import seedu.address.model.AddressBook;
 import seedu.address.model.ReadOnlyAddressBook;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonId;
+import seedu.address.model.tag.Tag;
 
 /**
  * An Immutable AddressBook that is serializable to JSON format.
@@ -26,21 +27,37 @@ class JsonSerializableAddressBook {
     public static final String MESSAGE_DUPLICATE_ID = "Persons list contains more than one person with the same ID.";
     public static final String MESSAGE_INVALID_NEXT_ID = "The next person ID is not a positive whole number.";
     public static final String MESSAGE_MISSING_PERSON = "Persons list contains an empty entry.";
+    public static final String MESSAGE_MISSING_GROUP = "Groups list contains an empty entry.";
+    public static final String MESSAGE_DUPLICATE_GROUP = "Groups list contains duplicate group(s).";
+    public static final String MESSAGE_CLIENT_TYPE_GROUP = "Groups list contains a client type (gym or personal).";
 
     private final List<JsonAdaptedPerson> persons = new ArrayList<>();
     private final Integer nextPersonId;
+    private final List<JsonAdaptedTag> groups = new ArrayList<>();
 
     /**
-     * Constructs a {@code JsonSerializableAddressBook} with the given persons and next person ID.
-     * {@code nextPersonId} can be null for data files saved before clients had IDs.
+     * Constructs a {@code JsonSerializableAddressBook} with the given persons and next person ID, and no groups.
+     */
+    public JsonSerializableAddressBook(List<JsonAdaptedPerson> persons, Integer nextPersonId) {
+        this(persons, nextPersonId, null);
+    }
+
+    /**
+     * Constructs a {@code JsonSerializableAddressBook} with the given persons, next person ID and groups.
+     * {@code nextPersonId} can be null for data files saved before clients had IDs, and
+     * {@code groups} can be null for data files saved before groups were added.
      */
     @JsonCreator
     public JsonSerializableAddressBook(@JsonProperty("persons") List<JsonAdaptedPerson> persons,
-            @JsonProperty("nextPersonId") Integer nextPersonId) {
+            @JsonProperty("nextPersonId") Integer nextPersonId,
+            @JsonProperty("groups") List<JsonAdaptedTag> groups) {
         if (persons != null) {
             this.persons.addAll(persons);
         }
         this.nextPersonId = nextPersonId;
+        if (groups != null) {
+            this.groups.addAll(groups);
+        }
     }
 
     /**
@@ -51,6 +68,7 @@ class JsonSerializableAddressBook {
     public JsonSerializableAddressBook(ReadOnlyAddressBook source) {
         persons.addAll(source.getPersonList().stream().map(JsonAdaptedPerson::new).collect(Collectors.toList()));
         nextPersonId = source.getNextPersonId().value;
+        groups.addAll(source.getGroupList().stream().map(JsonAdaptedTag::new).collect(Collectors.toList()));
     }
 
     /**
@@ -91,7 +109,33 @@ class JsonSerializableAddressBook {
                 addressBook.setNextPersonId(savedNextId);
             }
         }
+
+        addressBook.setGroups(toModelGroups());
         return addressBook;
+    }
+
+    /**
+     * Converts the saved groups into the model's {@code Tag} objects, keeping their saved order.
+     *
+     * @throws IllegalValueException if a group is empty, invalid, repeated or a client type.
+     */
+    private List<Tag> toModelGroups() throws IllegalValueException {
+        if (groups.contains(null)) {
+            throw new IllegalValueException(MESSAGE_MISSING_GROUP);
+        }
+
+        List<Tag> modelGroups = new ArrayList<>();
+        for (JsonAdaptedTag jsonAdaptedTag : groups) {
+            Tag group = jsonAdaptedTag.toModelType();
+            if (Tag.CLIENT_TYPES.contains(group)) {
+                throw new IllegalValueException(MESSAGE_CLIENT_TYPE_GROUP);
+            }
+            if (modelGroups.contains(group)) {
+                throw new IllegalValueException(MESSAGE_DUPLICATE_GROUP);
+            }
+            modelGroups.add(group);
+        }
+        return modelGroups;
     }
 
     /**
