@@ -70,14 +70,15 @@ public class PersonSelectorTest {
     }
 
     @Test
-    public void getMultipleMatchesMessage_severalMatches_suggestsIdOfFirstMatch() {
-        String message = PersonSelector.byName("Meier").getMultipleMatchesMessage(List.of(BENSON, DANIEL), "view");
-        assertEquals(String.format(PersonSelector.MESSAGE_MULTIPLE_MATCHES, 2, "name", "Meier", "view",
-                BENSON.getId()), message);
+    public void getMultipleMatchesMessage_severalMatches_includesRetryExample() {
+        String message = PersonSelector.byName("Meier")
+                .getMultipleMatchesMessage(List.of(BENSON, DANIEL), "view --id 2");
+        assertEquals(String.format(PersonSelector.MESSAGE_MULTIPLE_MATCHES, 2, "name", "Meier", "view --id 2"),
+                message);
 
-        message = PersonSelector.byPhone("9").getMultipleMatchesMessage(List.of(ALICE, BENSON), "inactive");
-        assertEquals(String.format(PersonSelector.MESSAGE_MULTIPLE_MATCHES, 2, "phone number", "9", "inactive",
-                ALICE.getId()), message);
+        message = PersonSelector.byPhone("9").getMultipleMatchesMessage(List.of(ALICE, BENSON), "inactive --id 1");
+        assertEquals(String.format(PersonSelector.MESSAGE_MULTIPLE_MATCHES, 2, "phone number", "9",
+                "inactive --id 1"), message);
     }
 
     @Test
