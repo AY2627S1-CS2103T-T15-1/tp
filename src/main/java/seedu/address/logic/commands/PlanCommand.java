@@ -3,7 +3,7 @@ package seedu.address.logic.commands;
 import static java.util.Objects.requireNonNull;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_ID;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME_LONG;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_NOTE;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_PLAN;
 import static seedu.address.model.Model.PREDICATE_SHOW_ALL_PERSONS;
 
 import seedu.address.commons.util.ToStringBuilder;
@@ -21,10 +21,10 @@ public class PlanCommand extends PersonTargetedCommand {
 
     public static final String MESSAGE_USAGE = COMMAND_WORD
             + ": Sets or replaces a client's workout plan, chosen by ID or by part of their name.\n"
-            + "Parameters: " + PREFIX_ID + " ID or " + PREFIX_NAME_LONG + " NAME, then " + PREFIX_NOTE + " \"TEXT\"\n"
-            + "TEXT must be in double quotes. Use " + PREFIX_NOTE + " \"\" to clear the plan.\n"
+            + "Parameters: " + PREFIX_ID + " ID or " + PREFIX_NAME_LONG + " NAME, then " + PREFIX_PLAN + " \"TEXT\"\n"
+            + "TEXT must be in double quotes. Use " + PREFIX_PLAN + " \"\" to clear the plan.\n"
             + "Use \\n inside TEXT for a line break.\n"
-            + "Example: " + COMMAND_WORD + " " + PREFIX_ID + " 2 " + PREFIX_NOTE + " \"Squats: 3 sets of 12\"";
+            + "Example: " + COMMAND_WORD + " " + PREFIX_ID + " 2 " + PREFIX_PLAN + " \"Squats: 3 sets of 12\"";
 
     public static final String MESSAGE_PLAN_SUCCESS = "Updated workout plan for client: %1$s";
 
@@ -53,11 +53,11 @@ public class PlanCommand extends PersonTargetedCommand {
     }
 
     /**
-     * Keeps the note and its line breaks in a complete single-line retry command.
+     * Keeps the plan and its line breaks in a complete single-line retry command.
      */
     @Override
     protected String getArgumentsAfterSelector() {
-        return " " + PREFIX_NOTE + " " + quoteLongFormText(workoutPlan);
+        return " " + PREFIX_PLAN + " " + quoteLongFormText(workoutPlan);
     }
 
     @Override

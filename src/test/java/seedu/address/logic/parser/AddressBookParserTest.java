@@ -41,7 +41,7 @@ public class AddressBookParserTest {
     @Test
     public void parseCommand_plan() throws Exception {
         assertEquals(new PlanCommand(PersonSelector.byId(new PersonId(2)), new LongFormText("Squats")),
-                parser.parseCommand("plan --id 2 --note \"Squats\""));
+                parser.parseCommand("plan --id 2 --plan \"Squats\""));
     }
 
     @Test

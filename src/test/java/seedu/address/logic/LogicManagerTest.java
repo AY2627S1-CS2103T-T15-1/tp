@@ -99,16 +99,16 @@ public class LogicManagerTest {
         JsonAddressBookStorage savedData =
                 new JsonAddressBookStorage(temporaryFolder.resolve("addressBook.json"));
 
-        logic.execute("plan --id 1 --note \"Squats: 3 sets of 12\"");
+        logic.execute("plan --id 1 --plan \"Squats: 3 sets of 12\"");
         assertEquals("Squats: 3 sets of 12", model.getAddressBook().getPersonList().get(0).getWorkoutPlan().value);
         assertEquals("Squats: 3 sets of 12",
                 savedData.readAddressBook().get().getPersonList().get(0).getWorkoutPlan().value);
 
-        logic.execute("plan --name Amy --note \"Push-ups: 3 sets of 10\"");
+        logic.execute("plan --name Amy --plan \"Push-ups: 3 sets of 10\"");
         assertEquals("Push-ups: 3 sets of 10",
                 savedData.readAddressBook().get().getPersonList().get(0).getWorkoutPlan().value);
 
-        logic.execute("plan --id 1 --note \"\"");
+        logic.execute("plan --id 1 --plan \"\"");
         assertEquals("", model.getAddressBook().getPersonList().get(0).getWorkoutPlan().value);
         assertEquals("", savedData.readAddressBook().get().getPersonList().get(0).getWorkoutPlan().value);
     }
@@ -117,7 +117,7 @@ public class LogicManagerTest {
     public void execute_planWithNewlineEscape_displaysAndSavesActualNewline() throws Exception {
         model.addPerson(new PersonBuilder(AMY).withId(1).build());
 
-        CommandResult result = logic.execute("plan --id 1 --note \"Squats\\nPush-ups\"");
+        CommandResult result = logic.execute("plan --id 1 --plan \"Squats\\nPush-ups\"");
 
         assertEquals("Squats\nPush-ups", result.getPersonToView().get().getWorkoutPlan().value);
         JsonAddressBookStorage savedData =

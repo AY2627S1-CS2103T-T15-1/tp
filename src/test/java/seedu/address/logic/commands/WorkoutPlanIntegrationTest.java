@@ -24,7 +24,7 @@ public class WorkoutPlanIntegrationTest {
     @Test
     public void execute_plan_preservesNoteStatusTagsAndContactDetails() throws Exception {
         Person original = detailedClient();
-        assertUpdate("plan --id 1 --note \"New plan\\nRest\"", original,
+        assertUpdate("plan --id 1 --plan \"New plan\\nRest\"", original,
                 new PersonBuilder(original).withWorkoutPlan("New plan\nRest").build());
     }
 
@@ -55,8 +55,8 @@ public class WorkoutPlanIntegrationTest {
         model.addPerson(original);
         model.addPerson(other);
 
-        CommandResult result = parser.parseCommand("plan --name Alice --note \"Squats\\nRest\"").execute(model);
-        String example = "plan --id 1 --note \"Squats\\nRest\"";
+        CommandResult result = parser.parseCommand("plan --name Alice --plan \"Squats\\nRest\"").execute(model);
+        String example = "plan --id 1 --plan \"Squats\\nRest\"";
         assertTrue(result.getFeedbackToUser().endsWith(example));
         assertEquals(List.of(original, other), model.getAddressBook().getPersonList());
 
