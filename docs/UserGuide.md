@@ -58,7 +58,7 @@ Cindy is a **desktop application that helps freelance gym trainers manage their 
 * Values can be wrapped in double quotes, which is useful for values containing spaces.<br>
   For example, `--name "John Doe"` and `--name John Doe` mean the same.
 
-* Commands that act on one client (`view`, `edit` and `delete`) choose the client with either `--id ID` or `--name NAME`, but not both:
+* Commands that act on one client (`view`, `edit`, `plan` and `delete`) choose the client with either `--id ID` or `--name NAME`, but not both:
   * `--id ID` chooses the client with that ID. Every client's ID is shown as `#ID` on their card, e.g. `#3`.
   * `--name NAME` chooses the client whose name contains `NAME`, ignoring upper and lower case. For example, `--name john` matches `John`, `John Doe` and `Johnny Tan`.
   * If more than one client's name contains `NAME`, Cindy does not act on any of them. Instead, it lists those clients and asks you to run the command again with `--id`, using one of the IDs shown.
@@ -85,6 +85,7 @@ Format: `help`
 ### Adding a client: `add`
 
 Adds a client using their name and mandatory phone number.
+New clients start without a workout plan; you can set one later using `plan`.
 
 Format: `add --name "NAME" --phone "PHONE_NUMBER"`
 
@@ -144,6 +145,26 @@ Examples:
 *  `edit --id 1 --to-phone 91234567` Edits the phone number of the client with ID 1 to be `91234567`.
 *  `edit --name Betsy --to-name "Betsy Crower"` Edits the name of the only client whose name contains `Betsy` to be `Betsy Crower`.
 
+### Setting or replacing a workout plan: `plan`
+
+Sets the workout plan of an existing client. The same command replaces an existing plan in full.
+
+Format: `plan --id ID --note TEXT` or `plan --name NAME --note TEXT`
+
+* Chooses the client using `--id` or `--name`, as described in [the notes about the command format](#features).
+* Exactly one selector and one `--note` must be provided. Repeated flags are rejected.
+* Double quotes around the note are optional, including when it contains spaces.
+* Replaces the entire plan immediately, while preserving the client's ID, name, and phone number.
+* Use `--note ""` to clear the plan. A bare `--note` also clears it; omitting `--note` is an error.
+* The plan is saved automatically. Editing a client's contact details with `edit` preserves their plan.
+* Avoid ` --id`, ` --name`, and ` --note` inside the note: these are interpreted as command prefixes even inside quotes.
+
+Examples:
+
+* `plan --id 2 --note "Squats: 3 sets of 12"` sets or replaces the plan for client #2.
+* `plan --name Alex --note Push-ups: 3 sets of 10` updates the only client whose name contains `Alex`. If several clients match, Cindy lists them and asks you to retry with `--id`; no plans are changed.
+* `plan --id 2 --note ""` clears the plan for client #2.
+
 ### Locating clients by name: `find`
 
 Finds clients whose names contain any of the given keywords.
@@ -182,7 +203,7 @@ Shows the name and phone number of the specified client.
 Format: `view --id ID` or `view --name NAME`
 
 * Shows the details of the client chosen by `--id` or `--name`, as described in [the notes about the command format](#features).
-* The client's details open on their own page, in place of the client list. Running `list`, `find`, `add`, `edit`, `delete` or `clear` successfully returns you to the client list.
+* The client's details open on their own page, in place of the client list. Running `list`, `find`, `add`, `edit`, `plan`, `delete` or `clear` successfully returns you to the client list.
 
 Examples:
 * `view --id 2` shows the details of the client with ID 2.
@@ -257,5 +278,6 @@ Action     | Format, Examples
 **Edit**   | `edit --id ID [--to-name NEW_NAME] [--to-phone NEW_PHONE]` (or `--name NAME` instead of `--id ID`)<br> e.g., `edit --id 2 --to-name "James Lee"`
 **Find**   | `find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find James Jake`
 **List**   | `list`
+**Plan**   | `plan --id ID --note TEXT` (or `--name NAME` instead of `--id ID`)<br> e.g., `plan --id 2 --note "Squats: 3 sets of 12"`
 **View**   | `view --id ID` or `view --name NAME`<br> e.g., `view --id 2`
 **Help**   | `help`

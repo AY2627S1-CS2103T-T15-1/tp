@@ -67,6 +67,26 @@ public class LogicManagerTest {
     }
 
     @Test
+    public void execute_planCommands_updatesAndSavesPlan() throws Exception {
+        model.addPerson(new PersonBuilder(AMY).withId(1).build());
+        JsonAddressBookStorage savedData =
+                new JsonAddressBookStorage(temporaryFolder.resolve("addressBook.json"));
+
+        logic.execute("plan --id 1 --note \"Squats: 3 sets of 12\"");
+        assertEquals("Squats: 3 sets of 12", model.getAddressBook().getPersonList().get(0).getWorkoutPlan());
+        assertEquals("Squats: 3 sets of 12",
+                savedData.readAddressBook().get().getPersonList().get(0).getWorkoutPlan());
+
+        logic.execute("plan --name Amy --note Push-ups: 3 sets of 10");
+        assertEquals("Push-ups: 3 sets of 10",
+                savedData.readAddressBook().get().getPersonList().get(0).getWorkoutPlan());
+
+        logic.execute("plan --id 1 --note \"\"");
+        assertEquals("", model.getAddressBook().getPersonList().get(0).getWorkoutPlan());
+        assertEquals("", savedData.readAddressBook().get().getPersonList().get(0).getWorkoutPlan());
+    }
+
+    @Test
     public void execute_storageThrowsIoException_throwsCommandException() {
         assertCommandFailureForExceptionFromStorage(DUMMY_IO_EXCEPTION, String.format(
                 LogicManager.FILE_OPS_ERROR_FORMAT, DUMMY_IO_EXCEPTION.getMessage()));

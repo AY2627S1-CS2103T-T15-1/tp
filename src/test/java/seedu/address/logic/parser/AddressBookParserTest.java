@@ -21,6 +21,7 @@ import seedu.address.logic.commands.FindCommand;
 import seedu.address.logic.commands.HelpCommand;
 import seedu.address.logic.commands.ListCommand;
 import seedu.address.logic.commands.PersonSelector;
+import seedu.address.logic.commands.PlanCommand;
 import seedu.address.logic.commands.ViewCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.person.NameContainsKeywordsPredicate;
@@ -33,6 +34,14 @@ import seedu.address.testutil.PersonUtil;
 public class AddressBookParserTest {
 
     private final AddressBookParser parser = new AddressBookParser();
+
+    @Test
+    public void parseCommand_plan() throws Exception {
+        assertEquals(new PlanCommand(PersonSelector.byId(new PersonId(2)), "Squats: 3 sets of 12"),
+                parser.parseCommand("plan --id 2 --note \"Squats: 3 sets of 12\""));
+        assertEquals(new PlanCommand(PersonSelector.byName("Alice"), ""),
+                parser.parseCommand("plan --name Alice --note \"\""));
+    }
 
     @Test
     public void parseCommand_add() throws Exception {
