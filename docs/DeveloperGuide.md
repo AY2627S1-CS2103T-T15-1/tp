@@ -173,6 +173,31 @@ Classes used by multiple components are in the `seedu.address.commons` package.
 
 This section describes some noteworthy details on how certain features are implemented.
 
+### Command history
+
+Each `CommandBox` owns one `CommandHistory` in the `seedu.address.ui` package. History belongs to the UI because recalling a command changes the input text without executing it. It does not change the `Logic`, `Model` or `Storage` interfaces. History is held in memory for the lifetime of the command box and is not restored after restarting Cindy.
+
+#### Recording and navigation
+
+`CommandHistory` is independent of JavaFX and owns a private `List<String>`, a navigation cursor and a saved draft. Its operations are:
+
+* `record(String commandText)`: preserves nonblank text verbatim, skips consecutive identical entries and evicts the oldest entry before exceeding 50 commands. It resets navigation even when the entry is skipped.
+* `previous(String currentText)`: captures the current draft when browsing begins and returns progressively older commands, stopping at the oldest. An empty history returns the current text unchanged.
+* `next(String currentText)`: returns progressively newer commands, then the saved draft. When not browsing, it returns the current text unchanged.
+* `resetNavigation()`: ends browsing and discards the saved draft without changing recorded commands. The next `previous` call captures the current input as the new draft.
+
+The cursor always lies between zero and the number of entries, inclusive. The position after the newest entry represents the draft. Bounds checks prevent navigation beyond the oldest entry or the draft, and callers never receive the mutable list. String arguments are checked with `requireNonNull` before state changes. Each instance is used on the JavaFX application thread.
+
+#### Command box integration
+
+On Enter, `CommandBox` ignores blank input and records other submissions before calling `CommandExecutor#execute`. Both parse failures and execution failures therefore remain available for recall. Successful execution clears the field; the existing `ParseException` and `CommandException` handling preserves failed input and shows its error style. The executor dependency is checked with `requireNonNull` during construction.
+
+A `KEY_PRESSED` filter on the command text field handles plain Up and Down, replaces the text, positions the caret at the end and consumes the event. Modified arrow keys and other keys retain their normal behaviour, and other controls have no history filter. Recall never invokes the executor.
+
+The text-change listener resets navigation when the user edits input. During recall, `isRecallingCommand` prevents programmatic text replacement from triggering that reset, so repeated Up/Down presses keep their position and saved draft. A `finally` block clears the flag after the update. The listener continues to clear error styling whenever text changes.
+
+`CommandHistoryTest` covers the entry limit, ordering, duplicate handling, navigation boundaries, draft restoration, reset behaviour, null arguments and instance isolation. `CommandBoxTest` exercises real JavaFX controls and events for recall, Enter submission, failed commands, draft editing, blank input, modified keys and ordinary caret movement. See the [manual command-history checks](#recalling-commands) for checks in the running application.
+
 ### \[Proposed\] Undo/redo feature
 
 #### Proposed Implementation
@@ -658,6 +683,41 @@ testers are expected to do more *exploratory* testing.
       Expected: No client is deleted. The status message shows error details.
 
 1. _{ more test cases … }_
+
+### Recalling commands
+
+1. Navigation, boundaries and draft restoration
+
+   1. Prerequisite: Restart Cindy to begin with an empty history, then focus the command box.
+   1. Type `find Bob` without pressing Enter, then press Up and Down.<br>
+      Expected: The input stays `find Bob`; no command executes.
+   1. Replace the input with `list` and press Enter, then run `find Alice`.
+   1. Type `find Bob` without pressing Enter. Press Up twice, then Up once more.<br>
+      Expected: The input changes to `find Alice`, then `list`, and stays at `list`. The displayed clients and result message do not change during recall.
+   1. Press Down twice, then Down once more.<br>
+      Expected: The input changes to `find Alice`, then restores `find Bob`, and stays at `find Bob`.
+   1. Press Up twice to recall `list`, then append ` edited`. Press Down.<br>
+      Expected: The input stays `list edited`, because editing ended browsing. Up recalls the newest entry, `find Alice`; Down restores `list edited`. The stored `list` entry is unchanged.
+   1. Recall `list` and press Enter.<br>
+      Expected: Only Enter executes the recalled command, the result shows the client list and the input clears. Up recalls `list`; Down restores the empty input.
+
+1. Failed commands and shortcut scope
+
+   1. Submit `not-a-command`.<br>
+      Expected: An error appears and the failed text stays in the command box. Replace it with `draft`, press Up and then Down: the failed command is recalled and `draft` is restored.
+   1. Hold Shift, Ctrl, Alt or Command/Windows while pressing Up or Down in the command box.<br>
+      Expected: No history entry is recalled. Plain Up still recalls the newest command.
+   1. Focus the result display and press Up or Down.<br>
+      Expected: The command box text does not change.
+
+1. Capacity, duplicate suppression and session lifetime
+
+   1. Restart Cindy, then submit `list 1`, `list 2`, and so on through `list 51`. These are safe list commands: arguments to `list` are ignored by the parser, but history preserves their full text.
+   1. Submit `list 51` again, then submit an empty input and an input containing only spaces.
+   1. Press Up 50 times, then once more.<br>
+      Expected: The first recall is `list 51`; the fiftieth is `list 2`, and further Up presses stay at `list 2`. The oldest command was evicted, and the duplicate and blank submissions used no entries.
+   1. Close and reopen Cindy, focus the command box and press Up.<br>
+      Expected: The command box stays empty; the previous session's history is unavailable.
 
 ### Saving data
 

@@ -22,7 +22,7 @@ You can run tests in two ways.
 * **Method 2: Using Gradle**
   * Open a console and run the command `gradlew clean test` (Mac/Linux: `./gradlew clean test`)
 
-`PersonListPanelTest` and `MainWindowTest` construct real JavaFX controls and run assertions on the JavaFX application thread.
+`PersonListPanelTest`, `MainWindowTest` and `CommandBoxTest` construct real JavaFX controls and run assertions on the JavaFX application thread.
 They require a graphical desktop or a virtual display. On Linux without a desktop, install Xvfb and run
 `xvfb-run --auto-servernum ./gradlew clean test`. Linux CI uses the same virtual-display setup.
 
@@ -31,6 +31,13 @@ They require a graphical desktop or a virtual display. On Linux without a deskto
 that errors preserve the current detail card and that all FXML placeholders load successfully.
 Storage uses a temporary directory. The test also checks that the menu bar and status footer
 remain visible. The UI retains the existing command syntax, feedback, and input-clearing behavior.
+
+`CommandHistoryTest` checks command history without starting JavaFX. `CommandBoxTest` checks
+Up/Down recall, draft restoration and editing, Enter-to-execute behaviour, failed submissions,
+blank input, modifier keys and caret movement. Run these tests with
+`gradlew test --tests seedu.address.ui.CommandHistoryTest --tests seedu.address.ui.CommandBoxTest`
+(Mac/Linux: use `./gradlew`). The Developer Guide also provides
+[manual command-history checks](DeveloperGuide.md#recalling-commands).
 
 <box type="info" seamless>
 
