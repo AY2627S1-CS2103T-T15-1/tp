@@ -48,7 +48,22 @@ public class AddressBookParserTest {
     @Test
     public void parseCommand_clear() throws Exception {
         assertTrue(parser.parseCommand(ClearCommand.COMMAND_WORD) instanceof ClearCommand);
-        assertTrue(parser.parseCommand(ClearCommand.COMMAND_WORD + " 3") instanceof ClearCommand);
+    }
+
+    @Test
+    public void parseCommand_clearInvalidArgs_throwsParseException() {
+        assertThrows(ParseException.class, () -> parser.parseCommand("clear 3"));
+    }
+
+    @Test
+    public void parseCommand_clearConfirmed_clearsClientsAndResetsNextId() throws Exception {
+        Model model = new ModelManager(TypicalPersons.getTypicalAddressBook(), new UserPrefs());
+
+        assertEquals(ClearCommand.MESSAGE_SUCCESS,
+                parser.parseCommand("clear --confirm").execute(model).getFeedbackToUser());
+
+        assertTrue(model.getAddressBook().getPersonList().isEmpty());
+        assertEquals(new PersonId(1), model.getNextPersonId());
     }
 
     @Test
