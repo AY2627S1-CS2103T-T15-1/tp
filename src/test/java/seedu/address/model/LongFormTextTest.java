@@ -3,17 +3,15 @@ package seedu.address.model;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static seedu.address.testutil.Assert.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
 public class LongFormTextTest {
 
     @Test
-    public void constructor_nullText_normalizesToEmpty() {
-        LongFormText text = new LongFormText(null);
-        assertEquals("", text.value);
-        assertTrue(text.isBlank());
-        assertEquals(new LongFormText(""), text);
+    public void constructor_nullText_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> new LongFormText(null));
     }
 
     @Test

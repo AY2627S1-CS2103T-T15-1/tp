@@ -37,6 +37,18 @@ public class JsonAdaptedPersonTest {
     }
 
     @Test
+    public void toModelType_absentNote_defaultsToEmptyAndPreservesPlan() throws Exception {
+        String fields = "\"id\": 1, \"name\": \"Alice\", \"phone\": \"91234567\","
+                + " \"workoutPlan\": \"Squats\"";
+        for (String suffix : new String[] {"", ", \"note\": null", ", \"note\": \"\""}) {
+            JsonAdaptedPerson adapted = JsonUtil.fromJsonString("{" + fields + suffix + "}", JsonAdaptedPerson.class);
+            Person person = adapted.toModelType();
+            assertEquals("", person.getNote().value);
+            assertEquals("Squats", person.getWorkoutPlan().value);
+        }
+    }
+
+    @Test
     public void toModelType_workoutPlanOnlyConstructor_preservesPlanAndDefaultsOtherDetails() throws Exception {
         JsonAdaptedPerson adapted = new JsonAdaptedPerson(VALID_ID, VALID_NAME, VALID_PHONE, "Squats\nRest");
         assertEquals(new PersonBuilder(BENSON).withWorkoutPlan("Squats\nRest").build(), adapted.toModelType());

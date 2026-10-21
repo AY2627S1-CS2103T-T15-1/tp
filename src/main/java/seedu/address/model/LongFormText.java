@@ -1,8 +1,10 @@
 package seedu.address.model;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * Immutable long-form text shared by optional descriptions and notes.
- * Preserves text exactly, except that null is normalized to an empty string.
+ * Preserves non-null text exactly. An empty string represents absent text.
  */
 public final class LongFormText {
 
@@ -10,9 +12,11 @@ public final class LongFormText {
 
     /**
      * Creates text from an already parsed or stored value, without interpreting escape sequences.
+     *
+     * @throws NullPointerException if {@code text} is null.
      */
     public LongFormText(String text) {
-        value = text == null ? "" : text;
+        value = requireNonNull(text);
     }
 
     /**

@@ -60,7 +60,7 @@ public class PersonDetailPanelTest {
     public void showPerson_switchOrClearPlan_hidesCardWithoutLeavingStaleText() throws Exception {
         runOnFxThread(() -> {
             PersonDetailPanel panel = new PersonDetailPanel();
-            for (String emptyPlan : new String[] {null, "", "   "}) {
+            for (String emptyPlan : new String[] {"", "   "}) {
                 panel.showPerson(new PersonBuilder(ALICE).withWorkoutPlan("Existing plan").build());
                 panel.showPerson(new PersonBuilder(BENSON).withWorkoutPlan(emptyPlan).build());
 
@@ -115,7 +115,7 @@ public class PersonDetailPanelTest {
     public void showPerson_blankNote_hidesSectionWhilePreservingWorkoutPlan() throws Exception {
         runOnFxThread(() -> {
             PersonDetailPanel panel = new PersonDetailPanel();
-            for (String text : new String[] {null, "", " \t\n"}) {
+            for (String text : new String[] {"", " \t\n"}) {
                 panel.showPerson(new PersonBuilder(ALICE).withNote("Previous note").build());
                 panel.showPerson(new PersonBuilder(ALICE).withNote(text).withWorkoutPlan("Squats").build());
                 Region content = (Region) ((ScrollPane) panel.getRoot()).getContent();

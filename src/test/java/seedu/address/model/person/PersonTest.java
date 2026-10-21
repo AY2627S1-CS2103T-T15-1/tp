@@ -23,7 +23,6 @@ public class PersonTest {
     @Test
     public void constructor_absentWorkoutPlan_defaultsToEmpty() {
         assertEquals("", new Person(ALICE.getId(), ALICE.getName(), ALICE.getPhone()).getWorkoutPlan().value);
-        assertEquals("", new PersonBuilder(ALICE).withWorkoutPlan(null).build().getWorkoutPlan().value);
         assertEquals("", new PersonBuilder(ALICE).withWorkoutPlan("").build().getWorkoutPlan().value);
     }
 

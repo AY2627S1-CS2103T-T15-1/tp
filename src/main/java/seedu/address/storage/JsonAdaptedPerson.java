@@ -143,8 +143,9 @@ class JsonAdaptedPerson {
         }
         final Phone modelPhone = new Phone(phone);
 
-        // A missing note, active status or tag list means the client was saved before these details existed
-        final LongFormText modelNote = new LongFormText(note);
+        // Missing or null text fields in legacy files represent absent text.
+        final LongFormText modelNote = new LongFormText(note == null ? "" : note);
+        final LongFormText modelWorkoutPlan = new LongFormText(workoutPlan == null ? "" : workoutPlan);
 
         final boolean modelIsActive = active == null || active;
 
@@ -157,7 +158,7 @@ class JsonAdaptedPerson {
         }
 
         return new Person(modelId, modelName, modelPhone, modelNote, modelIsActive, modelTags,
-                new LongFormText(workoutPlan));
+                modelWorkoutPlan);
     }
 
 }
