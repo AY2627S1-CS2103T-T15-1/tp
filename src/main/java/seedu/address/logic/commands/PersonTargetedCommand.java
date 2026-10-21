@@ -1,10 +1,12 @@
 package seedu.address.logic.commands;
 
 import static java.util.Objects.requireNonNull;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_ID;
 
 import java.util.List;
 
 import seedu.address.logic.commands.exceptions.CommandException;
+import seedu.address.model.LongFormText;
 import seedu.address.model.Model;
 import seedu.address.model.person.Person;
 
@@ -35,7 +37,9 @@ public abstract class PersonTargetedCommand extends Command {
         }
         if (matches.size() > 1) {
             model.updateFilteredPersonList(selector::matches);
-            return new CommandResult(selector.getMultipleMatchesMessage(matches, getCommandWord()));
+            String retryExample = getCommandWord() + " " + PREFIX_ID + " " + matches.get(0).getId()
+                    + getArgumentsAfterSelector();
+            return new CommandResult(selector.getMultipleMatchesMessage(matches, retryExample));
         }
         return executeOn(matches.get(0), model);
     }
@@ -51,4 +55,27 @@ public abstract class PersonTargetedCommand extends Command {
      * Returns the command word of this command.
      */
     protected abstract String getCommandWord();
+
+    /**
+     * Returns the arguments of this command other than the one choosing the client, as the user would type them,
+     * starting with a space. They are used to show a complete command when the user has to choose a client by
+     * {@code ID}. Commands with no other arguments return an empty string.
+     */
+    protected String getArgumentsAfterSelector() {
+        return "";
+    }
+
+    /**
+     * Returns {@code value} in double quotes, as the user would type it.
+     */
+    protected static String quote(String value) {
+        return "\"" + value + "\"";
+    }
+
+    /**
+     * Formats long-form text as a quoted single-line argument for a retry command.
+     */
+    protected static String quoteLongFormText(LongFormText text) {
+        return quote(text.value.replace("\n", "\\n"));
+    }
 }

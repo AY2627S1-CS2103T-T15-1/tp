@@ -7,7 +7,6 @@ import static seedu.address.logic.Messages.MESSAGE_UNKNOWN_COMMAND;
 import static seedu.address.testutil.Assert.assertThrows;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
@@ -20,15 +19,20 @@ import seedu.address.logic.commands.ExitCommand;
 import seedu.address.logic.commands.FindCommand;
 import seedu.address.logic.commands.HelpCommand;
 import seedu.address.logic.commands.ListCommand;
+import seedu.address.logic.commands.NoteCommand;
 import seedu.address.logic.commands.PersonSelector;
+import seedu.address.logic.commands.PlanCommand;
+import seedu.address.logic.commands.SetActiveCommand;
+import seedu.address.logic.commands.TagCommand;
 import seedu.address.logic.commands.ViewCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
+import seedu.address.model.LongFormText;
 import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
-import seedu.address.model.person.NameContainsKeywordsPredicate;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonId;
+import seedu.address.model.tag.Tag;
 import seedu.address.testutil.EditPersonDescriptorBuilder;
 import seedu.address.testutil.PersonBuilder;
 import seedu.address.testutil.PersonUtil;
@@ -37,6 +41,12 @@ import seedu.address.testutil.TypicalPersons;
 public class AddressBookParserTest {
 
     private final AddressBookParser parser = new AddressBookParser();
+
+    @Test
+    public void parseCommand_plan() throws Exception {
+        assertEquals(new PlanCommand(PersonSelector.byId(new PersonId(2)), new LongFormText("Squats")),
+                parser.parseCommand("plan --id 2 --plan \"Squats\""));
+    }
 
     @Test
     public void parseCommand_add() throws Exception {
@@ -99,6 +109,27 @@ public class AddressBookParserTest {
     }
 
     @Test
+    public void parseCommand_note() throws Exception {
+        NoteCommand command = (NoteCommand) parser.parseCommand(NoteCommand.COMMAND_WORD
+                + " --id 1 --note \"Knee injury\"");
+        assertEquals(new NoteCommand(PersonSelector.byId(new PersonId(1)), new LongFormText("Knee injury")), command);
+    }
+
+    @Test
+    public void parseCommand_activeAndInactive() throws Exception {
+        assertEquals(new SetActiveCommand(PersonSelector.byId(new PersonId(1)), true),
+                parser.parseCommand(SetActiveCommand.COMMAND_WORD_ACTIVE + " --id 1"));
+        assertEquals(new SetActiveCommand(PersonSelector.byPhone("9123"), false),
+                parser.parseCommand(SetActiveCommand.COMMAND_WORD_INACTIVE + " --phone 9123"));
+    }
+
+    @Test
+    public void parseCommand_tag() throws Exception {
+        assertEquals(new TagCommand(PersonSelector.byId(new PersonId(1)), Tag.GYM),
+                parser.parseCommand(TagCommand.COMMAND_WORD + " --id 1 --type gym"));
+    }
+
+    @Test
     public void parseCommand_exit() throws Exception {
         assertTrue(parser.parseCommand(ExitCommand.COMMAND_WORD) instanceof ExitCommand);
         assertTrue(parser.parseCommand(ExitCommand.COMMAND_WORD + " 3") instanceof ExitCommand);
@@ -106,10 +137,8 @@ public class AddressBookParserTest {
 
     @Test
     public void parseCommand_find() throws Exception {
-        List<String> keywords = List.of("foo", "bar", "baz");
-        FindCommand command = (FindCommand) parser.parseCommand(
-                FindCommand.COMMAND_WORD + " " + keywords.stream().collect(Collectors.joining(" ")));
-        assertEquals(new FindCommand(new NameContainsKeywordsPredicate(keywords)), command);
+        FindCommand command = (FindCommand) parser.parseCommand(FindCommand.COMMAND_WORD + " --name foo bar");
+        assertEquals(new FindCommand(List.of(PersonSelector.byName("foo bar"))), command);
     }
 
     @Test

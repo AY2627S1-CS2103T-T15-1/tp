@@ -67,6 +67,66 @@ public class LogicManagerTest {
     }
 
     @Test
+    public void execute_longQuotedNote_savesFullText() throws Exception {
+        model.addPerson(new PersonBuilder(AMY).withId(1).build());
+        String text = "a".repeat(501);
+
+        CommandResult result = logic.execute("note --id 1 --note \"" + text + "\"");
+
+        assertEquals(text, result.getPersonToView().orElseThrow().getNote().value);
+        JsonAddressBookStorage savedData =
+                new JsonAddressBookStorage(temporaryFolder.resolve("addressBook.json"));
+        assertEquals(text, savedData.readAddressBook().orElseThrow().getPersonList().get(0).getNote().value);
+    }
+
+    @Test
+    public void execute_noteWithNewlineEscape_displaysAndSavesActualNewline() throws Exception {
+        model.addPerson(new PersonBuilder(AMY).withId(1).withWorkoutPlan("Existing plan").build());
+
+        CommandResult result = logic.execute("note --id 1 --note \"Injury\\nRest\"");
+
+        assertEquals("Injury\nRest", result.getPersonToView().orElseThrow().getNote().value);
+        JsonAddressBookStorage savedData =
+                new JsonAddressBookStorage(temporaryFolder.resolve("addressBook.json"));
+        Person saved = savedData.readAddressBook().orElseThrow().getPersonList().get(0);
+        assertEquals("Injury\nRest", saved.getNote().value);
+        assertEquals("Existing plan", saved.getWorkoutPlan().value);
+    }
+
+    @Test
+    public void execute_planCommands_updatesAndSavesPlan() throws Exception {
+        model.addPerson(new PersonBuilder(AMY).withId(1).build());
+        JsonAddressBookStorage savedData =
+                new JsonAddressBookStorage(temporaryFolder.resolve("addressBook.json"));
+
+        logic.execute("plan --id 1 --plan \"Squats: 3 sets of 12\"");
+        assertEquals("Squats: 3 sets of 12", model.getAddressBook().getPersonList().get(0).getWorkoutPlan().value);
+        assertEquals("Squats: 3 sets of 12",
+                savedData.readAddressBook().get().getPersonList().get(0).getWorkoutPlan().value);
+
+        logic.execute("plan --name Amy --plan \"Push-ups: 3 sets of 10\"");
+        assertEquals("Push-ups: 3 sets of 10",
+                savedData.readAddressBook().get().getPersonList().get(0).getWorkoutPlan().value);
+
+        logic.execute("plan --id 1 --plan \"\"");
+        assertEquals("", model.getAddressBook().getPersonList().get(0).getWorkoutPlan().value);
+        assertEquals("", savedData.readAddressBook().get().getPersonList().get(0).getWorkoutPlan().value);
+    }
+
+    @Test
+    public void execute_planWithNewlineEscape_displaysAndSavesActualNewline() throws Exception {
+        model.addPerson(new PersonBuilder(AMY).withId(1).build());
+
+        CommandResult result = logic.execute("plan --id 1 --plan \"Squats\\nPush-ups\"");
+
+        assertEquals("Squats\nPush-ups", result.getPersonToView().get().getWorkoutPlan().value);
+        JsonAddressBookStorage savedData =
+                new JsonAddressBookStorage(temporaryFolder.resolve("addressBook.json"));
+        assertEquals("Squats\nPush-ups",
+                savedData.readAddressBook().get().getPersonList().get(0).getWorkoutPlan().value);
+    }
+
+    @Test
     public void execute_storageThrowsIoException_throwsCommandException() {
         assertCommandFailureForExceptionFromStorage(DUMMY_IO_EXCEPTION, String.format(
                 LogicManager.FILE_OPS_ERROR_FORMAT, DUMMY_IO_EXCEPTION.getMessage()));
