@@ -27,7 +27,7 @@ public class JsonAdaptedPersonTest {
         String fields = "\"id\": 1, \"name\": \"Alice\", \"phone\": \"91234567\"";
         for (String suffix : new String[] {"", ", \"workoutPlan\": null", ", \"workoutPlan\": \"\""}) {
             JsonAdaptedPerson person = JsonUtil.fromJsonString("{" + fields + suffix + "}", JsonAdaptedPerson.class);
-            assertEquals("", person.toModelType().getWorkoutPlan());
+            assertEquals("", person.toModelType().getWorkoutPlan().value);
         }
     }
 

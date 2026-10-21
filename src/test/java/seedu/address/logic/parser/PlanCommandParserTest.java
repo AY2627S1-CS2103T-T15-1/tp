@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.PersonSelector;
 import seedu.address.logic.commands.PlanCommand;
+import seedu.address.model.LongFormText;
 import seedu.address.model.person.PersonId;
 
 public class PlanCommandParserTest {
@@ -28,7 +29,7 @@ public class PlanCommandParserTest {
 
     @Test
     public void parse_quotedAndUnquotedNote_success() {
-        PlanCommand expected = new PlanCommand(SELECT_ID, PLAN);
+        PlanCommand expected = new PlanCommand(SELECT_ID, new LongFormText(PLAN));
         assertParseSuccess(parser, " --id 2 --note " + PLAN, expected);
         assertParseSuccess(parser, " --id 2 --note \"" + PLAN + "\"", expected);
         assertParseSuccess(parser, " --id \"2\" --note " + PLAN, expected);
@@ -36,19 +37,33 @@ public class PlanCommandParserTest {
 
     @Test
     public void parse_nameWithOptionalQuotes_success() {
-        PlanCommand expected = new PlanCommand(PersonSelector.byName("Alice Pauline"), PLAN);
+        PlanCommand expected = new PlanCommand(PersonSelector.byName("Alice Pauline"), new LongFormText(PLAN));
         assertParseSuccess(parser, " --name Alice Pauline --note " + PLAN, expected);
         assertParseSuccess(parser, " --name \"Alice Pauline\" --note \"" + PLAN + "\"", expected);
     }
 
     @Test
     public void parse_noteBeforeSelector_success() {
-        assertParseSuccess(parser, " --note \"" + PLAN + "\" --id 2", new PlanCommand(SELECT_ID, PLAN));
+        assertParseSuccess(parser, " --note \"" + PLAN + "\" --id 2",
+                new PlanCommand(SELECT_ID, new LongFormText(PLAN)));
+    }
+
+    @Test
+    public void parse_newlineEscapes_convertsWithOrWithoutQuotes() {
+        PlanCommand expected = new PlanCommand(SELECT_ID, new LongFormText("Squats\nPush-ups\n\nRest"));
+        assertParseSuccess(parser, " --id 2 --note \"Squats\\nPush-ups\\n\\nRest\"", expected);
+        assertParseSuccess(parser, " --id 2 --note Squats\\nPush-ups\\n\\nRest", expected);
+    }
+
+    @Test
+    public void parse_otherBackslashes_preservesText() {
+        String note = "Rest\\t60s; tempo \\ 3-1-2";
+        assertParseSuccess(parser, " --id 2 --note " + note, new PlanCommand(SELECT_ID, new LongFormText(note)));
     }
 
     @Test
     public void parse_emptyNote_clearsPlan() {
-        PlanCommand expected = new PlanCommand(SELECT_ID, "");
+        PlanCommand expected = new PlanCommand(SELECT_ID, new LongFormText(""));
         assertParseSuccess(parser, " --id 2 --note \"\"", expected);
         assertParseSuccess(parser, " --id 2 --note", expected);
         assertParseSuccess(parser, " --note --id 2", expected);
@@ -57,7 +72,7 @@ public class PlanCommandParserTest {
     @Test
     public void parse_noteText_preservesInternalSpacesPunctuationAndQuotes() {
         String note = "Squats: 3 x 12;  rest 60s. Coach says \"steady\".";
-        assertParseSuccess(parser, " --id 2 --note " + note, new PlanCommand(SELECT_ID, note));
+        assertParseSuccess(parser, " --id 2 --note " + note, new PlanCommand(SELECT_ID, new LongFormText(note)));
     }
 
     @Test

@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import seedu.address.logic.Messages;
 import seedu.address.model.AddressBook;
+import seedu.address.model.LongFormText;
 import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
@@ -38,13 +39,13 @@ public class PlanCommandTest {
 
     @Test
     public void constructor_nullArgument_throwsNullPointerException() {
-        assertThrows(NullPointerException.class, () -> new PlanCommand(null, WORKOUT_PLAN));
+        assertThrows(NullPointerException.class, () -> new PlanCommand(null, new LongFormText(WORKOUT_PLAN)));
         assertThrows(NullPointerException.class, () -> new PlanCommand(PersonSelector.byId(ALICE.getId()), null));
     }
 
     @Test
     public void execute_nullModel_throwsNullPointerException() {
-        PlanCommand command = new PlanCommand(PersonSelector.byId(ALICE.getId()), WORKOUT_PLAN);
+        PlanCommand command = new PlanCommand(PersonSelector.byId(ALICE.getId()), new LongFormText(WORKOUT_PLAN));
         assertThrows(NullPointerException.class, () -> command.execute(null));
     }
 
@@ -90,7 +91,7 @@ public class PlanCommandTest {
         Person withPlan = new PersonBuilder(BENSON).withWorkoutPlan("Existing plan").build();
         model.setPerson(BENSON, withPlan);
         PersonSelector selector = PersonSelector.byName("meier");
-        PlanCommand command = new PlanCommand(selector, WORKOUT_PLAN);
+        PlanCommand command = new PlanCommand(selector, new LongFormText(WORKOUT_PLAN));
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
         expectedModel.updateFilteredPersonList(selector::matches);
         String message = selector.getMultipleMatchesMessage(List.of(withPlan, DANIEL), PlanCommand.COMMAND_WORD);
@@ -100,23 +101,25 @@ public class PlanCommandTest {
 
     @Test
     public void execute_unknownId_throwsCommandExceptionWithoutChanges() {
-        PlanCommand command = new PlanCommand(PersonSelector.byId(new PersonId(999)), WORKOUT_PLAN);
+        PlanCommand command = new PlanCommand(PersonSelector.byId(new PersonId(999)), new LongFormText(WORKOUT_PLAN));
         assertCommandFailure(command, model, String.format(PersonSelector.MESSAGE_NO_PERSON_WITH_ID, 999));
     }
 
     @Test
     public void execute_unknownName_throwsCommandExceptionWithoutChanges() {
-        PlanCommand command = new PlanCommand(PersonSelector.byName("Zack"), WORKOUT_PLAN);
+        PlanCommand command = new PlanCommand(PersonSelector.byName("Zack"), new LongFormText(WORKOUT_PLAN));
         assertCommandFailure(command, model, String.format(PersonSelector.MESSAGE_NO_PERSON_WITH_NAME, "Zack"));
     }
 
     @Test
     public void equals_comparesSelectorAndPlan() {
-        PlanCommand command = new PlanCommand(PersonSelector.byId(ALICE.getId()), WORKOUT_PLAN);
+        LongFormText plan = new LongFormText(WORKOUT_PLAN);
+        PlanCommand command = new PlanCommand(PersonSelector.byId(ALICE.getId()), plan);
         assertTrue(command.equals(command));
-        assertEquals(command, new PlanCommand(PersonSelector.byId(ALICE.getId()), WORKOUT_PLAN));
-        assertFalse(command.equals(new PlanCommand(PersonSelector.byId(BENSON.getId()), WORKOUT_PLAN)));
-        assertFalse(command.equals(new PlanCommand(PersonSelector.byId(ALICE.getId()), "Other plan")));
+        assertEquals(command, new PlanCommand(PersonSelector.byId(ALICE.getId()), new LongFormText(WORKOUT_PLAN)));
+        assertFalse(command.equals(new PlanCommand(PersonSelector.byId(BENSON.getId()), plan)));
+        PlanCommand differentPlan = new PlanCommand(PersonSelector.byId(ALICE.getId()), new LongFormText("Other plan"));
+        assertFalse(command.equals(differentPlan));
         assertFalse(command.equals(null));
         assertFalse(command.equals(new ClearCommand()));
     }
@@ -127,7 +130,7 @@ public class PlanCommandTest {
         expectedModel.setPerson(target, updated);
         String message = String.format(PlanCommand.MESSAGE_PLAN_SUCCESS, Messages.format(updated));
 
-        assertCommandSuccess(new PlanCommand(selector, plan), model,
+        assertCommandSuccess(new PlanCommand(selector, new LongFormText(plan)), model,
                 new CommandResult(message, updated), expectedModel);
     }
 }

@@ -11,29 +11,33 @@ import static seedu.address.testutil.TypicalPersons.BOB;
 
 import org.junit.jupiter.api.Test;
 
+import seedu.address.model.LongFormText;
 import seedu.address.testutil.PersonBuilder;
 
 public class PersonTest {
 
     @Test
     public void constructor_absentWorkoutPlan_defaultsToEmpty() {
-        assertEquals("", new Person(ALICE.getId(), ALICE.getName(), ALICE.getPhone()).getWorkoutPlan());
-        assertEquals("", new PersonBuilder(ALICE).withWorkoutPlan(null).build().getWorkoutPlan());
-        assertEquals("", new PersonBuilder(ALICE).withWorkoutPlan("").build().getWorkoutPlan());
+        assertEquals("", new Person(ALICE.getId(), ALICE.getName(), ALICE.getPhone()).getWorkoutPlan().value);
+        assertEquals("", new PersonBuilder(ALICE).withWorkoutPlan(null).build().getWorkoutPlan().value);
+        assertEquals("", new PersonBuilder(ALICE).withWorkoutPlan("").build().getWorkoutPlan().value);
     }
 
     @Test
     public void constructor_nullRequiredField_throwsNullPointerException() {
-        assertThrows(NullPointerException.class, () -> new Person(null, ALICE.getName(), ALICE.getPhone(), "Squats"));
-        assertThrows(NullPointerException.class, () -> new Person(ALICE.getId(), null, ALICE.getPhone(), "Squats"));
-        assertThrows(NullPointerException.class, () -> new Person(ALICE.getId(), ALICE.getName(), null, "Squats"));
+        LongFormText plan = new LongFormText("Squats");
+        assertThrows(NullPointerException.class, () -> new Person(null, ALICE.getName(), ALICE.getPhone(), plan));
+        assertThrows(NullPointerException.class, () -> new Person(ALICE.getId(), null, ALICE.getPhone(), plan));
+        assertThrows(NullPointerException.class, () -> new Person(ALICE.getId(), ALICE.getName(), null, plan));
+        assertThrows(NullPointerException.class, ()
+                -> new Person(ALICE.getId(), ALICE.getName(), ALICE.getPhone(), null));
     }
 
     @Test
     public void equals_differentWorkoutPlans_notEqualButSamePerson() {
         Person withPlan = new PersonBuilder(ALICE).withWorkoutPlan("Squats: 3 sets of 12").build();
         Person samePlan = new PersonBuilder(withPlan).build();
-        assertEquals("Squats: 3 sets of 12", withPlan.getWorkoutPlan());
+        assertEquals("Squats: 3 sets of 12", withPlan.getWorkoutPlan().value);
         assertEquals(withPlan, samePlan);
         assertEquals(withPlan.hashCode(), samePlan.hashCode());
         assertFalse(ALICE.equals(withPlan));
@@ -108,7 +112,7 @@ public class PersonTest {
     @Test
     public void toStringMethod() {
         String expected = Person.class.getCanonicalName() + "{id=" + ALICE.getId() + ", name=" + ALICE.getName()
-                + ", phone=" + ALICE.getPhone() + ", workoutPlan=" + ALICE.getWorkoutPlan() + "}";
+                + ", phone=" + ALICE.getPhone() + ", workoutPlan=" + ALICE.getWorkoutPlan().value + "}";
         assertEquals(expected, ALICE.toString());
     }
 }

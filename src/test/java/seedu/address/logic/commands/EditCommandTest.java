@@ -49,7 +49,7 @@ public class EditCommandTest {
         command.execute(model);
 
         Person edited = model.getAddressBook().getPersonList().get(0);
-        assertEquals("Squats: 3 sets of 12", edited.getWorkoutPlan());
+        assertEquals("Squats: 3 sets of 12", edited.getWorkoutPlan().value);
         assertEquals(ALICE.getId(), edited.getId());
         assertEquals(VALID_NAME_BOB, edited.getName().fullName);
         assertEquals(VALID_PHONE_BOB, edited.getPhone().value);

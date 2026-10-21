@@ -10,6 +10,7 @@ import static seedu.address.logic.parser.ParserUtil.removeOptionalQuotes;
 import seedu.address.logic.commands.PersonSelector;
 import seedu.address.logic.commands.PlanCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
+import seedu.address.model.LongFormText;
 
 /**
  * Parses arguments for setting, replacing, or clearing a client's workout plan.
@@ -18,6 +19,7 @@ public class PlanCommandParser implements Parser<PlanCommand> {
 
     /**
      * Parses a client selector and a required note, whose value may be empty.
+     * Converts literal {@code \n} sequences in the note to line breaks.
      *
      * @throws ParseException if the selector or required note prefix is missing or invalid.
      */
@@ -29,6 +31,6 @@ public class PlanCommandParser implements Parser<PlanCommand> {
 
         String note = argMultimap.getValue(PREFIX_NOTE).orElseThrow(()
                 -> new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, PlanCommand.MESSAGE_USAGE)));
-        return new PlanCommand(selector, removeOptionalQuotes(note));
+        return new PlanCommand(selector, new LongFormText(removeOptionalQuotes(note).replace("\\n", "\n")));
     }
 }

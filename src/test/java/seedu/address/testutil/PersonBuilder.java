@@ -1,5 +1,6 @@
 package seedu.address.testutil;
 
+import seedu.address.model.LongFormText;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonId;
@@ -16,7 +17,7 @@ public class PersonBuilder {
     private PersonId id;
     private Name name;
     private Phone phone;
-    private String workoutPlan = "";
+    private LongFormText workoutPlan = new LongFormText("");
 
     /**
      * Creates a {@code PersonBuilder} with the default details.
@@ -65,7 +66,7 @@ public class PersonBuilder {
      * Sets the workout plan of the person that we are building.
      */
     public PersonBuilder withWorkoutPlan(String workoutPlan) {
-        this.workoutPlan = workoutPlan;
+        this.workoutPlan = new LongFormText(workoutPlan);
         return this;
     }
 

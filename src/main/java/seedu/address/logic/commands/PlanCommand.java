@@ -8,6 +8,7 @@ import static seedu.address.model.Model.PREDICATE_SHOW_ALL_PERSONS;
 
 import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.logic.Messages;
+import seedu.address.model.LongFormText;
 import seedu.address.model.Model;
 import seedu.address.model.person.Person;
 
@@ -26,13 +27,13 @@ public class PlanCommand extends PersonTargetedCommand {
 
     public static final String MESSAGE_PLAN_SUCCESS = "Updated workout plan for client: %1$s";
 
-    private final String workoutPlan;
+    private final LongFormText workoutPlan;
 
     /**
      * Creates a command that replaces the chosen client's workout plan.
      * Both arguments must not be null. An empty plan clears the existing plan.
      */
-    public PlanCommand(PersonSelector selector, String workoutPlan) {
+    public PlanCommand(PersonSelector selector, LongFormText workoutPlan) {
         super(selector);
         this.workoutPlan = requireNonNull(workoutPlan);
     }

@@ -7,6 +7,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import seedu.address.model.LongFormText;
 import seedu.address.model.person.Person;
 
 /**
@@ -38,9 +39,9 @@ public class PersonDetailPanel extends UiPart<Region> {
     public void showPerson(Person person) {
         requireNonNull(person);
         personHeader.getChildren().setAll(new PersonCard(person).getRoot());
-        String plan = person.getWorkoutPlan();
+        LongFormText plan = person.getWorkoutPlan();
         boolean hasPlan = !plan.isBlank();
-        workoutPlanText.setText(hasPlan ? plan : "");
+        workoutPlanText.setText(hasPlan ? plan.value : "");
         workoutPlanCard.setVisible(hasPlan);
         workoutPlanCard.setManaged(hasPlan);
     }

@@ -3,6 +3,7 @@ package seedu.address.model.person;
 import java.util.Objects;
 
 import seedu.address.commons.util.ToStringBuilder;
+import seedu.address.model.LongFormText;
 
 /**
  * Represents a Person in the address book.
@@ -15,28 +16,28 @@ public class Person {
     private final Name name;
     private final Phone phone;
 
-    // Optional data field; an empty string means no workout plan.
-    private final String workoutPlan;
+    // Optional data field; blank text means no workout plan.
+    private final LongFormText workoutPlan;
 
     /**
      * Creates a person without a workout plan. Identity fields must not be null.
      */
     public Person(PersonId id, Name name, Phone phone) {
-        this(id, name, phone, "");
+        this(id, name, phone, new LongFormText(""));
     }
 
     /**
      * Creates a person with an optional workout plan.
-     * Identity fields must not be null. A null plan is normalized to an empty string.
+     * All arguments must not be null. Use blank text for an absent plan.
      */
-    public Person(PersonId id, Name name, Phone phone, String workoutPlan) {
+    public Person(PersonId id, Name name, Phone phone, LongFormText workoutPlan) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(name);
         Objects.requireNonNull(phone);
         this.id = id;
         this.name = name;
         this.phone = phone;
-        this.workoutPlan = workoutPlan == null ? "" : workoutPlan;
+        this.workoutPlan = Objects.requireNonNull(workoutPlan);
     }
 
     public PersonId getId() {
@@ -51,7 +52,7 @@ public class Person {
         return phone;
     }
 
-    public String getWorkoutPlan() {
+    public LongFormText getWorkoutPlan() {
         return workoutPlan;
     }
 

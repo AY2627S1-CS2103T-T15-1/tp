@@ -30,7 +30,7 @@ public class JsonAddressBookStorageTest {
 
     @Test
     public void readAndSaveAddressBook_workoutPlan_preservesText() throws Exception {
-        String plan = "Squats: 3 sets of 12\nCoach says \"keep steady\"; warm-up --name drills";
+        String plan = "Squats: 3 sets of 12\nCoach says \"keep steady\"; warm-up --name drills; literal \\n";
         Person client = new PersonBuilder(ALICE).withWorkoutPlan(plan).build();
         AddressBook original = new AddressBook();
         original.addPerson(client);
@@ -38,7 +38,7 @@ public class JsonAddressBookStorageTest {
 
         storage.saveAddressBook(original);
         Person readBack = storage.readAddressBook().get().getPersonList().get(0);
-        assertEquals(plan, readBack.getWorkoutPlan());
+        assertEquals(plan, readBack.getWorkoutPlan().value);
         assertEquals(client, readBack);
     }
 

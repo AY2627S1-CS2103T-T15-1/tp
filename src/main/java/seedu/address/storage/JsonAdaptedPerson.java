@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import seedu.address.commons.exceptions.IllegalValueException;
+import seedu.address.model.LongFormText;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonId;
@@ -51,7 +52,7 @@ class JsonAdaptedPerson {
         id = source.getId().value;
         name = source.getName().fullName;
         phone = source.getPhone().value;
-        workoutPlan = source.getWorkoutPlan();
+        workoutPlan = source.getWorkoutPlan().value;
     }
 
     /**
@@ -107,7 +108,7 @@ class JsonAdaptedPerson {
         }
         final Phone modelPhone = new Phone(phone);
 
-        return new Person(modelId, modelName, modelPhone, workoutPlan);
+        return new Person(modelId, modelName, modelPhone, new LongFormText(workoutPlan));
     }
 
 }

@@ -154,6 +154,7 @@ Format: `plan --id ID --note TEXT` or `plan --name NAME --note TEXT`
 * Chooses the client using `--id` or `--name`, as described in [the notes about the command format](#features).
 * Exactly one selector and one `--note` must be provided. Repeated flags are rejected.
 * Double quotes around the note are optional, including when it contains spaces.
+* Type `\n` in the note to insert a line break in the workout-plan card. This works with or without quotes; use `\n\n` for a blank line. Other backslash sequences are kept as typed.
 * Replaces the entire plan immediately, while preserving the client's ID, name, and phone number.
 * Use `--note ""` to clear the plan. A bare `--note` also clears it; omitting `--note` is an error.
 * The plan is saved automatically. Editing a client's contact details with `edit` preserves their plan.
@@ -163,6 +164,7 @@ Format: `plan --id ID --note TEXT` or `plan --name NAME --note TEXT`
 Examples:
 
 * `plan --id 2 --note "Squats: 3 sets of 12"` sets or replaces the plan for client #2.
+* `plan --id 2 --note "Squats: 3 sets\nPush-ups: 3 sets"` displays the two exercises on separate lines. Type the command on one line, using a backslash followed by `n` where you want a line break.
 * `plan --name Alex --note Push-ups: 3 sets of 10` updates the only client whose name contains `Alex`. If several clients match, Cindy lists them and asks you to retry with `--id`; no plans are changed.
 * `plan --id 2 --note ""` clears the plan for client #2.
 
