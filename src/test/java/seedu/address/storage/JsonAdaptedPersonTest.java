@@ -37,6 +37,37 @@ public class JsonAdaptedPersonTest {
     }
 
     @Test
+    public void toModelType_workoutPlanOnlyConstructor_preservesPlanAndDefaultsOtherDetails() throws Exception {
+        JsonAdaptedPerson adapted = new JsonAdaptedPerson(VALID_ID, VALID_NAME, VALID_PHONE, "Squats\nRest");
+        assertEquals(new PersonBuilder(BENSON).withWorkoutPlan("Squats\nRest").build(), adapted.toModelType());
+    }
+
+    @Test
+    public void toModelType_nullWorkoutPlanConstructor_defaultsToEmpty() throws Exception {
+        JsonAdaptedPerson adapted = new JsonAdaptedPerson(VALID_ID, VALID_NAME, VALID_PHONE, (String) null);
+        assertEquals(BENSON, adapted.toModelType());
+    }
+
+    @Test
+    public void getId_missingSavedId_throwsAssertionError() {
+        JsonAdaptedPerson adapted = new JsonAdaptedPerson(null, VALID_NAME, VALID_PHONE);
+        assertThrows(AssertionError.class, adapted::getId);
+    }
+
+    @Test
+    public void toModelType_tagListChangedAfterConstruction_preservesSavedDetails() throws Exception {
+        List<JsonAdaptedTag> tags = new ArrayList<>(List.of(new JsonAdaptedTag("gym")));
+        JsonAdaptedPerson adapted = new JsonAdaptedPerson(VALID_ID, VALID_NAME, VALID_PHONE, "Injury", false,
+                tags, "Squats\nRest");
+
+        tags.clear();
+        tags.add(new JsonAdaptedTag("personal"));
+
+        assertEquals(new PersonBuilder(BENSON).withNote("Injury").withActive(false).withTags("gym")
+                .withWorkoutPlan("Squats\nRest").build(), adapted.toModelType());
+    }
+
+    @Test
     public void withId_personWithWorkoutPlan_preservesPlan() throws Exception {
         JsonAdaptedPerson person = new JsonAdaptedPerson(null, VALID_NAME, VALID_PHONE, "Knee injury", false,
                 List.of(new JsonAdaptedTag("gym")), "Squats: 3 sets of 12");

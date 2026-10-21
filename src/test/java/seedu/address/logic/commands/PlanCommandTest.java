@@ -35,6 +35,15 @@ public class PlanCommandTest {
     private Model model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
 
     @Test
+    public void toStringMethod_includesSelectorAndWorkoutPlan() {
+        PersonSelector selector = PersonSelector.byId(ALICE.getId());
+        PlanCommand command = new PlanCommand(selector, new LongFormText("Squats\nRest"));
+        String expected = PlanCommand.class.getCanonicalName() + "{selector=" + selector
+                + ", workoutPlan=Squats\nRest}";
+        assertEquals(expected, command.toString());
+    }
+
+    @Test
     public void constructor_nullArgument_throwsNullPointerException() {
         assertThrows(NullPointerException.class, () -> new PlanCommand(null, new LongFormText(WORKOUT_PLAN)));
         assertThrows(NullPointerException.class, () -> new PlanCommand(PersonSelector.byId(ALICE.getId()), null));
