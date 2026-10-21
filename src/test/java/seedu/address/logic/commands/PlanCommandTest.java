@@ -137,7 +137,7 @@ public class PlanCommandTest {
         PlanCommand differentPlan = new PlanCommand(PersonSelector.byId(ALICE.getId()), new LongFormText("Other plan"));
         assertFalse(command.equals(differentPlan));
         assertFalse(command.equals(null));
-        assertFalse(command.equals(new ClearCommand()));
+        assertFalse(command.equals(new ClearCommand(false)));
     }
 
     private void assertPlanSuccess(PersonSelector selector, Person target, String plan) {

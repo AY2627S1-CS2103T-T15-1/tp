@@ -103,7 +103,7 @@ public class TagCommandTest {
         assertFalse(command.equals(null));
 
         // different types -> returns false
-        assertFalse(command.equals(new ClearCommand()));
+        assertFalse(command.equals(new ClearCommand(false)));
 
         // different client -> returns false
         assertFalse(command.equals(new TagCommand(PersonSelector.byId(BENSON.getId()), Tag.GYM)));

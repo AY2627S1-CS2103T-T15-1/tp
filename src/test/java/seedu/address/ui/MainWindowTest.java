@@ -20,6 +20,8 @@ import javafx.event.ActionEvent;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import seedu.address.logic.LogicManager;
@@ -102,6 +104,24 @@ public class MainWindowTest {
                 assertTrue(stage.getScene().lookup("#menuBar").isVisible());
                 assertTrue(stage.getScene().lookup("#statusbarPlaceholder").isVisible());
                 assertFalse(details.isVisible());
+
+                // Recall must leave the real command result and displayed client list unchanged.
+                command.setText("unfinished command");
+                command.fireEvent(new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.UP,
+                        false, false, false, false));
+                assertEquals("list", command.getText());
+                command.fireEvent(new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.UP,
+                        false, false, false, false));
+                assertEquals("view --id 99", command.getText());
+                assertEquals("Listed 1 client", feedback.getText());
+                assertTrue(list.isVisible());
+                assertFalse(details.isVisible());
+                command.fireEvent(new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.DOWN,
+                        false, false, false, false));
+                assertEquals("list", command.getText());
+                command.fireEvent(new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.DOWN,
+                        false, false, false, false));
+                assertEquals("unfinished command", command.getText());
 
                 command.setText("exit");
                 command.fireEvent(new ActionEvent());

@@ -136,7 +136,7 @@ public class NoteCommandTest {
         assertFalse(noteCommand.equals(null));
 
         // different types -> returns false
-        assertFalse(noteCommand.equals(new ClearCommand()));
+        assertFalse(noteCommand.equals(new ClearCommand(false)));
 
         // different client -> returns false
         assertFalse(noteCommand.equals(new NoteCommand(PersonSelector.byId(BENSON.getId()), KNEE_NOTE)));

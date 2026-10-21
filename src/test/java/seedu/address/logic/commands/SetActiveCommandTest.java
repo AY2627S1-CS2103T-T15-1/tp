@@ -127,7 +127,7 @@ public class SetActiveCommandTest {
         assertFalse(command.equals(null));
 
         // different types -> returns false
-        assertFalse(command.equals(new ClearCommand()));
+        assertFalse(command.equals(new ClearCommand(false)));
 
         // different client -> returns false
         assertFalse(command.equals(new SetActiveCommand(PersonSelector.byId(BENSON.getId()), false)));
