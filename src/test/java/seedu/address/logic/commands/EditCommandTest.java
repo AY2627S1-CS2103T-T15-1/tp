@@ -200,7 +200,7 @@ public class EditCommandTest {
         assertFalse(standardCommand.equals(null));
 
         // different types -> returns false
-        assertFalse(standardCommand.equals(new ClearCommand()));
+        assertFalse(standardCommand.equals(new ClearCommand(false)));
 
         // different client -> returns false
         assertFalse(standardCommand.equals(new EditCommand(PersonSelector.byId(BENSON.getId()), DESC_AMY)));

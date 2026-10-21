@@ -27,12 +27,16 @@ import seedu.address.logic.commands.TagCommand;
 import seedu.address.logic.commands.ViewCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.LongFormText;
+import seedu.address.model.Model;
+import seedu.address.model.ModelManager;
+import seedu.address.model.UserPrefs;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonId;
 import seedu.address.model.tag.Tag;
 import seedu.address.testutil.EditPersonDescriptorBuilder;
 import seedu.address.testutil.PersonBuilder;
 import seedu.address.testutil.PersonUtil;
+import seedu.address.testutil.TypicalPersons;
 
 public class AddressBookParserTest {
 
@@ -54,7 +58,33 @@ public class AddressBookParserTest {
     @Test
     public void parseCommand_clear() throws Exception {
         assertTrue(parser.parseCommand(ClearCommand.COMMAND_WORD) instanceof ClearCommand);
-        assertTrue(parser.parseCommand(ClearCommand.COMMAND_WORD + " 3") instanceof ClearCommand);
+    }
+
+    @Test
+    public void parseCommand_clearInvalidArgs_throwsParseException() {
+        assertThrows(ParseException.class, () -> parser.parseCommand("clear 3"));
+    }
+
+    @Test
+    public void parseCommand_clearConfirmed_clearsClientsAndResetsNextId() throws Exception {
+        Model model = new ModelManager(TypicalPersons.getTypicalAddressBook(), new UserPrefs());
+
+        assertEquals(ClearCommand.MESSAGE_SUCCESS,
+                parser.parseCommand("clear --confirm").execute(model).getFeedbackToUser());
+
+        assertTrue(model.getAddressBook().getPersonList().isEmpty());
+        assertEquals(new PersonId(1), model.getNextPersonId());
+    }
+
+    @Test
+    public void parseCommand_clear_preservesClientsAndNextId() throws Exception {
+        Model model = new ModelManager(TypicalPersons.getTypicalAddressBook(), new UserPrefs());
+        Model expectedModel = new ModelManager(TypicalPersons.getTypicalAddressBook(), new UserPrefs());
+
+        parser.parseCommand(ClearCommand.COMMAND_WORD).execute(model);
+
+        assertEquals(expectedModel, model);
+        assertEquals(expectedModel.getNextPersonId(), model.getNextPersonId());
     }
 
     @Test
