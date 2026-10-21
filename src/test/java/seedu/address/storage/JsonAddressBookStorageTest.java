@@ -19,12 +19,28 @@ import org.junit.jupiter.api.io.TempDir;
 import seedu.address.commons.exceptions.DataLoadingException;
 import seedu.address.model.AddressBook;
 import seedu.address.model.ReadOnlyAddressBook;
+import seedu.address.model.person.Person;
+import seedu.address.testutil.PersonBuilder;
 
 public class JsonAddressBookStorageTest {
     private static final Path TEST_DATA_FOLDER = Paths.get("src", "test", "data", "JsonAddressBookStorageTest");
 
     @TempDir
     public Path testFolder;
+
+    @Test
+    public void readAndSaveAddressBook_workoutPlan_preservesText() throws Exception {
+        String plan = "Squats: 3 sets of 12\nCoach says \"keep steady\"; warm-up --name drills";
+        Person client = new PersonBuilder(ALICE).withWorkoutPlan(plan).build();
+        AddressBook original = new AddressBook();
+        original.addPerson(client);
+        JsonAddressBookStorage storage = new JsonAddressBookStorage(testFolder.resolve("workoutPlan.json"));
+
+        storage.saveAddressBook(original);
+        Person readBack = storage.readAddressBook().get().getPersonList().get(0);
+        assertEquals(plan, readBack.getWorkoutPlan());
+        assertEquals(client, readBack);
+    }
 
     @Test
     public void readAddressBook_nullFilePath_throwsNullPointerException() {

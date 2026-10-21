@@ -15,16 +15,28 @@ public class Person {
     private final Name name;
     private final Phone phone;
 
+    // Optional data field; an empty string means no workout plan.
+    private final String workoutPlan;
+
     /**
-     * Every field must be present and not null.
+     * Creates a person without a workout plan. Identity fields must not be null.
      */
     public Person(PersonId id, Name name, Phone phone) {
+        this(id, name, phone, "");
+    }
+
+    /**
+     * Creates a person with an optional workout plan.
+     * Identity fields must not be null. A null plan is normalized to an empty string.
+     */
+    public Person(PersonId id, Name name, Phone phone, String workoutPlan) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(name);
         Objects.requireNonNull(phone);
         this.id = id;
         this.name = name;
         this.phone = phone;
+        this.workoutPlan = workoutPlan == null ? "" : workoutPlan;
     }
 
     public PersonId getId() {
@@ -37,6 +49,10 @@ public class Person {
 
     public Phone getPhone() {
         return phone;
+    }
+
+    public String getWorkoutPlan() {
+        return workoutPlan;
     }
 
     /**
@@ -71,13 +87,14 @@ public class Person {
 
         return id.equals(otherPerson.id)
                 && name.equals(otherPerson.name)
-                && phone.equals(otherPerson.phone);
+                && phone.equals(otherPerson.phone)
+                && workoutPlan.equals(otherPerson.workoutPlan);
     }
 
     @Override
     public int hashCode() {
         // use this method for custom fields hashing instead of implementing your own
-        return Objects.hash(id, name, phone);
+        return Objects.hash(id, name, phone, workoutPlan);
     }
 
     @Override
@@ -86,6 +103,7 @@ public class Person {
                 .add("id", id)
                 .add("name", name)
                 .add("phone", phone)
+                .add("workoutPlan", workoutPlan)
                 .toString();
     }
 

@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_NAME_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_PHONE_BOB;
+import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalPersons.ALICE;
 import static seedu.address.testutil.TypicalPersons.BOB;
 
@@ -13,6 +14,31 @@ import org.junit.jupiter.api.Test;
 import seedu.address.testutil.PersonBuilder;
 
 public class PersonTest {
+
+    @Test
+    public void constructor_absentWorkoutPlan_defaultsToEmpty() {
+        assertEquals("", new Person(ALICE.getId(), ALICE.getName(), ALICE.getPhone()).getWorkoutPlan());
+        assertEquals("", new PersonBuilder(ALICE).withWorkoutPlan(null).build().getWorkoutPlan());
+        assertEquals("", new PersonBuilder(ALICE).withWorkoutPlan("").build().getWorkoutPlan());
+    }
+
+    @Test
+    public void constructor_nullRequiredField_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> new Person(null, ALICE.getName(), ALICE.getPhone(), "Squats"));
+        assertThrows(NullPointerException.class, () -> new Person(ALICE.getId(), null, ALICE.getPhone(), "Squats"));
+        assertThrows(NullPointerException.class, () -> new Person(ALICE.getId(), ALICE.getName(), null, "Squats"));
+    }
+
+    @Test
+    public void equals_differentWorkoutPlans_notEqualButSamePerson() {
+        Person withPlan = new PersonBuilder(ALICE).withWorkoutPlan("Squats: 3 sets of 12").build();
+        Person samePlan = new PersonBuilder(withPlan).build();
+        assertEquals("Squats: 3 sets of 12", withPlan.getWorkoutPlan());
+        assertEquals(withPlan, samePlan);
+        assertEquals(withPlan.hashCode(), samePlan.hashCode());
+        assertFalse(ALICE.equals(withPlan));
+        assertTrue(ALICE.isSamePerson(withPlan));
+    }
 
     @Test
     public void isSamePerson() {
@@ -82,7 +108,7 @@ public class PersonTest {
     @Test
     public void toStringMethod() {
         String expected = Person.class.getCanonicalName() + "{id=" + ALICE.getId() + ", name=" + ALICE.getName()
-                + ", phone=" + ALICE.getPhone() + "}";
+                + ", phone=" + ALICE.getPhone() + ", workoutPlan=" + ALICE.getWorkoutPlan() + "}";
         assertEquals(expected, ALICE.toString());
     }
 }

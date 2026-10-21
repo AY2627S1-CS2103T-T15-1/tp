@@ -21,17 +21,27 @@ class JsonAdaptedPerson {
     private final Integer id;
     private final String name;
     private final String phone;
+    private final String workoutPlan;
+
+    /**
+     * Constructs an adapted person without a workout plan.
+     */
+    public JsonAdaptedPerson(Integer id, String name, String phone) {
+        this(id, name, phone, "");
+    }
 
     /**
      * Constructs a {@code JsonAdaptedPerson} with the given person details.
      * {@code id} can be null for data files saved before clients had IDs.
+     * {@code workoutPlan} can be null for clients without a plan, including older data files.
      */
     @JsonCreator
     public JsonAdaptedPerson(@JsonProperty("id") Integer id, @JsonProperty("name") String name,
-            @JsonProperty("phone") String phone) {
+            @JsonProperty("phone") String phone, @JsonProperty("workoutPlan") String workoutPlan) {
         this.id = id;
         this.name = name;
         this.phone = phone;
+        this.workoutPlan = workoutPlan;
     }
 
     /**
@@ -41,6 +51,7 @@ class JsonAdaptedPerson {
         id = source.getId().value;
         name = source.getName().fullName;
         phone = source.getPhone().value;
+        workoutPlan = source.getWorkoutPlan();
     }
 
     /**
@@ -63,7 +74,7 @@ class JsonAdaptedPerson {
      * Returns a copy of this person that has {@code newId} as its ID.
      */
     JsonAdaptedPerson withId(int newId) {
-        return new JsonAdaptedPerson(newId, name, phone);
+        return new JsonAdaptedPerson(newId, name, phone, workoutPlan);
     }
 
     /**
@@ -96,7 +107,7 @@ class JsonAdaptedPerson {
         }
         final Phone modelPhone = new Phone(phone);
 
-        return new Person(modelId, modelName, modelPhone);
+        return new Person(modelId, modelName, modelPhone, workoutPlan);
     }
 
 }

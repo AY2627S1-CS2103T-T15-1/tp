@@ -8,6 +8,7 @@ import static seedu.address.testutil.TypicalPersons.BENSON;
 import org.junit.jupiter.api.Test;
 
 import seedu.address.commons.exceptions.IllegalValueException;
+import seedu.address.commons.util.JsonUtil;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.PersonId;
 import seedu.address.model.person.Phone;
@@ -20,6 +21,22 @@ public class JsonAdaptedPersonTest {
     private static final int VALID_ID = BENSON.getId().value;
     private static final String VALID_NAME = BENSON.getName().toString();
     private static final String VALID_PHONE = BENSON.getPhone().toString();
+
+    @Test
+    public void toModelType_absentWorkoutPlan_defaultsToEmpty() throws Exception {
+        String fields = "\"id\": 1, \"name\": \"Alice\", \"phone\": \"91234567\"";
+        for (String suffix : new String[] {"", ", \"workoutPlan\": null", ", \"workoutPlan\": \"\""}) {
+            JsonAdaptedPerson person = JsonUtil.fromJsonString("{" + fields + suffix + "}", JsonAdaptedPerson.class);
+            assertEquals("", person.toModelType().getWorkoutPlan());
+        }
+    }
+
+    @Test
+    public void withId_personWithWorkoutPlan_preservesPlan() throws Exception {
+        JsonAdaptedPerson person = new JsonAdaptedPerson(null, VALID_NAME, VALID_PHONE, "Squats: 3 sets of 12");
+        assertEquals(new PersonBuilder(BENSON).withId(5).withWorkoutPlan("Squats: 3 sets of 12").build(),
+                person.withId(5).toModelType());
+    }
 
     @Test
     public void toModelType_validPersonDetails_returnsPerson() throws Exception {

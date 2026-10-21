@@ -16,6 +16,7 @@ public class PersonBuilder {
     private PersonId id;
     private Name name;
     private Phone phone;
+    private String workoutPlan = "";
 
     /**
      * Creates a {@code PersonBuilder} with the default details.
@@ -33,6 +34,7 @@ public class PersonBuilder {
         id = personToCopy.getId();
         name = personToCopy.getName();
         phone = personToCopy.getPhone();
+        workoutPlan = personToCopy.getWorkoutPlan();
     }
 
     /**
@@ -59,8 +61,16 @@ public class PersonBuilder {
         return this;
     }
 
+    /**
+     * Sets the workout plan of the person that we are building.
+     */
+    public PersonBuilder withWorkoutPlan(String workoutPlan) {
+        this.workoutPlan = workoutPlan;
+        return this;
+    }
+
     public Person build() {
-        return new Person(id, name, phone);
+        return new Person(id, name, phone, workoutPlan);
     }
 
 }
