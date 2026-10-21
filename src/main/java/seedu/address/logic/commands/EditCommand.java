@@ -97,7 +97,7 @@ public class EditCommand extends PersonTargetedCommand {
         Phone updatedPhone = editPersonDescriptor.getPhone().orElse(personToEdit.getPhone());
 
         return new Person(personToEdit.getId(), updatedName, updatedPhone, personToEdit.getNote(),
-                personToEdit.isActive(), personToEdit.getTags());
+                personToEdit.isActive(), personToEdit.getTags(), personToEdit.getWorkoutPlan());
     }
 
     @Override

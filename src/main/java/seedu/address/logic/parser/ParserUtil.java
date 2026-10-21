@@ -17,6 +17,7 @@ import seedu.address.commons.core.index.Index;
 import seedu.address.commons.util.StringUtil;
 import seedu.address.logic.commands.PersonSelector;
 import seedu.address.logic.parser.exceptions.ParseException;
+import seedu.address.model.LongFormText;
 import seedu.address.model.person.Address;
 import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
@@ -30,11 +31,28 @@ import seedu.address.model.tag.Tag;
 public class ParserUtil {
 
     public static final String MESSAGE_INVALID_INDEX = "Index must be a positive integer.";
+    public static final String MESSAGE_TEXT_NOT_QUOTED =
+            "Put text in double quotes, e.g. \"TEXT\". Use \"\" to clear it.";
     public static final String MESSAGE_CONFLICTING_SELECTORS = "Choose the client using only one of %1$s.";
     public static final String MESSAGE_BLANK_NAME_KEYWORD =
             "Enter part of the client's name after " + PREFIX_NAME_LONG + ".";
     public static final String MESSAGE_INVALID_PHONE_KEYWORD = "Enter digits of the client's phone number after "
             + PREFIX_PHONE_LONG + ". Spaces, parentheses, hyphens and a leading + are allowed.";
+
+    /**
+     * Parses long-form command text, requiring outer double quotes and converting literal {@code \n}
+     * sequences to line breaks. Other content is preserved.
+     *
+     * @throws ParseException if the text is not surrounded by double quotes.
+     */
+    public static LongFormText parseLongFormText(String text) throws ParseException {
+        requireNonNull(text);
+        String trimmed = text.trim();
+        if (trimmed.length() < 2 || !trimmed.startsWith("\"") || !trimmed.endsWith("\"")) {
+            throw new ParseException(MESSAGE_TEXT_NOT_QUOTED);
+        }
+        return new LongFormText(trimmed.substring(1, trimmed.length() - 1).replace("\\n", "\n"));
+    }
 
     /**
      * Parses {@code oneBasedIndex} into an {@code Index} and returns it. Leading and trailing whitespaces will be

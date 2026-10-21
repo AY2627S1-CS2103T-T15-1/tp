@@ -40,6 +40,22 @@ public class EditCommandTest {
     private Model model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
 
     @Test
+    public void execute_editContactDetails_preservesWorkoutPlan() throws Exception {
+        Person withPlan = new PersonBuilder(ALICE).withWorkoutPlan("Squats: 3 sets of 12").build();
+        model.setPerson(ALICE, withPlan);
+        EditCommand command = new EditCommand(PersonSelector.byId(ALICE.getId()),
+                new EditPersonDescriptorBuilder().withName(VALID_NAME_BOB).withPhone(VALID_PHONE_BOB).build());
+
+        command.execute(model);
+
+        Person edited = model.getAddressBook().getPersonList().get(0);
+        assertEquals("Squats: 3 sets of 12", edited.getWorkoutPlan().value);
+        assertEquals(ALICE.getId(), edited.getId());
+        assertEquals(VALID_NAME_BOB, edited.getName().fullName);
+        assertEquals(VALID_PHONE_BOB, edited.getPhone().value);
+    }
+
+    @Test
     public void execute_allFieldsSpecified_success() {
         Person editedPerson = new PersonBuilder().withId(ALICE.getId().value).build();
         EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder(editedPerson).build();

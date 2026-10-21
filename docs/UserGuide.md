@@ -55,10 +55,12 @@ Cindy is a **desktop application that helps freelance gym trainers manage their 
 * Items in square brackets are optional.<br>
   For example, `edit --id ID [--to-name NEW_NAME] [--to-phone NEW_PHONE]` can be used as `edit --id 1 --to-name John Doe`.
 
-* Values can be wrapped in double quotes, which is useful for values containing spaces.<br>
+* Names and phone numbers can optionally be wrapped in double quotes, which is useful for values containing spaces.<br>
   For example, `--name "John Doe"` and `--name John Doe` mean the same.
+* Long-form text, such as client notes and workout plans, must be wrapped in double quotes, even for a single word. Use `--note ""` to clear a note or `--plan ""` to clear a workout plan.
+* Inside long-form text, type `\n` for a line break or `\n\n` for a blank line. Enter the command on one line; Cindy displays the line breaks in the detail view.
 
-* Commands that act on one client (`view`, `edit`, `delete`, `note`, `inactive`, `active` and `tag`) choose the client with either `--id ID` or `--name NAME`, but not both. `inactive` and `active` also accept `--phone PHONE` instead:
+* Commands that act on one client (`view`, `edit`, `plan`, `delete`, `note`, `inactive`, `active` and `tag`) choose the client with either `--id ID` or `--name NAME`, but not both. `inactive` and `active` also accept `--phone PHONE` instead:
   * `--id ID` chooses the client with that ID. Every client's ID is shown as `#ID` on their card, e.g. `#3`.
   * `--name NAME` chooses the client whose name contains `NAME`, ignoring upper and lower case. For example, `--name john` matches `John`, `John Doe` and `Johnny Tan`.
   * If more than one client's name contains `NAME`, Cindy does not act on any of them. Instead, it lists those clients and asks you to run the command again with `--id`, using one of the IDs shown.
@@ -85,6 +87,7 @@ Format: `help`
 ### Adding a client: `add`
 
 Adds a client using their name and mandatory phone number.
+New clients start without a workout plan; you can set one later using `plan`.
 
 Format: `add --name "NAME" --phone "PHONE_NUMBER"`
 
@@ -144,6 +147,29 @@ Examples:
 *  `edit --id 1 --to-phone 91234567` Edits the phone number of the client with ID 1 to be `91234567`.
 *  `edit --name Betsy --to-name "Betsy Crower"` Edits the name of the only client whose name contains `Betsy` to be `Betsy Crower`.
 
+### Setting or replacing a workout plan: `plan`
+
+Sets the workout plan of an existing client. The same command replaces an existing plan in full.
+
+Format: `plan --id ID --plan "TEXT"` or `plan --name NAME --plan "TEXT"`
+
+* Chooses the client using `--id` or `--name`, as described in [the notes about the command format](#features).
+* Exactly one selector and one `--plan` must be provided. Repeated flags are rejected.
+* Double quotes around the workout-plan text are required.
+* Type `\n` inside the quoted text to insert a line break in the workout-plan card; use `\n\n` for a blank line. Other backslash sequences are kept as typed.
+* Replaces the entire plan immediately, while preserving the client's ID, name, phone number, note, active status, and tags.
+* Use `--plan ""` to clear the plan. A bare `--plan`, unquoted text, or omitting `--plan` is an error.
+* The plan is saved automatically. Editing a client's contact details with `edit` preserves their plan.
+* After an update, the client's detail view opens with the workout plan in its own card. Empty plans have no card.
+* Avoid ` --id`, ` --name`, and ` --plan` inside the workout-plan text: these are interpreted as command prefixes even inside quotes.
+
+Examples:
+
+* `plan --id 2 --plan "Squats: 3 sets of 12"` sets or replaces the plan for client #2.
+* `plan --id 2 --plan "Squats: 3 sets\nPush-ups: 3 sets"` displays the two exercises on separate lines. Type the command on one line, using a backslash followed by `n` where you want a line break.
+* `plan --name Alex --plan "Push-ups: 3 sets of 10"` updates the only client whose name contains `Alex`. If several clients match, Cindy lists them and asks you to retry with `--id`, keeping your quoted `--plan` text; no plans are changed. For example, retry with `plan --id 2 --plan "Push-ups: 3 sets of 10"` if client #2 is the one you intended.
+* `plan --id 2 --plan ""` clears the plan for client #2.
+
 ### Finding clients: `find`
 
 Finds clients by name, phone number or ID, and shows only those clients in the list.
@@ -178,7 +204,7 @@ Examples:
 
 ### Viewing a client: `view`
 
-Shows the name and phone number of the specified client.
+Shows the contact details, note, and workout plan (if present) of the specified client.
 
 Format: `view --id ID` or `view --name NAME`
 
@@ -196,7 +222,8 @@ Gives a client a note, such as their training preferences or injuries, replacing
 Format: `note --id ID --note "TEXT"` or `note --name NAME --note "TEXT"`
 
 * Changes the note of the client chosen by `--id` or `--name`, as described in [the notes about the command format](#features).
-* The note must be in double quotes, and can have up to 500 characters on a single line.
+* The note must be in double quotes. There is no fixed character limit.
+* Use `\n` inside the quotes for a line break, or `\n\n` for a blank line. Other backslash sequences and spaces inside the quotes are preserved. Empty or whitespace-only notes are hidden from the detail view.
 * Each client has at most one note. Running `note` again replaces the note, so to change part of a note, type the whole new note.
 * `--note ""` removes the client's note.
 * After the note is changed, the client's details page opens and shows the note.
@@ -204,6 +231,7 @@ Format: `note --id ID --note "TEXT"` or `note --name NAME --note "TEXT"`
 
 Examples:
 * `note --id 3 --note "Knee injury, avoid lunges"` gives the client with ID 3 that note.
+* `note --id 3 --note "Knee injury\nAvoid lunges"` displays the injury and instruction on separate lines.
 * `note --name bernice --note ""` removes the note of the only client whose name contains `bernice`.
 
 ### Marking a client as inactive or active: `inactive`, `active`
@@ -305,6 +333,7 @@ Action     | Format, Examples
 **Edit**   | `edit --id ID [--to-name NEW_NAME] [--to-phone NEW_PHONE]` (or `--name NAME` instead of `--id ID`)<br> e.g., `edit --id 2 --to-name "James Lee"`
 **Find**   | `find [--name NAME] [--phone PHONE] [--id ID]` (at least one)<br> e.g., `find --name james`
 **List**   | `list`
+**Plan**   | `plan --id ID --plan "TEXT"` (or `--name NAME` instead of `--id ID`)<br> e.g., `plan --id 2 --plan "Squats: 3 sets"`
 **View**   | `view --id ID` or `view --name NAME`<br> e.g., `view --id 2`
 **Note**   | `note --id ID --note "TEXT"` (or `--name NAME` instead of `--id ID`)<br> e.g., `note --id 3 --note "Knee injury"`
 **Inactive** / **Active** | `inactive --id ID` or `active --id ID` (or `--name NAME` or `--phone PHONE` instead of `--id ID`)<br> e.g., `inactive --id 4`

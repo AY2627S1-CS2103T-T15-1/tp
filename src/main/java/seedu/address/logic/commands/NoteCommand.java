@@ -7,8 +7,8 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_NOTE;
 
 import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.logic.Messages;
+import seedu.address.model.LongFormText;
 import seedu.address.model.Model;
-import seedu.address.model.person.Note;
 import seedu.address.model.person.Person;
 
 /**
@@ -23,17 +23,18 @@ public class NoteCommand extends PersonTargetedCommand {
             + "and an empty note (\"\") removes the client's note.\n"
             + "Parameters: " + PREFIX_ID + " ID or " + PREFIX_NAME_LONG + " NAME, then "
             + PREFIX_NOTE + " \"TEXT\"\n"
+            + "Use \\n inside TEXT for a line break.\n"
             + "Example: " + COMMAND_WORD + " " + PREFIX_ID + " 1 " + PREFIX_NOTE + " \"Knee injury, avoid lunges\"";
 
     public static final String MESSAGE_NOTE_UPDATED = "Updated note of client: %1$s";
     public static final String MESSAGE_NOTE_REMOVED = "Removed note of client: %1$s";
 
-    private final Note note;
+    private final LongFormText note;
 
     /**
      * Creates a NoteCommand that replaces the note of the client chosen by {@code selector} with {@code note}.
      */
-    public NoteCommand(PersonSelector selector, Note note) {
+    public NoteCommand(PersonSelector selector, LongFormText note) {
         super(selector);
         requireNonNull(note);
         this.note = note;
@@ -44,7 +45,7 @@ public class NoteCommand extends PersonTargetedCommand {
         Person editedPerson = target.withNote(note);
         model.setPerson(target, editedPerson);
 
-        String messageFormat = note.isEmpty() ? MESSAGE_NOTE_REMOVED : MESSAGE_NOTE_UPDATED;
+        String messageFormat = note.isBlank() ? MESSAGE_NOTE_REMOVED : MESSAGE_NOTE_UPDATED;
         return new CommandResult(String.format(messageFormat, Messages.format(editedPerson)), editedPerson);
     }
 
@@ -55,7 +56,7 @@ public class NoteCommand extends PersonTargetedCommand {
 
     @Override
     protected String getArgumentsAfterSelector() {
-        return " " + PREFIX_NOTE + " " + quote(note.value);
+        return " " + PREFIX_NOTE + " " + quoteLongFormText(note);
     }
 
     @Override

@@ -21,11 +21,12 @@ import seedu.address.logic.commands.HelpCommand;
 import seedu.address.logic.commands.ListCommand;
 import seedu.address.logic.commands.NoteCommand;
 import seedu.address.logic.commands.PersonSelector;
+import seedu.address.logic.commands.PlanCommand;
 import seedu.address.logic.commands.SetActiveCommand;
 import seedu.address.logic.commands.TagCommand;
 import seedu.address.logic.commands.ViewCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
-import seedu.address.model.person.Note;
+import seedu.address.model.LongFormText;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonId;
 import seedu.address.model.tag.Tag;
@@ -36,6 +37,12 @@ import seedu.address.testutil.PersonUtil;
 public class AddressBookParserTest {
 
     private final AddressBookParser parser = new AddressBookParser();
+
+    @Test
+    public void parseCommand_plan() throws Exception {
+        assertEquals(new PlanCommand(PersonSelector.byId(new PersonId(2)), new LongFormText("Squats")),
+                parser.parseCommand("plan --id 2 --plan \"Squats\""));
+    }
 
     @Test
     public void parseCommand_add() throws Exception {
@@ -75,7 +82,7 @@ public class AddressBookParserTest {
     public void parseCommand_note() throws Exception {
         NoteCommand command = (NoteCommand) parser.parseCommand(NoteCommand.COMMAND_WORD
                 + " --id 1 --note \"Knee injury\"");
-        assertEquals(new NoteCommand(PersonSelector.byId(new PersonId(1)), new Note("Knee injury")), command);
+        assertEquals(new NoteCommand(PersonSelector.byId(new PersonId(1)), new LongFormText("Knee injury")), command);
     }
 
     @Test

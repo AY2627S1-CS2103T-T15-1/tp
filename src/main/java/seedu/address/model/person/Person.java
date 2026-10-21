@@ -6,6 +6,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import seedu.address.commons.util.ToStringBuilder;
+import seedu.address.model.LongFormText;
 import seedu.address.model.tag.Tag;
 
 /**
@@ -20,7 +21,8 @@ public class Person {
     private final Phone phone;
 
     // Data fields
-    private final Note note;
+    private final LongFormText note;
+    private final LongFormText workoutPlan;
     private final boolean isActive;
     private final Set<Tag> tags = new HashSet<>();
 
@@ -29,13 +31,28 @@ public class Person {
      * Every field must be present and not null.
      */
     public Person(PersonId id, Name name, Phone phone) {
-        this(id, name, phone, Note.EMPTY, true, Set.of());
+        this(id, name, phone, new LongFormText(""), true, Set.of());
     }
 
     /**
      * Every field must be present and not null.
      */
-    public Person(PersonId id, Name name, Phone phone, Note note, boolean isActive, Set<Tag> tags) {
+    public Person(PersonId id, Name name, Phone phone, LongFormText note, boolean isActive, Set<Tag> tags) {
+        this(id, name, phone, note, isActive, tags, new LongFormText(""));
+    }
+
+    /**
+     * Creates an active person with a workout plan, no note and no tags.
+     */
+    public Person(PersonId id, Name name, Phone phone, LongFormText workoutPlan) {
+        this(id, name, phone, new LongFormText(""), true, Set.of(), workoutPlan);
+    }
+
+    /**
+     * Creates a person with all details. Every argument must be present and not null.
+     */
+    public Person(PersonId id, Name name, Phone phone, LongFormText note, boolean isActive, Set<Tag> tags,
+            LongFormText workoutPlan) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(name);
         Objects.requireNonNull(phone);
@@ -45,6 +62,7 @@ public class Person {
         this.name = name;
         this.phone = phone;
         this.note = note;
+        this.workoutPlan = Objects.requireNonNull(workoutPlan);
         this.isActive = isActive;
         this.tags.addAll(tags);
     }
@@ -61,8 +79,12 @@ public class Person {
         return phone;
     }
 
-    public Note getNote() {
+    public LongFormText getNote() {
         return note;
+    }
+
+    public LongFormText getWorkoutPlan() {
+        return workoutPlan;
     }
 
     public boolean isActive() {
@@ -80,22 +102,29 @@ public class Person {
     /**
      * Returns a copy of this person with {@code note} as their note.
      */
-    public Person withNote(Note note) {
-        return new Person(id, name, phone, note, isActive, tags);
+    public Person withNote(LongFormText note) {
+        return new Person(id, name, phone, note, isActive, tags, workoutPlan);
     }
 
     /**
      * Returns a copy of this person who is active if {@code isActive} is true, and inactive otherwise.
      */
     public Person withActive(boolean isActive) {
-        return new Person(id, name, phone, note, isActive, tags);
+        return new Person(id, name, phone, note, isActive, tags, workoutPlan);
     }
 
     /**
      * Returns a copy of this person with {@code tags} as their tags.
      */
     public Person withTags(Set<Tag> tags) {
-        return new Person(id, name, phone, note, isActive, tags);
+        return new Person(id, name, phone, note, isActive, tags, workoutPlan);
+    }
+
+    /**
+     * Returns a copy of this person with the given workout plan, preserving all other details.
+     */
+    public Person withWorkoutPlan(LongFormText workoutPlan) {
+        return new Person(id, name, phone, note, isActive, tags, workoutPlan);
     }
 
     /**
@@ -133,13 +162,14 @@ public class Person {
                 && phone.equals(otherPerson.phone)
                 && note.equals(otherPerson.note)
                 && isActive == otherPerson.isActive
-                && tags.equals(otherPerson.tags);
+                && tags.equals(otherPerson.tags)
+                && workoutPlan.equals(otherPerson.workoutPlan);
     }
 
     @Override
     public int hashCode() {
         // use this method for custom fields hashing instead of implementing your own
-        return Objects.hash(id, name, phone, note, isActive, tags);
+        return Objects.hash(id, name, phone, note, isActive, tags, workoutPlan);
     }
 
     @Override
@@ -151,6 +181,7 @@ public class Person {
                 .add("note", note)
                 .add("isActive", isActive)
                 .add("tags", tags)
+                .add("workoutPlan", workoutPlan)
                 .toString();
     }
 

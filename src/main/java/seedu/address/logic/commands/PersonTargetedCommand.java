@@ -6,6 +6,7 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_ID;
 import java.util.List;
 
 import seedu.address.logic.commands.exceptions.CommandException;
+import seedu.address.model.LongFormText;
 import seedu.address.model.Model;
 import seedu.address.model.person.Person;
 
@@ -69,5 +70,12 @@ public abstract class PersonTargetedCommand extends Command {
      */
     protected static String quote(String value) {
         return "\"" + value + "\"";
+    }
+
+    /**
+     * Formats long-form text as a quoted single-line argument for a retry command.
+     */
+    protected static String quoteLongFormText(LongFormText text) {
+        return quote(text.value.replace("\n", "\\n"));
     }
 }

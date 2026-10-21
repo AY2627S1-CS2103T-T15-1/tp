@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.PersonSelector;
 import seedu.address.logic.parser.exceptions.ParseException;
+import seedu.address.model.LongFormText;
 import seedu.address.model.person.Address;
 import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
@@ -41,6 +42,26 @@ public class ParserUtilTest {
 
     private static final String WHITESPACE = " \t\r\n";
     private static final String USAGE = "usage message";
+
+    @Test
+    public void parseLongFormText_quoted_preservesContents() throws Exception {
+        assertEquals(new LongFormText(""), ParserUtil.parseLongFormText("\"\""));
+        assertEquals(new LongFormText("  Squats\nRest  "),
+                ParserUtil.parseLongFormText(" \"  Squats\\nRest  \" "));
+    }
+
+    @Test
+    public void parseLongFormText_missingOrIncompleteQuotes_throwsParseException() {
+        for (String text : new String[] {"", " ", "Squats", "\"Squats", "Squats\"", "\""}) {
+            assertThrows(ParseException.class, ParserUtil.MESSAGE_TEXT_NOT_QUOTED, ()
+                    -> ParserUtil.parseLongFormText(text));
+        }
+    }
+
+    @Test
+    public void parseLongFormText_null_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> ParserUtil.parseLongFormText(null));
+    }
 
     @Test
     public void parseIndex_invalidInput_throwsParseException() {

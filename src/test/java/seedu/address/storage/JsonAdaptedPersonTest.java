@@ -11,8 +11,8 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import seedu.address.commons.exceptions.IllegalValueException;
+import seedu.address.commons.util.JsonUtil;
 import seedu.address.model.person.Name;
-import seedu.address.model.person.Note;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonId;
 import seedu.address.model.person.Phone;
@@ -28,6 +28,67 @@ public class JsonAdaptedPersonTest {
     private static final String VALID_PHONE = BENSON.getPhone().toString();
 
     @Test
+    public void toModelType_absentWorkoutPlan_defaultsToEmpty() throws Exception {
+        String fields = "\"id\": 1, \"name\": \"Alice\", \"phone\": \"91234567\"";
+        for (String suffix : new String[] {"", ", \"workoutPlan\": null", ", \"workoutPlan\": \"\""}) {
+            JsonAdaptedPerson person = JsonUtil.fromJsonString("{" + fields + suffix + "}", JsonAdaptedPerson.class);
+            assertEquals("", person.toModelType().getWorkoutPlan().value);
+        }
+    }
+
+    @Test
+    public void toModelType_absentNote_defaultsToEmptyAndPreservesPlan() throws Exception {
+        String fields = "\"id\": 1, \"name\": \"Alice\", \"phone\": \"91234567\","
+                + " \"workoutPlan\": \"Squats\"";
+        for (String suffix : new String[] {"", ", \"note\": null", ", \"note\": \"\""}) {
+            JsonAdaptedPerson adapted = JsonUtil.fromJsonString("{" + fields + suffix + "}", JsonAdaptedPerson.class);
+            Person person = adapted.toModelType();
+            assertEquals("", person.getNote().value);
+            assertEquals("Squats", person.getWorkoutPlan().value);
+        }
+    }
+
+    @Test
+    public void toModelType_workoutPlanOnlyConstructor_preservesPlanAndDefaultsOtherDetails() throws Exception {
+        JsonAdaptedPerson adapted = new JsonAdaptedPerson(VALID_ID, VALID_NAME, VALID_PHONE, "Squats\nRest");
+        assertEquals(new PersonBuilder(BENSON).withWorkoutPlan("Squats\nRest").build(), adapted.toModelType());
+    }
+
+    @Test
+    public void toModelType_nullWorkoutPlanConstructor_defaultsToEmpty() throws Exception {
+        JsonAdaptedPerson adapted = new JsonAdaptedPerson(VALID_ID, VALID_NAME, VALID_PHONE, (String) null);
+        assertEquals(BENSON, adapted.toModelType());
+    }
+
+    @Test
+    public void getId_missingSavedId_throwsAssertionError() {
+        JsonAdaptedPerson adapted = new JsonAdaptedPerson(null, VALID_NAME, VALID_PHONE);
+        assertThrows(AssertionError.class, adapted::getId);
+    }
+
+    @Test
+    public void toModelType_tagListChangedAfterConstruction_preservesSavedDetails() throws Exception {
+        List<JsonAdaptedTag> tags = new ArrayList<>(List.of(new JsonAdaptedTag("gym")));
+        JsonAdaptedPerson adapted = new JsonAdaptedPerson(VALID_ID, VALID_NAME, VALID_PHONE, "Injury", false,
+                tags, "Squats\nRest");
+
+        tags.clear();
+        tags.add(new JsonAdaptedTag("personal"));
+
+        assertEquals(new PersonBuilder(BENSON).withNote("Injury").withActive(false).withTags("gym")
+                .withWorkoutPlan("Squats\nRest").build(), adapted.toModelType());
+    }
+
+    @Test
+    public void withId_personWithWorkoutPlan_preservesPlan() throws Exception {
+        JsonAdaptedPerson person = new JsonAdaptedPerson(null, VALID_NAME, VALID_PHONE, "Knee injury", false,
+                List.of(new JsonAdaptedTag("gym")), "Squats: 3 sets of 12");
+        assertEquals(new PersonBuilder(BENSON).withId(5).withNote("Knee injury").withActive(false).withTags("gym")
+                .withWorkoutPlan("Squats: 3 sets of 12").build(),
+                person.withId(5).toModelType());
+    }
+
+    @Test
     public void toModelType_validPersonDetails_returnsPerson() throws Exception {
         JsonAdaptedPerson person = new JsonAdaptedPerson(BENSON);
         assertEquals(BENSON, person.toModelType());
@@ -36,7 +97,7 @@ public class JsonAdaptedPersonTest {
     @Test
     public void toModelType_personWithAllDetails_returnsPerson() throws Exception {
         Person inactiveTaggedPerson = new PersonBuilder(BENSON).withNote("Knee injury").withActive(false)
-                .withTags("gym").build();
+                .withTags("gym").withWorkoutPlan("Squats\nRest").build();
         assertEquals(inactiveTaggedPerson, new JsonAdaptedPerson(inactiveTaggedPerson).toModelType());
     }
 
@@ -48,10 +109,10 @@ public class JsonAdaptedPersonTest {
     }
 
     @Test
-    public void toModelType_invalidNote_throwsIllegalValueException() {
-        JsonAdaptedPerson person = new JsonAdaptedPerson(VALID_ID, VALID_NAME, VALID_PHONE, "a".repeat(501),
-                true, null);
-        assertThrows(IllegalValueException.class, Note.MESSAGE_CONSTRAINTS, person::toModelType);
+    public void toModelType_longMultilineNote_preservesText() throws Exception {
+        String text = "  " + "a".repeat(501) + "\nRest\\nLiteral  ";
+        JsonAdaptedPerson person = new JsonAdaptedPerson(VALID_ID, VALID_NAME, VALID_PHONE, text, true, null);
+        assertEquals(text, person.toModelType().getNote().value);
     }
 
     @Test

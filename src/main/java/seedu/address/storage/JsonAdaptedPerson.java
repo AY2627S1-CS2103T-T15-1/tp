@@ -10,8 +10,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import seedu.address.commons.exceptions.IllegalValueException;
+import seedu.address.model.LongFormText;
 import seedu.address.model.person.Name;
-import seedu.address.model.person.Note;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonId;
 import seedu.address.model.person.Phone;
@@ -29,22 +29,25 @@ class JsonAdaptedPerson {
     private final String name;
     private final String phone;
     private final String note;
+    private final String workoutPlan;
     private final Boolean active;
     private final List<JsonAdaptedTag> tags = new ArrayList<>();
 
     /**
      * Constructs a {@code JsonAdaptedPerson} with the given person details.
-     * {@code id}, {@code note}, {@code active} and {@code tags} can be null for data files saved
+     * {@code id}, {@code note}, {@code active}, {@code tags} and {@code workoutPlan} can be null for data files saved
      * before clients had these details.
      */
     @JsonCreator
     public JsonAdaptedPerson(@JsonProperty("id") Integer id, @JsonProperty("name") String name,
             @JsonProperty("phone") String phone, @JsonProperty("note") String note,
-            @JsonProperty("active") Boolean active, @JsonProperty("tags") List<JsonAdaptedTag> tags) {
+            @JsonProperty("active") Boolean active, @JsonProperty("tags") List<JsonAdaptedTag> tags,
+            @JsonProperty("workoutPlan") String workoutPlan) {
         this.id = id;
         this.name = name;
         this.phone = phone;
         this.note = note;
+        this.workoutPlan = workoutPlan;
         this.active = active;
         if (tags != null) {
             this.tags.addAll(tags);
@@ -60,6 +63,21 @@ class JsonAdaptedPerson {
     }
 
     /**
+     * Constructs an adapted person whose workout plan was not saved.
+     */
+    public JsonAdaptedPerson(Integer id, String name, String phone, String note, Boolean active,
+            List<JsonAdaptedTag> tags) {
+        this(id, name, phone, note, active, tags, null);
+    }
+
+    /**
+     * Constructs an adapted person with a workout plan and default values for other optional details.
+     */
+    public JsonAdaptedPerson(Integer id, String name, String phone, String workoutPlan) {
+        this(id, name, phone, null, null, null, workoutPlan);
+    }
+
+    /**
      * Converts a given {@code Person} into this class for Jackson use.
      */
     public JsonAdaptedPerson(Person source) {
@@ -67,6 +85,7 @@ class JsonAdaptedPerson {
         name = source.getName().fullName;
         phone = source.getPhone().value;
         note = source.getNote().value;
+        workoutPlan = source.getWorkoutPlan().value;
         active = source.isActive();
         source.getTags().stream().map(JsonAdaptedTag::new).forEach(tags::add);
     }
@@ -91,7 +110,7 @@ class JsonAdaptedPerson {
      * Returns a copy of this person that has {@code newId} as its ID.
      */
     JsonAdaptedPerson withId(int newId) {
-        return new JsonAdaptedPerson(newId, name, phone, note, active, tags);
+        return new JsonAdaptedPerson(newId, name, phone, note, active, tags, workoutPlan);
     }
 
     /**
@@ -124,12 +143,9 @@ class JsonAdaptedPerson {
         }
         final Phone modelPhone = new Phone(phone);
 
-        // A missing note, active status or tag list means the client was saved before these details existed
-        String noteText = note == null ? "" : note;
-        if (!Note.isValidNote(noteText)) {
-            throw new IllegalValueException(Note.MESSAGE_CONSTRAINTS);
-        }
-        final Note modelNote = new Note(noteText);
+        // Missing or null text fields in legacy files represent absent text.
+        final LongFormText modelNote = new LongFormText(note == null ? "" : note);
+        final LongFormText modelWorkoutPlan = new LongFormText(workoutPlan == null ? "" : workoutPlan);
 
         final boolean modelIsActive = active == null || active;
 
@@ -141,7 +157,8 @@ class JsonAdaptedPerson {
             modelTags.add(tag.toModelType());
         }
 
-        return new Person(modelId, modelName, modelPhone, modelNote, modelIsActive, modelTags);
+        return new Person(modelId, modelName, modelPhone, modelNote, modelIsActive, modelTags,
+                modelWorkoutPlan);
     }
 
 }
