@@ -80,6 +80,20 @@ public class LogicManagerTest {
     }
 
     @Test
+    public void execute_noteWithNewlineEscape_displaysAndSavesActualNewline() throws Exception {
+        model.addPerson(new PersonBuilder(AMY).withId(1).withWorkoutPlan("Existing plan").build());
+
+        CommandResult result = logic.execute("note --id 1 --note \"Injury\\nRest\"");
+
+        assertEquals("Injury\nRest", result.getPersonToView().orElseThrow().getNote().value);
+        JsonAddressBookStorage savedData =
+                new JsonAddressBookStorage(temporaryFolder.resolve("addressBook.json"));
+        Person saved = savedData.readAddressBook().orElseThrow().getPersonList().get(0);
+        assertEquals("Injury\nRest", saved.getNote().value);
+        assertEquals("Existing plan", saved.getWorkoutPlan().value);
+    }
+
+    @Test
     public void execute_planCommands_updatesAndSavesPlan() throws Exception {
         model.addPerson(new PersonBuilder(AMY).withId(1).build());
         JsonAddressBookStorage savedData =

@@ -9,7 +9,6 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_NOTE;
 import seedu.address.logic.commands.PersonSelector;
 import seedu.address.logic.commands.PlanCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
-import seedu.address.model.LongFormText;
 
 /**
  * Parses arguments for setting, replacing, or clearing a client's workout plan.
@@ -31,8 +30,7 @@ public class PlanCommandParser implements Parser<PlanCommand> {
                 -> new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, PlanCommand.MESSAGE_USAGE)));
         try {
             argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_NOTE);
-            LongFormText text = ParserUtil.parseLongFormText(note);
-            return new PlanCommand(selector, new LongFormText(text.value.replace("\\n", "\n")));
+            return new PlanCommand(selector, ParserUtil.parseLongFormText(note));
         } catch (ParseException pe) {
             throw new ParseException(ParserUtil.withUsage(pe.getMessage(), PlanCommand.MESSAGE_USAGE), pe);
         }

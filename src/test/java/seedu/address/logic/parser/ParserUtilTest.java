@@ -46,7 +46,7 @@ public class ParserUtilTest {
     @Test
     public void parseLongFormText_quoted_preservesContents() throws Exception {
         assertEquals(new LongFormText(""), ParserUtil.parseLongFormText("\"\""));
-        assertEquals(new LongFormText("  Squats\\nRest  "),
+        assertEquals(new LongFormText("  Squats\nRest  "),
                 ParserUtil.parseLongFormText(" \"  Squats\\nRest  \" "));
     }
 

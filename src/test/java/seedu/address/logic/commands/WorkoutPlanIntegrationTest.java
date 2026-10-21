@@ -66,6 +66,25 @@ public class WorkoutPlanIntegrationTest {
         assertEquals(List.of(updated, other), model.getAddressBook().getPersonList());
     }
 
+    @Test
+    public void execute_ambiguousNote_retryPreservesNewlinesAndOtherDetails() throws Exception {
+        Person original = detailedClient();
+        Person other = new PersonBuilder(original).withId(2).withPhone("81234567").build();
+        Model model = new ModelManager();
+        model.addPerson(original);
+        model.addPerson(other);
+
+        CommandResult result = parser.parseCommand("note --name Alice --note \"Injury\\nRest\"").execute(model);
+        String example = "note --id 1 --note \"Injury\\nRest\"";
+        assertTrue(result.getFeedbackToUser().endsWith(example));
+        assertEquals(List.of(original, other), model.getAddressBook().getPersonList());
+
+        CommandResult retry = parser.parseCommand(example).execute(model);
+        Person updated = new PersonBuilder(original).withNote("Injury\nRest").build();
+        assertEquals(updated, retry.getPersonToView().orElseThrow());
+        assertEquals(List.of(updated, other), model.getAddressBook().getPersonList());
+    }
+
     /**
      * Creates a client with every optional detail populated to expose accidental resets.
      */

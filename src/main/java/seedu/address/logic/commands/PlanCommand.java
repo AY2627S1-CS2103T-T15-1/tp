@@ -23,6 +23,7 @@ public class PlanCommand extends PersonTargetedCommand {
             + ": Sets or replaces a client's workout plan, chosen by ID or by part of their name.\n"
             + "Parameters: " + PREFIX_ID + " ID or " + PREFIX_NAME_LONG + " NAME, then " + PREFIX_NOTE + " \"TEXT\"\n"
             + "TEXT must be in double quotes. Use " + PREFIX_NOTE + " \"\" to clear the plan.\n"
+            + "Use \\n inside TEXT for a line break.\n"
             + "Example: " + COMMAND_WORD + " " + PREFIX_ID + " 2 " + PREFIX_NOTE + " \"Squats: 3 sets of 12\"";
 
     public static final String MESSAGE_PLAN_SUCCESS = "Updated workout plan for client: %1$s";
@@ -56,7 +57,7 @@ public class PlanCommand extends PersonTargetedCommand {
      */
     @Override
     protected String getArgumentsAfterSelector() {
-        return " " + PREFIX_NOTE + " " + quote(workoutPlan.value.replace("\n", "\\n"));
+        return " " + PREFIX_NOTE + " " + quoteLongFormText(workoutPlan);
     }
 
     @Override

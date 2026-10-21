@@ -64,6 +64,19 @@ public class NoteCommandParserTest {
     }
 
     @Test
+    public void parse_newlineEscapes_createsLineBreaksAndBlankLines() {
+        assertParseSuccess(parser, " --id 2 --note \"Injury\\nAvoid lunges\\n\\nRest\"",
+                new NoteCommand(PersonSelector.byId(new PersonId(2)),
+                        new LongFormText("Injury\nAvoid lunges\n\nRest")));
+    }
+
+    @Test
+    public void parse_otherBackslashes_preservesText() {
+        assertParseSuccess(parser, " --id 2 --note \"Rest\\t60s\"",
+                new NoteCommand(PersonSelector.byId(new PersonId(2)), new LongFormText("Rest\\t60s")));
+    }
+
+    @Test
     public void parse_repeatedNote_failure() {
         assertParseFailure(parser, " --id 2 --note \"a\" --note \"b\"", ParserUtil.withUsage(
                 Messages.getErrorMessageForDuplicatePrefixes(PREFIX_NOTE), NoteCommand.MESSAGE_USAGE));

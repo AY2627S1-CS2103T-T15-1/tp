@@ -58,6 +58,7 @@ Cindy is a **desktop application that helps freelance gym trainers manage their 
 * Names and phone numbers can optionally be wrapped in double quotes, which is useful for values containing spaces.<br>
   For example, `--name "John Doe"` and `--name John Doe` mean the same.
 * Long-form text, such as client notes and workout plans, must be wrapped in double quotes, even for a single word. Use `--note ""` for empty text.
+* Inside long-form text, type `\n` for a line break or `\n\n` for a blank line. Enter the command on one line; Cindy displays the line breaks in the detail view.
 
 * Commands that act on one client (`view`, `edit`, `plan`, `delete`, `note`, `inactive`, `active` and `tag`) choose the client with either `--id ID` or `--name NAME`, but not both. `inactive` and `active` also accept `--phone PHONE` instead:
   * `--id ID` chooses the client with that ID. Every client's ID is shown as `#ID` on their card, e.g. `#3`.
@@ -222,7 +223,7 @@ Format: `note --id ID --note "TEXT"` or `note --name NAME --note "TEXT"`
 
 * Changes the note of the client chosen by `--id` or `--name`, as described in [the notes about the command format](#features).
 * The note must be in double quotes. There is no fixed character limit.
-* Note text is preserved, including spaces inside the quotes. Empty or whitespace-only notes are hidden from the detail view.
+* Use `\n` inside the quotes for a line break, or `\n\n` for a blank line. Other backslash sequences and spaces inside the quotes are preserved. Empty or whitespace-only notes are hidden from the detail view.
 * Each client has at most one note. Running `note` again replaces the note, so to change part of a note, type the whole new note.
 * `--note ""` removes the client's note.
 * After the note is changed, the client's details page opens and shows the note.
@@ -230,6 +231,7 @@ Format: `note --id ID --note "TEXT"` or `note --name NAME --note "TEXT"`
 
 Examples:
 * `note --id 3 --note "Knee injury, avoid lunges"` gives the client with ID 3 that note.
+* `note --id 3 --note "Knee injury\nAvoid lunges"` displays the injury and instruction on separate lines.
 * `note --name bernice --note ""` removes the note of the only client whose name contains `bernice`.
 
 ### Marking a client as inactive or active: `inactive`, `active`

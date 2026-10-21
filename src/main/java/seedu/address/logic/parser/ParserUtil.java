@@ -40,8 +40,8 @@ public class ParserUtil {
             + PREFIX_PHONE_LONG + ". Spaces, parentheses, hyphens and a leading + are allowed.";
 
     /**
-     * Parses long-form command text, requiring outer double quotes and preserving the enclosed content.
-     * Escape sequences are left for the command to interpret.
+     * Parses long-form command text, requiring outer double quotes and converting literal {@code \n}
+     * sequences to line breaks. Other content is preserved.
      *
      * @throws ParseException if the text is not surrounded by double quotes.
      */
@@ -51,7 +51,7 @@ public class ParserUtil {
         if (trimmed.length() < 2 || !trimmed.startsWith("\"") || !trimmed.endsWith("\"")) {
             throw new ParseException(MESSAGE_TEXT_NOT_QUOTED);
         }
-        return new LongFormText(trimmed.substring(1, trimmed.length() - 1));
+        return new LongFormText(trimmed.substring(1, trimmed.length() - 1).replace("\\n", "\n"));
     }
 
     /**

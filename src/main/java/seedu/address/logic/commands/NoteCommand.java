@@ -23,6 +23,7 @@ public class NoteCommand extends PersonTargetedCommand {
             + "and an empty note (\"\") removes the client's note.\n"
             + "Parameters: " + PREFIX_ID + " ID or " + PREFIX_NAME_LONG + " NAME, then "
             + PREFIX_NOTE + " \"TEXT\"\n"
+            + "Use \\n inside TEXT for a line break.\n"
             + "Example: " + COMMAND_WORD + " " + PREFIX_ID + " 1 " + PREFIX_NOTE + " \"Knee injury, avoid lunges\"";
 
     public static final String MESSAGE_NOTE_UPDATED = "Updated note of client: %1$s";
@@ -55,7 +56,7 @@ public class NoteCommand extends PersonTargetedCommand {
 
     @Override
     protected String getArgumentsAfterSelector() {
-        return " " + PREFIX_NOTE + " " + quote(note.value);
+        return " " + PREFIX_NOTE + " " + quoteLongFormText(note);
     }
 
     @Override
