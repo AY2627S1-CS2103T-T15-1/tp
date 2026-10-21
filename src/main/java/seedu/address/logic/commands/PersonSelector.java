@@ -23,7 +23,7 @@ public class PersonSelector {
     public static final String MESSAGE_NO_PERSON_WITH_PHONE = "No client has a phone number containing \"%1$s\".";
     public static final String MESSAGE_MULTIPLE_MATCHES = "%1$d clients have a %2$s containing \"%3$s\". "
             + "They are listed below.\n"
-            + "Use " + PREFIX_ID + " to choose one of them, e.g. %4$s " + PREFIX_ID + " %5$s";
+            + "Use " + PREFIX_ID + " to choose one of them, e.g. %4$s";
 
     /** Characters that may separate the digits of a phone number, which are ignored when matching. */
     private static final String PHONE_SEPARATORS = "[\\s()-]";
@@ -132,16 +132,17 @@ public class PersonSelector {
      * Returns the message to show when this selector chooses more than one client.
      *
      * @param matches The clients chosen by this selector. Must contain at least two clients.
-     * @param commandWord The command word of the command that used this selector, for the example in the message.
+     * @param retryExample A complete command that would act on the first of {@code matches} instead,
+     *     shown as an example of choosing a client by ID.
      */
-    public String getMultipleMatchesMessage(List<Person> matches, String commandWord) {
+    public String getMultipleMatchesMessage(List<Person> matches, String retryExample) {
         requireNonNull(matches);
-        requireNonNull(commandWord);
+        requireNonNull(retryExample);
         assert matches.size() > 1 : "Only a name or phone number can match more than one client";
         assert id == null : "An ID matches at most one client";
         boolean isByName = nameKeyword != null;
         return String.format(MESSAGE_MULTIPLE_MATCHES, matches.size(), isByName ? "name" : "phone number",
-                isByName ? nameKeyword : phoneKeyword, commandWord, matches.get(0).getId());
+                isByName ? nameKeyword : phoneKeyword, retryExample);
     }
 
     @Override
