@@ -67,6 +67,11 @@ public class TagCommand extends PersonTargetedCommand {
     }
 
     @Override
+    protected String getArgumentsAfterSelector() {
+        return " " + PREFIX_TYPE + " " + clientType.tagName;
+    }
+
+    @Override
     public boolean equals(Object other) {
         if (other == this) {
             return true;

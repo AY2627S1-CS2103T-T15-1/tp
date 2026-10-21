@@ -75,7 +75,8 @@ public class TagCommandTest {
         PersonSelector selector = PersonSelector.byName("Meier");
         TagCommand command = new TagCommand(selector, Tag.GYM);
 
-        String expectedMessage = selector.getMultipleMatchesMessage(List.of(BENSON, DANIEL), TagCommand.COMMAND_WORD);
+        // the example is a complete tag command, including the type
+        String expectedMessage = selector.getMultipleMatchesMessage(List.of(BENSON, DANIEL), "tag --id 2 --type gym");
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
         expectedModel.updateFilteredPersonList(selector::matches);
 
