@@ -14,5 +14,6 @@ public class CliSyntax {
     public static final Prefix PREFIX_NOTE = new Prefix("--note");
     public static final Prefix PREFIX_PLAN = new Prefix("--plan");
     public static final Prefix PREFIX_TYPE = new Prefix("--type");
+    public static final Prefix PREFIX_GROUP = new Prefix("--group");
 
 }
