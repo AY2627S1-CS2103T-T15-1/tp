@@ -25,6 +25,7 @@ class JsonSerializableAddressBook {
     public static final String MESSAGE_DUPLICATE_PERSON = "Persons list contains duplicate person(s).";
     public static final String MESSAGE_DUPLICATE_ID = "Persons list contains more than one person with the same ID.";
     public static final String MESSAGE_INVALID_NEXT_ID = "The next person ID is not a positive whole number.";
+    public static final String MESSAGE_MISSING_PERSON = "Persons list contains an empty entry.";
 
     private final List<JsonAdaptedPerson> persons = new ArrayList<>();
     private final Integer nextPersonId;
@@ -59,6 +60,10 @@ class JsonSerializableAddressBook {
      * @throws IllegalValueException if there were any data constraints violated.
      */
     public AddressBook toModelType() throws IllegalValueException {
+        if (persons.contains(null)) {
+            throw new IllegalValueException(MESSAGE_MISSING_PERSON);
+        }
+
         AddressBook addressBook = new AddressBook();
         int nextFreeId = getLargestSavedId() + 1;
         Set<Integer> usedIds = new HashSet<>();

@@ -1,0 +1,9 @@
+{
+  "persons": [ {
+    "id": 1,
+    "name": "Valid Person",
+    "phone": "94824240",
+    "tags": [ null ]
+  } ],
+  "nextPersonId": 2
+}
