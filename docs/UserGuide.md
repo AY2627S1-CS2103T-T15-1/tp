@@ -172,14 +172,15 @@ Examples:
 
 ### Finding clients: `find`
 
-Finds clients by name, phone number or ID, and shows only those clients in the list.
+Finds clients by name, phone number, ID or group, and shows only those clients in the list.
 
-Format: `find [--name NAME] [--phone PHONE] [--id ID]`
+Format: `find [--name NAME] [--phone PHONE] [--id ID] [--group GROUP]`
 
-* At least one of `--name`, `--phone` and `--id` must be given.
+* At least one of `--name`, `--phone`, `--id` and `--group` must be given.
 * `--name` finds clients whose names contain `NAME`, ignoring upper and lower case. For example, `--name han` finds `Hans` and `Johan Lee`.
 * `--phone` finds clients whose phone numbers contain the digits in `PHONE`. Spaces, parentheses and hyphens in `PHONE` are ignored, so `--phone 9123 4567` finds `91234567`.
 * `--id` finds the client with that ID.
+* `--group` finds clients in the group `GROUP`, ignoring upper and lower case. `GROUP` can also be `gym` or `personal`, to find all gym or personal clients.
 * If you give more than one of them, only clients that match all of them are found.
 * The clients found are still sorted by name. Use `list` to show all clients again.
 
@@ -187,6 +188,8 @@ Examples:
 * `find --name alex` finds `Alex Yeoh` and `Alexis Tan`.
 * `find --phone 9123` finds every client whose phone number contains `9123`.
 * `find --name tan --phone 8` finds clients whose names contain `tan` and whose phone numbers contain `8`.
+* `find --group morning` finds every client in the group `morning`.
+* `find --group gym --name tan` finds gym clients whose names contain `tan`.
 
 ### Deleting a client: `delete`
 
@@ -354,7 +357,7 @@ Action     | Format, Examples
 **Clear**  | `clear` to show the prompt; `clear --confirm` to delete all clients and reset IDs
 **Delete** | `delete --id ID` or `delete --name NAME`<br> e.g., `delete --id 3`
 **Edit**   | `edit --id ID [--to-name NEW_NAME] [--to-phone NEW_PHONE]` (or `--name NAME` instead of `--id ID`)<br> e.g., `edit --id 2 --to-name "James Lee"`
-**Find**   | `find [--name NAME] [--phone PHONE] [--id ID]` (at least one)<br> e.g., `find --name james`
+**Find**   | `find [--name NAME] [--phone PHONE] [--id ID] [--group GROUP]` (at least one)<br> e.g., `find --name james`, `find --group morning`
 **List**   | `list`
 **Plan**   | `plan --id ID --plan "TEXT"` (or `--name NAME` instead of `--id ID`)<br> e.g., `plan --id 2 --plan "Squats: 3 sets"`
 **View**   | `view --id ID` or `view --name NAME`<br> e.g., `view --id 2`
