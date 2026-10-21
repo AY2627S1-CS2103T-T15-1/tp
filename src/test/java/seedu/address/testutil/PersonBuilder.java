@@ -1,9 +1,14 @@
 package seedu.address.testutil;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonId;
 import seedu.address.model.person.Phone;
+import seedu.address.model.session.Session;
 
 /**
  * A utility class to help with building Person objects.
@@ -16,6 +21,7 @@ public class PersonBuilder {
     private PersonId id;
     private Name name;
     private Phone phone;
+    private List<Session> sessions;
 
     /**
      * Creates a {@code PersonBuilder} with the default details.
@@ -24,6 +30,7 @@ public class PersonBuilder {
         id = new PersonId(DEFAULT_ID);
         name = new Name(DEFAULT_NAME);
         phone = new Phone(DEFAULT_PHONE);
+        sessions = new ArrayList<>();
     }
 
     /**
@@ -33,6 +40,7 @@ public class PersonBuilder {
         id = personToCopy.getId();
         name = personToCopy.getName();
         phone = personToCopy.getPhone();
+        sessions = new ArrayList<>(personToCopy.getSessions());
     }
 
     /**
@@ -59,8 +67,16 @@ public class PersonBuilder {
         return this;
     }
 
+    /**
+     * Sets the sessions of the {@code Person} that we are building.
+     */
+    public PersonBuilder withSessions(Session... sessions) {
+        this.sessions = new ArrayList<>(Arrays.asList(sessions));
+        return this;
+    }
+
     public Person build() {
-        return new Person(id, name, phone);
+        return new Person(id, name, phone, sessions);
     }
 
 }

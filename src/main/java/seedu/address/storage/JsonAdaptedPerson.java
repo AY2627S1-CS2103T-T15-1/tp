@@ -1,5 +1,11 @@
 package seedu.address.storage;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -9,6 +15,7 @@ import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonId;
 import seedu.address.model.person.Phone;
+import seedu.address.model.session.Session;
 
 /**
  * Jackson-friendly version of {@link Person}.
@@ -21,17 +28,29 @@ class JsonAdaptedPerson {
     private final Integer id;
     private final String name;
     private final String phone;
+    private final List<JsonAdaptedSession> sessions = new ArrayList<>();
 
     /**
      * Constructs a {@code JsonAdaptedPerson} with the given person details.
-     * {@code id} can be null for data files saved before clients had IDs.
+     * {@code id} and {@code sessions} can be null for older data files.
      */
     @JsonCreator
     public JsonAdaptedPerson(@JsonProperty("id") Integer id, @JsonProperty("name") String name,
-            @JsonProperty("phone") String phone) {
+            @JsonProperty("phone") String phone,
+            @JsonProperty("sessions") List<JsonAdaptedSession> sessions) {
         this.id = id;
         this.name = name;
         this.phone = phone;
+        if (sessions != null) {
+            this.sessions.addAll(sessions);
+        }
+    }
+
+    /**
+     * Constructs an adapted person without saved sessions.
+     */
+    public JsonAdaptedPerson(Integer id, String name, String phone) {
+        this(id, name, phone, null);
     }
 
     /**
@@ -41,6 +60,7 @@ class JsonAdaptedPerson {
         id = source.getId().value;
         name = source.getName().fullName;
         phone = source.getPhone().value;
+        source.getSessions().stream().map(JsonAdaptedSession::new).forEach(sessions::add);
     }
 
     /**
@@ -63,7 +83,7 @@ class JsonAdaptedPerson {
      * Returns a copy of this person that has {@code newId} as its ID.
      */
     JsonAdaptedPerson withId(int newId) {
-        return new JsonAdaptedPerson(newId, name, phone);
+        return new JsonAdaptedPerson(newId, name, phone, sessions);
     }
 
     /**
@@ -96,7 +116,21 @@ class JsonAdaptedPerson {
         }
         final Phone modelPhone = new Phone(phone);
 
-        return new Person(modelId, modelName, modelPhone);
+        final List<Session> modelSessions = new ArrayList<>();
+        final Set<LocalDate> sessionDates = new HashSet<>();
+        for (JsonAdaptedSession session : sessions) {
+            if (session == null) {
+                throw new IllegalValueException(
+                        String.format(MISSING_FIELD_MESSAGE_FORMAT, Session.class.getSimpleName()));
+            }
+            Session modelSession = session.toModelType();
+            if (!sessionDates.add(modelSession.getDate())) {
+                throw new IllegalValueException(Person.MESSAGE_DUPLICATE_SESSION_DATE);
+            }
+            modelSessions.add(modelSession);
+        }
+
+        return new Person(modelId, modelName, modelPhone, modelSessions);
     }
 
 }
