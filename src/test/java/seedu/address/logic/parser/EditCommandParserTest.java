@@ -39,7 +39,7 @@ public class EditCommandParserTest {
         assertParseFailure(parser, TO_NAME_DESC_AMY, MESSAGE_INVALID_FORMAT);
 
         // no field specified
-        assertParseFailure(parser, ID_DESC, EditCommand.MESSAGE_NOT_EDITED);
+        assertParseFailure(parser, ID_DESC, withUsage(EditCommand.MESSAGE_NOT_EDITED));
 
         // no client chosen and no field specified
         assertParseFailure(parser, "", MESSAGE_INVALID_FORMAT);
@@ -51,22 +51,24 @@ public class EditCommandParserTest {
         assertParseFailure(parser, "1" + TO_NAME_DESC_AMY, MESSAGE_INVALID_FORMAT);
 
         // invalid IDs
-        assertParseFailure(parser, " --id -5" + TO_NAME_DESC_AMY, PersonId.MESSAGE_CONSTRAINTS);
-        assertParseFailure(parser, " --id 0" + TO_NAME_DESC_AMY, PersonId.MESSAGE_CONSTRAINTS);
-        assertParseFailure(parser, " --id abc" + TO_NAME_DESC_AMY, PersonId.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, " --id -5" + TO_NAME_DESC_AMY, withUsage(PersonId.MESSAGE_CONSTRAINTS));
+        assertParseFailure(parser, " --id 0" + TO_NAME_DESC_AMY, withUsage(PersonId.MESSAGE_CONSTRAINTS));
+        assertParseFailure(parser, " --id abc" + TO_NAME_DESC_AMY, withUsage(PersonId.MESSAGE_CONSTRAINTS));
 
         // both ID and name given
         assertParseFailure(parser, ID_DESC + " --name Alice" + TO_NAME_DESC_AMY,
-                ParserUtil.MESSAGE_CONFLICTING_SELECTORS);
+                withUsage(String.format(ParserUtil.MESSAGE_CONFLICTING_SELECTORS, "--id or --name")));
     }
 
     @Test
     public void parse_invalidValue_failure() {
-        assertParseFailure(parser, ID_DESC + INVALID_TO_NAME_DESC, Name.MESSAGE_CONSTRAINTS); // invalid name
-        assertParseFailure(parser, ID_DESC + INVALID_TO_PHONE_DESC, Phone.MESSAGE_CONSTRAINTS); // invalid phone
+        assertParseFailure(parser, ID_DESC + INVALID_TO_NAME_DESC, withUsage(Name.MESSAGE_CONSTRAINTS)); // invalid name
+        assertParseFailure(parser, ID_DESC + INVALID_TO_PHONE_DESC, // invalid phone
+                withUsage(Phone.MESSAGE_CONSTRAINTS));
 
         // multiple invalid values, but only the first invalid value is captured
-        assertParseFailure(parser, ID_DESC + INVALID_TO_NAME_DESC + TO_PHONE_DESC_AMY, Name.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, ID_DESC + INVALID_TO_NAME_DESC + TO_PHONE_DESC_AMY,
+                withUsage(Name.MESSAGE_CONSTRAINTS));
     }
 
     @Test
@@ -110,18 +112,25 @@ public class EditCommandParserTest {
     public void parse_multipleRepeatedFields_failure() {
         // valid followed by invalid
         String userInput = ID_DESC + INVALID_TO_PHONE_DESC + TO_PHONE_DESC_BOB;
-        assertParseFailure(parser, userInput, Messages.getErrorMessageForDuplicatePrefixes(PREFIX_TO_PHONE));
+        assertParseFailure(parser, userInput, withUsage(Messages.getErrorMessageForDuplicatePrefixes(PREFIX_TO_PHONE)));
 
         // invalid followed by valid
         userInput = ID_DESC + TO_PHONE_DESC_BOB + INVALID_TO_PHONE_DESC;
-        assertParseFailure(parser, userInput, Messages.getErrorMessageForDuplicatePrefixes(PREFIX_TO_PHONE));
+        assertParseFailure(parser, userInput, withUsage(Messages.getErrorMessageForDuplicatePrefixes(PREFIX_TO_PHONE)));
 
         // multiple valid fields repeated
         userInput = ID_DESC + TO_PHONE_DESC_AMY + TO_PHONE_DESC_AMY + TO_PHONE_DESC_BOB;
-        assertParseFailure(parser, userInput, Messages.getErrorMessageForDuplicatePrefixes(PREFIX_TO_PHONE));
+        assertParseFailure(parser, userInput, withUsage(Messages.getErrorMessageForDuplicatePrefixes(PREFIX_TO_PHONE)));
 
         // ID repeated
         assertParseFailure(parser, ID_DESC + ID_DESC + TO_PHONE_DESC_AMY,
-                Messages.getErrorMessageForDuplicatePrefixes(CliSyntax.PREFIX_ID));
+                withUsage(Messages.getErrorMessageForDuplicatePrefixes(CliSyntax.PREFIX_ID)));
+    }
+
+    /**
+     * Returns {@code message} followed by the usage message of the edit command.
+     */
+    private static String withUsage(String message) {
+        return ParserUtil.withUsage(message, EditCommand.MESSAGE_USAGE);
     }
 }
