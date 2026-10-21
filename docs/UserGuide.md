@@ -283,6 +283,36 @@ Examples:
 * `group --name morning` creates the group `morning`.
 * `group --name Rehab` creates the group `rehab`.
 
+### Adding a client to a group: `tag --group`
+
+Adds a client to a group you have created with [`group`](#creating-a-group-group).
+
+Format: `tag --id ID --group GROUP` or `tag --name NAME --group GROUP`
+
+* Adds the client chosen by `--id` or `--name`, as described in [the notes about the command format](#features).
+* The group must already exist. If it does not, Cindy shows the `group` command that creates it.
+* `GROUP` ignores upper and lower case, so `--group Morning` is the same as `--group morning`.
+* A client can be in several groups. Their other tags, including `gym` or `personal`, are kept.
+* Use `tag --type` instead to label a client as a gym or personal client.
+
+Examples:
+* `tag --id 2 --group morning` adds the client with ID 2 to the group `morning`.
+* `tag --name bernice --group rehab` adds the only client whose name contains `bernice` to the group `rehab`.
+
+### Removing a tag from a client: `tag --untag`
+
+Removes a client from a group, or removes their `gym` or `personal` label.
+
+Format: `tag --id ID --untag TAG` or `tag --name NAME --untag TAG`
+
+* Removes `TAG` from the client chosen by `--id` or `--name`, as described in [the notes about the command format](#features).
+* `TAG` ignores upper and lower case.
+* The group itself is kept, so other clients stay in it and you can add clients to it again later.
+
+Examples:
+* `tag --id 2 --untag morning` removes the client with ID 2 from the group `morning`.
+* `tag --name bernice --untag gym` removes the `gym` label from the only client whose name contains `bernice`.
+
 ### Clearing all entries: `clear`
 
 Deletes all clients from Cindy after confirmation.
@@ -380,6 +410,8 @@ Action     | Format, Examples
 **Note**   | `note --id ID --note "TEXT"` (or `--name NAME` instead of `--id ID`)<br> e.g., `note --id 3 --note "Knee injury"`
 **Inactive** / **Active** | `inactive --id ID` or `active --id ID` (or `--name NAME` or `--phone PHONE` instead of `--id ID`)<br> e.g., `inactive --id 4`
 **Tag**    | `tag --id ID --type gym` or `tag --id ID --type personal` (or `--name NAME` instead of `--id ID`)<br> e.g., `tag --id 2 --type gym`
+**Add to group** | `tag --id ID --group GROUP` (or `--name NAME` instead of `--id ID`)<br> e.g., `tag --id 2 --group morning`
+**Untag**  | `tag --id ID --untag TAG` (or `--name NAME` instead of `--id ID`)<br> e.g., `tag --id 2 --untag morning`
 **Group**  | `group --name GROUP`<br> e.g., `group --name morning`
 **Help**   | `help`
 **Recall commands** | Up / Down while the command box has focus; Enter executes the recalled command
