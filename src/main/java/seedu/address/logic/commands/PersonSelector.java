@@ -13,24 +13,32 @@ import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonId;
 
 /**
- * Describes how a command chooses the client it acts on: either by the client's ID,
- * or by a part of the client's name.
+ * Describes how a command chooses clients: by the client's ID, by a part of the client's name,
+ * or by a part of the client's phone number.
  */
 public class PersonSelector {
 
     public static final String MESSAGE_NO_PERSON_WITH_ID = "No client has the ID %1$s.";
     public static final String MESSAGE_NO_PERSON_WITH_NAME = "No client has a name containing \"%1$s\".";
-    public static final String MESSAGE_MULTIPLE_MATCHES = "%1$d clients have a name containing \"%2$s\". "
+    public static final String MESSAGE_NO_PERSON_WITH_PHONE = "No client has a phone number containing \"%1$s\".";
+    public static final String MESSAGE_MULTIPLE_MATCHES = "%1$d clients have a %2$s containing \"%3$s\". "
             + "They are listed below.\n"
-            + "Run %3$s again with " + PREFIX_ID + " %4$s instead of --name, keeping all other parameters.";
+            + "Use " + PREFIX_ID + " to choose one of them, e.g. %4$s";
+
+    /** Characters that may separate the digits of a phone number, which are ignored when matching. */
+    private static final String PHONE_SEPARATORS = "[\\s()-]";
+    private static final String PHONE_KEYWORD_REGEX = "\\+?[0-9]+";
 
     private final PersonId id;
     private final String nameKeyword;
+    private final String phoneKeyword;
 
-    private PersonSelector(PersonId id, String nameKeyword) {
-        assert (id == null) != (nameKeyword == null) : "A client is chosen either by ID or by name";
+    private PersonSelector(PersonId id, String nameKeyword, String phoneKeyword) {
+        int detailCount = (id == null ? 0 : 1) + (nameKeyword == null ? 0 : 1) + (phoneKeyword == null ? 0 : 1);
+        assert detailCount == 1 : "Clients are chosen by exactly one detail";
         this.id = id;
         this.nameKeyword = nameKeyword;
+        this.phoneKeyword = phoneKeyword;
     }
 
     /**
@@ -38,7 +46,7 @@ public class PersonSelector {
      */
     public static PersonSelector byId(PersonId id) {
         requireNonNull(id);
-        return new PersonSelector(id, null);
+        return new PersonSelector(id, null, null);
     }
 
     /**
@@ -52,7 +60,33 @@ public class PersonSelector {
         if (normalizedKeyword.isEmpty()) {
             throw new IllegalArgumentException("The name to look for must not be blank.");
         }
-        return new PersonSelector(null, normalizedKeyword);
+        return new PersonSelector(null, normalizedKeyword, null);
+    }
+
+    /**
+     * Returns a selector that chooses the clients whose phone numbers contain {@code phoneKeyword}.
+     * Spaces, parentheses and hyphens in {@code phoneKeyword} are ignored.
+     * {@code phoneKeyword} must be valid, as declared in {@link #isValidPhoneKeyword(String)}.
+     */
+    public static PersonSelector byPhone(String phoneKeyword) {
+        requireNonNull(phoneKeyword);
+        if (!isValidPhoneKeyword(phoneKeyword)) {
+            throw new IllegalArgumentException("The phone number to look for must contain only digits.");
+        }
+        return new PersonSelector(null, null, normalizePhoneKeyword(phoneKeyword));
+    }
+
+    /**
+     * Returns true if {@code test} can be used to look for clients by phone number, i.e. it contains at least one
+     * digit, and otherwise only spaces, parentheses, hyphens and an optional leading {@code +}.
+     */
+    public static boolean isValidPhoneKeyword(String test) {
+        requireNonNull(test);
+        return normalizePhoneKeyword(test).matches(PHONE_KEYWORD_REGEX);
+    }
+
+    private static String normalizePhoneKeyword(String phoneKeyword) {
+        return phoneKeyword.trim().replaceAll(PHONE_SEPARATORS, "");
     }
 
     /**
@@ -63,8 +97,11 @@ public class PersonSelector {
         if (id != null) {
             return person.getId().equals(id);
         }
-        return person.getName().fullName.toLowerCase(Locale.ROOT)
-                .contains(nameKeyword.toLowerCase(Locale.ROOT));
+        if (nameKeyword != null) {
+            return person.getName().fullName.toLowerCase(Locale.ROOT)
+                    .contains(nameKeyword.toLowerCase(Locale.ROOT));
+        }
+        return person.getPhone().value.contains(phoneKeyword);
     }
 
     /**
@@ -82,24 +119,30 @@ public class PersonSelector {
      * Returns the message to show when no client is chosen by this selector.
      */
     public String getNoMatchMessage() {
-        return id != null
-                ? String.format(MESSAGE_NO_PERSON_WITH_ID, id)
-                : String.format(MESSAGE_NO_PERSON_WITH_NAME, nameKeyword);
+        if (id != null) {
+            return String.format(MESSAGE_NO_PERSON_WITH_ID, id);
+        }
+        if (nameKeyword != null) {
+            return String.format(MESSAGE_NO_PERSON_WITH_NAME, nameKeyword);
+        }
+        return String.format(MESSAGE_NO_PERSON_WITH_PHONE, phoneKeyword);
     }
 
     /**
      * Returns the message to show when this selector chooses more than one client.
      *
      * @param matches The clients chosen by this selector. Must contain at least two clients.
-     * @param commandWord The command word of the command that used this selector, for the example in the message.
+     * @param retryExample A complete command that would act on the first of {@code matches} instead,
+     *     shown as an example of choosing a client by ID.
      */
-    public String getMultipleMatchesMessage(List<Person> matches, String commandWord) {
+    public String getMultipleMatchesMessage(List<Person> matches, String retryExample) {
         requireNonNull(matches);
-        requireNonNull(commandWord);
-        assert matches.size() > 1 : "Only a name can match more than one client";
+        requireNonNull(retryExample);
+        assert matches.size() > 1 : "Only a name or phone number can match more than one client";
         assert id == null : "An ID matches at most one client";
-        return String.format(MESSAGE_MULTIPLE_MATCHES, matches.size(), nameKeyword, commandWord,
-                matches.get(0).getId());
+        boolean isByName = nameKeyword != null;
+        return String.format(MESSAGE_MULTIPLE_MATCHES, matches.size(), isByName ? "name" : "phone number",
+                isByName ? nameKeyword : phoneKeyword, retryExample);
     }
 
     @Override
@@ -114,12 +157,13 @@ public class PersonSelector {
         }
 
         return Objects.equals(id, otherSelector.id)
-                && Objects.equals(nameKeyword, otherSelector.nameKeyword);
+                && Objects.equals(nameKeyword, otherSelector.nameKeyword)
+                && Objects.equals(phoneKeyword, otherSelector.phoneKeyword);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, nameKeyword);
+        return Objects.hash(id, nameKeyword, phoneKeyword);
     }
 
     @Override
@@ -127,6 +171,7 @@ public class PersonSelector {
         return new ToStringBuilder(this)
                 .add("id", id)
                 .add("nameKeyword", nameKeyword)
+                .add("phoneKeyword", phoneKeyword)
                 .toString();
     }
 }

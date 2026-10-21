@@ -31,7 +31,8 @@ public class JsonAddressBookStorageTest {
     @Test
     public void readAndSaveAddressBook_workoutPlan_preservesText() throws Exception {
         String plan = "Squats: 3 sets of 12\nCoach says \"keep steady\"; warm-up --name drills; literal \\n";
-        Person client = new PersonBuilder(ALICE).withWorkoutPlan(plan).build();
+        Person client = new PersonBuilder(ALICE).withWorkoutPlan(plan).withNote("Knee injury")
+                .withActive(false).withTags("gym").build();
         AddressBook original = new AddressBook();
         original.addPerson(client);
         JsonAddressBookStorage storage = new JsonAddressBookStorage(testFolder.resolve("workoutPlan.json"));
@@ -78,6 +79,17 @@ public class JsonAddressBookStorageTest {
     }
 
     @Test
+    public void readAddressBook_nullTag_throwDataLoadingException() {
+        // an invalid data file must not crash the app, so it is reported like any other invalid data
+        assertThrows(DataLoadingException.class, () -> readAddressBook("nullTagAddressBook.json"));
+    }
+
+    @Test
+    public void readAddressBook_nullPerson_throwDataLoadingException() {
+        assertThrows(DataLoadingException.class, () -> readAddressBook("nullPersonAddressBook.json"));
+    }
+
+    @Test
     public void readAndSaveAddressBook_allInOrder_success() throws Exception {
         Path filePath = testFolder.resolve("TempAddressBook.json");
         AddressBook original = getTypicalAddressBook();
@@ -88,7 +100,6 @@ public class JsonAddressBookStorageTest {
         String savedJson = Files.readString(filePath);
         assertFalse(savedJson.contains("\"email\""));
         assertFalse(savedJson.contains("\"address\""));
-        assertFalse(savedJson.contains("\"tags\""));
         ReadOnlyAddressBook readBack = jsonAddressBookStorage.readAddressBook(filePath).get();
         assertEquals(original, new AddressBook(readBack));
 

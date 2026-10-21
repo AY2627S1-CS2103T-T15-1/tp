@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
@@ -12,8 +13,16 @@
     <Insets top="16" right="24" bottom="16" left="16" />
   </padding>
   <VBox spacing="5" HBox.hgrow="ALWAYS" minWidth="0">
-    <Label fx:id="name" styleClass="contact-name" maxWidth="Infinity" />
+    <HBox spacing="10" alignment="CENTER_LEFT">
+      <Label fx:id="name" styleClass="contact-name" wrapText="true" />
+      <Label fx:id="inactiveStatus" text="Inactive" styleClass="contact-status">
+        <minWidth>
+          <Region fx:constant="USE_PREF_SIZE" />
+        </minWidth>
+      </Label>
+    </HBox>
     <Label fx:id="phone" styleClass="contact-phone" maxWidth="Infinity" />
+    <FlowPane fx:id="tags" styleClass="contact-tags" hgap="6" vgap="4" />
   </VBox>
   <Label fx:id="id" styleClass="contact-index">
     <minWidth>

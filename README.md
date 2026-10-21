@@ -14,9 +14,10 @@ Cindy helps trainers:
 
 Cindy combines the speed of a Command Line Interface (CLI) with the convenience of a Graphical User Interface (GUI), allowing trainers to perform frequent tasks efficiently while retaining a clear visual overview of their clients.
 
-For detailed documentation, refer to https://ay2627s1-cs2103t-t15-1.github.io/tp/docs/.
+For detailed documentation, visit the [Cindy website](https://ay2627s1-cs2103t-t15-1.github.io/tp/):
 
-* This project is a **part of the se-education.org** initiative. If you would like to contribute code to this project, see [se-education.org](https://se-education.org/#contributing-to-se-edu) for more info.
+* [User Guide](https://ay2627s1-cs2103t-t15-1.github.io/tp/UserGuide.html): how to install and use Cindy.
+* [Developer Guide](https://ay2627s1-cs2103t-t15-1.github.io/tp/DeveloperGuide.html): how Cindy is designed and built.
 
 
 ## Acknowledgements

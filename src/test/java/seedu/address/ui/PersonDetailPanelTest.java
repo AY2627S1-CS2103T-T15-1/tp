@@ -18,6 +18,7 @@ import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Region;
 import seedu.address.testutil.PersonBuilder;
 
@@ -107,6 +108,31 @@ public class PersonDetailPanelTest {
         runOnFxThread(() -> {
             PersonDetailPanel panel = new PersonDetailPanel();
             assertThrows(NullPointerException.class, () -> panel.showPerson(null));
+        });
+    }
+
+    @Test
+    public void showPerson_allDetails_displaysNoteTagsStatusAndPlan() throws Exception {
+        runOnFxThread(() -> {
+            PersonDetailPanel panel = new PersonDetailPanel();
+            panel.showPerson(new PersonBuilder(ALICE).withNote("Knee injury").withActive(false).withTags("gym")
+                    .withWorkoutPlan("Squats\nRest").build());
+            Region content = (Region) ((ScrollPane) panel.getRoot()).getContent();
+            assertTrue(content.lookup("#noteSection").isVisible());
+            assertEquals("Knee injury", ((Label) content.lookup("#note")).getText());
+            assertTrue(content.lookup("#inactiveStatus").isVisible());
+            FlowPane tags = (FlowPane) content.lookup("#tags");
+            assertEquals("gym", ((Label) tags.getChildren().get(0)).getText());
+            assertEquals("Squats\nRest", getPlanLabel(panel).getText());
+
+            panel.showPerson(new PersonBuilder(ALICE).withNote("Note only").build());
+            assertTrue(content.lookup("#noteSection").isVisible());
+            assertFalse(content.lookup("#workoutPlanCard").isManaged());
+
+            panel.showPerson(new PersonBuilder(ALICE).withWorkoutPlan("Plan only").build());
+            assertFalse(content.lookup("#noteSection").isManaged());
+            assertEquals("", ((Label) content.lookup("#note")).getText());
+            assertTrue(content.lookup("#workoutPlanCard").isVisible());
         });
     }
 

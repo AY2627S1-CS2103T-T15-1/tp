@@ -26,6 +26,12 @@ public class PersonDetailPanel extends UiPart<Region> {
     @FXML
     private Label workoutPlanText;
 
+    @FXML
+    private VBox noteSection;
+
+    @FXML
+    private Label note;
+
     /**
      * Creates an empty {@code PersonDetailPanel}.
      */
@@ -39,6 +45,10 @@ public class PersonDetailPanel extends UiPart<Region> {
     public void showPerson(Person person) {
         requireNonNull(person);
         personHeader.getChildren().setAll(new PersonCard(person).getRoot());
+        boolean hasNote = !person.getNote().isEmpty();
+        note.setText(person.getNote().value);
+        noteSection.setVisible(hasNote);
+        noteSection.setManaged(hasNote);
         LongFormText plan = person.getWorkoutPlan();
         boolean hasPlan = !plan.isBlank();
         workoutPlanText.setText(hasPlan ? plan.value : "");

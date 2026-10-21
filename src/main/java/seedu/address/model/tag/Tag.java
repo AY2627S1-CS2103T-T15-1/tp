@@ -3,6 +3,8 @@ package seedu.address.model.tag;
 import static java.util.Objects.requireNonNull;
 import static seedu.address.commons.util.AppUtil.checkArgument;
 
+import java.util.Set;
+
 /**
  * Represents a Tag in the address book.
  * Guarantees: immutable; name is valid as declared in {@link #isValidTagName(String)}
@@ -11,6 +13,13 @@ public class Tag {
 
     public static final String MESSAGE_CONSTRAINTS = "Tag names should be alphanumeric";
     public static final String VALIDATION_REGEX = "\\p{Alnum}+";
+
+    /** Tag for clients the trainer trains at a gym. */
+    public static final Tag GYM = new Tag("gym");
+    /** Tag for clients the trainer trains personally. */
+    public static final Tag PERSONAL = new Tag("personal");
+    /** The client types. A client has at most one of these tags. */
+    public static final Set<Tag> CLIENT_TYPES = Set.of(GYM, PERSONAL);
 
     public final String tagName;
 

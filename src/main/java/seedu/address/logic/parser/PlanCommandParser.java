@@ -26,8 +26,13 @@ public class PlanCommandParser implements Parser<PlanCommand> {
     public PlanCommand parse(String args) throws ParseException {
         requireNonNull(args);
         ArgumentMultimap argMultimap = ArgumentTokenizer.tokenize(args, PREFIX_ID, PREFIX_NAME_LONG, PREFIX_NOTE);
-        PersonSelector selector = ParserUtil.parsePersonSelector(argMultimap, PlanCommand.MESSAGE_USAGE);
-        argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_NOTE);
+        PersonSelector selector = ParserUtil.parsePersonSelector(argMultimap, PlanCommand.MESSAGE_USAGE,
+                PREFIX_ID, PREFIX_NAME_LONG);
+        try {
+            argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_NOTE);
+        } catch (ParseException pe) {
+            throw new ParseException(ParserUtil.withUsage(pe.getMessage(), PlanCommand.MESSAGE_USAGE), pe);
+        }
 
         String note = argMultimap.getValue(PREFIX_NOTE).orElseThrow(()
                 -> new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, PlanCommand.MESSAGE_USAGE)));

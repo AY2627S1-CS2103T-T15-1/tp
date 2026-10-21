@@ -9,9 +9,12 @@ import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalPersons.ALICE;
 import static seedu.address.testutil.TypicalPersons.BOB;
 
+import java.util.Set;
+
 import org.junit.jupiter.api.Test;
 
 import seedu.address.model.LongFormText;
+import seedu.address.model.tag.Tag;
 import seedu.address.testutil.PersonBuilder;
 
 public class PersonTest {
@@ -43,6 +46,8 @@ public class PersonTest {
         assertFalse(ALICE.equals(withPlan));
         assertTrue(ALICE.isSamePerson(withPlan));
     }
+
+
 
     @Test
     public void isSamePerson() {
@@ -99,6 +104,15 @@ public class PersonTest {
         // different ID -> returns false
         assertFalse(ALICE.equals(new PersonBuilder(ALICE).withId(99).build()));
 
+        // different note -> returns false
+        assertFalse(ALICE.equals(new PersonBuilder(ALICE).withNote("Knee injury").build()));
+
+        // different active status -> returns false
+        assertFalse(ALICE.equals(new PersonBuilder(ALICE).withActive(false).build()));
+
+        // different tags -> returns false
+        assertFalse(ALICE.equals(new PersonBuilder(ALICE).withTags("gym").build()));
+
         // different name -> returns false
         Person editedAlice = new PersonBuilder(ALICE).withName(VALID_NAME_BOB).build();
         assertFalse(ALICE.equals(editedAlice));
@@ -112,7 +126,32 @@ public class PersonTest {
     @Test
     public void toStringMethod() {
         String expected = Person.class.getCanonicalName() + "{id=" + ALICE.getId() + ", name=" + ALICE.getName()
-                + ", phone=" + ALICE.getPhone() + ", workoutPlan=" + ALICE.getWorkoutPlan().value + "}";
+                + ", phone=" + ALICE.getPhone() + ", note=" + ALICE.getNote() + ", isActive=" + ALICE.isActive()
+                + ", tags=" + ALICE.getTags() + ", workoutPlan=" + ALICE.getWorkoutPlan() + "}";
         assertEquals(expected, ALICE.toString());
+    }
+
+    @Test
+    public void constructor_withoutDetails_createsActivePersonWithoutNoteOrTags() {
+        Person person = new Person(ALICE.getId(), ALICE.getName(), ALICE.getPhone());
+        assertTrue(person.getNote().isEmpty());
+        assertTrue(person.isActive());
+        assertTrue(person.getTags().isEmpty());
+    }
+
+    @Test
+    public void withMethods_changeOnlyTheGivenDetail() {
+        Person person = new PersonBuilder(ALICE).withNote("Old note").withTags("gym").withWorkoutPlan("Squats").build();
+
+        assertEquals(new PersonBuilder(person).withNote("New note").build(), person.withNote(new Note("New note")));
+        assertEquals(new PersonBuilder(person).withActive(false).build(), person.withActive(false));
+        assertEquals(new PersonBuilder(person).withTags("personal").build(),
+                person.withTags(Set.of(new Tag("personal"))));
+    }
+
+    @Test
+    public void getTags_modifyTags_throwsUnsupportedOperationException() {
+        Person person = new PersonBuilder().withTags("gym").build();
+        assertThrows(UnsupportedOperationException.class, () -> person.getTags().clear());
     }
 }

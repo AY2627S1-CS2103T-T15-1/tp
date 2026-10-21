@@ -1,10 +1,15 @@
 package seedu.address.testutil;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import seedu.address.model.LongFormText;
 import seedu.address.model.person.Name;
+import seedu.address.model.person.Note;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonId;
 import seedu.address.model.person.Phone;
+import seedu.address.model.tag.Tag;
 
 /**
  * A utility class to help with building Person objects.
@@ -17,7 +22,10 @@ public class PersonBuilder {
     private PersonId id;
     private Name name;
     private Phone phone;
+    private Note note;
     private LongFormText workoutPlan = new LongFormText("");
+    private boolean isActive;
+    private Set<Tag> tags;
 
     /**
      * Creates a {@code PersonBuilder} with the default details.
@@ -26,6 +34,9 @@ public class PersonBuilder {
         id = new PersonId(DEFAULT_ID);
         name = new Name(DEFAULT_NAME);
         phone = new Phone(DEFAULT_PHONE);
+        note = Note.EMPTY;
+        isActive = true;
+        tags = new HashSet<>();
     }
 
     /**
@@ -35,7 +46,10 @@ public class PersonBuilder {
         id = personToCopy.getId();
         name = personToCopy.getName();
         phone = personToCopy.getPhone();
+        note = personToCopy.getNote();
         workoutPlan = personToCopy.getWorkoutPlan();
+        isActive = personToCopy.isActive();
+        tags = new HashSet<>(personToCopy.getTags());
     }
 
     /**
@@ -63,7 +77,34 @@ public class PersonBuilder {
     }
 
     /**
-     * Sets the workout plan of the person that we are building.
+     * Sets the {@code Note} of the {@code Person} that we are building.
+     */
+    public PersonBuilder withNote(String note) {
+        this.note = new Note(note);
+        return this;
+    }
+
+    /**
+     * Sets whether the {@code Person} that we are building is active.
+     */
+    public PersonBuilder withActive(boolean isActive) {
+        this.isActive = isActive;
+        return this;
+    }
+
+    /**
+     * Sets the tags of the {@code Person} that we are building to tags with the given {@code tagNames}.
+     */
+    public PersonBuilder withTags(String... tagNames) {
+        tags = new HashSet<>();
+        for (String tagName : tagNames) {
+            tags.add(new Tag(tagName));
+        }
+        return this;
+    }
+
+    /**
+     * Sets the workout plan of the person being built.
      */
     public PersonBuilder withWorkoutPlan(String workoutPlan) {
         this.workoutPlan = new LongFormText(workoutPlan);
@@ -71,7 +112,7 @@ public class PersonBuilder {
     }
 
     public Person build() {
-        return new Person(id, name, phone, workoutPlan);
+        return new Person(id, name, phone, note, isActive, tags, workoutPlan);
     }
 
 }

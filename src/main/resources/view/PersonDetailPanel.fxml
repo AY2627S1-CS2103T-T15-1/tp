@@ -10,7 +10,16 @@
             xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
   <content>
     <VBox spacing="16" minWidth="0">
-      <StackPane fx:id="personHeader" styleClass="client-detail-card" minHeight="96" />
+      <VBox styleClass="client-detail-card">
+        <StackPane fx:id="personHeader" minHeight="96" />
+        <VBox fx:id="noteSection" spacing="4" visible="false" managed="false">
+          <padding>
+            <Insets top="0" right="24" bottom="16" left="16" />
+          </padding>
+          <Label text="Note" styleClass="client-note-heading" />
+          <Label fx:id="note" styleClass="client-note" wrapText="true" />
+        </VBox>
+      </VBox>
       <VBox fx:id="workoutPlanCard" styleClass="client-detail-card" spacing="10" minWidth="0"
             visible="false" managed="false">
         <padding>

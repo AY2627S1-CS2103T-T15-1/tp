@@ -40,7 +40,7 @@ public class PlanCommand extends PersonTargetedCommand {
 
     @Override
     protected CommandResult executeOn(Person target, Model model) {
-        Person updated = new Person(target.getId(), target.getName(), target.getPhone(), workoutPlan);
+        Person updated = target.withWorkoutPlan(workoutPlan);
         model.setPerson(target, updated);
         model.updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS);
         return new CommandResult(String.format(MESSAGE_PLAN_SUCCESS, Messages.format(updated)), updated);
@@ -49,6 +49,14 @@ public class PlanCommand extends PersonTargetedCommand {
     @Override
     protected String getCommandWord() {
         return COMMAND_WORD;
+    }
+
+    /**
+     * Keeps the note and its line breaks in a complete single-line retry command.
+     */
+    @Override
+    protected String getArgumentsAfterSelector() {
+        return " " + PREFIX_NOTE + " " + quote(workoutPlan.value.replace("\n", "\\n"));
     }
 
     @Override

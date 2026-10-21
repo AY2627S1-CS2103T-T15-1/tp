@@ -1,9 +1,13 @@
 package seedu.address.model.person;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.model.LongFormText;
+import seedu.address.model.tag.Tag;
 
 /**
  * Represents a Person in the address book.
@@ -16,28 +20,51 @@ public class Person {
     private final Name name;
     private final Phone phone;
 
-    // Optional data field; blank text means no workout plan.
+    // Data fields
+    private final Note note;
     private final LongFormText workoutPlan;
+    private final boolean isActive;
+    private final Set<Tag> tags = new HashSet<>();
 
     /**
-     * Creates a person without a workout plan. Identity fields must not be null.
+     * Creates an active person with no note and no tags.
+     * Every field must be present and not null.
      */
     public Person(PersonId id, Name name, Phone phone) {
-        this(id, name, phone, new LongFormText(""));
+        this(id, name, phone, Note.EMPTY, true, Set.of());
     }
 
     /**
-     * Creates a person with an optional workout plan.
-     * All arguments must not be null. Use blank text for an absent plan.
+     * Every field must be present and not null.
+     */
+    public Person(PersonId id, Name name, Phone phone, Note note, boolean isActive, Set<Tag> tags) {
+        this(id, name, phone, note, isActive, tags, new LongFormText(""));
+    }
+
+    /**
+     * Creates an active person with a workout plan, no note and no tags.
      */
     public Person(PersonId id, Name name, Phone phone, LongFormText workoutPlan) {
+        this(id, name, phone, Note.EMPTY, true, Set.of(), workoutPlan);
+    }
+
+    /**
+     * Creates a person with all details. Every argument must be present and not null.
+     */
+    public Person(PersonId id, Name name, Phone phone, Note note, boolean isActive, Set<Tag> tags,
+            LongFormText workoutPlan) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(name);
         Objects.requireNonNull(phone);
+        Objects.requireNonNull(note);
+        Objects.requireNonNull(tags);
         this.id = id;
         this.name = name;
         this.phone = phone;
+        this.note = note;
         this.workoutPlan = Objects.requireNonNull(workoutPlan);
+        this.isActive = isActive;
+        this.tags.addAll(tags);
     }
 
     public PersonId getId() {
@@ -52,8 +79,52 @@ public class Person {
         return phone;
     }
 
+    public Note getNote() {
+        return note;
+    }
+
     public LongFormText getWorkoutPlan() {
         return workoutPlan;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    /**
+     * Returns an immutable tag set, which throws {@code UnsupportedOperationException}
+     * if modification is attempted.
+     */
+    public Set<Tag> getTags() {
+        return Collections.unmodifiableSet(tags);
+    }
+
+    /**
+     * Returns a copy of this person with {@code note} as their note.
+     */
+    public Person withNote(Note note) {
+        return new Person(id, name, phone, note, isActive, tags, workoutPlan);
+    }
+
+    /**
+     * Returns a copy of this person who is active if {@code isActive} is true, and inactive otherwise.
+     */
+    public Person withActive(boolean isActive) {
+        return new Person(id, name, phone, note, isActive, tags, workoutPlan);
+    }
+
+    /**
+     * Returns a copy of this person with {@code tags} as their tags.
+     */
+    public Person withTags(Set<Tag> tags) {
+        return new Person(id, name, phone, note, isActive, tags, workoutPlan);
+    }
+
+    /**
+     * Returns a copy of this person with the given workout plan, preserving all other details.
+     */
+    public Person withWorkoutPlan(LongFormText workoutPlan) {
+        return new Person(id, name, phone, note, isActive, tags, workoutPlan);
     }
 
     /**
@@ -89,13 +160,16 @@ public class Person {
         return id.equals(otherPerson.id)
                 && name.equals(otherPerson.name)
                 && phone.equals(otherPerson.phone)
+                && note.equals(otherPerson.note)
+                && isActive == otherPerson.isActive
+                && tags.equals(otherPerson.tags)
                 && workoutPlan.equals(otherPerson.workoutPlan);
     }
 
     @Override
     public int hashCode() {
         // use this method for custom fields hashing instead of implementing your own
-        return Objects.hash(id, name, phone, workoutPlan);
+        return Objects.hash(id, name, phone, note, isActive, tags, workoutPlan);
     }
 
     @Override
@@ -104,6 +178,9 @@ public class Person {
                 .add("id", id)
                 .add("name", name)
                 .add("phone", phone)
+                .add("note", note)
+                .add("isActive", isActive)
+                .add("tags", tags)
                 .add("workoutPlan", workoutPlan)
                 .toString();
     }

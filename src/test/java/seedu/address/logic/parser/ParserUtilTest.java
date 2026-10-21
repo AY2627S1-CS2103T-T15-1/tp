@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_ID;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME_LONG;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE_LONG;
 import static seedu.address.logic.parser.ParserUtil.MESSAGE_INVALID_INDEX;
 import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
@@ -251,36 +252,74 @@ public class ParserUtilTest {
 
     @Test
     public void parsePersonSelector_id_returnsSelectorById() throws Exception {
-        ArgumentMultimap argMultimap = ArgumentTokenizer.tokenize(" --id 3", PREFIX_ID, PREFIX_NAME_LONG);
-        assertEquals(PersonSelector.byId(new PersonId(3)), ParserUtil.parsePersonSelector(argMultimap, USAGE));
+        assertEquals(PersonSelector.byId(new PersonId(3)), parseSelector(" --id 3"));
     }
 
     @Test
     public void parsePersonSelector_name_returnsSelectorByName() throws Exception {
-        ArgumentMultimap argMultimap =
-                ArgumentTokenizer.tokenize(" --name \"John  Doe\"", PREFIX_ID, PREFIX_NAME_LONG);
-        assertEquals(PersonSelector.byName("John Doe"), ParserUtil.parsePersonSelector(argMultimap, USAGE));
+        assertEquals(PersonSelector.byName("John Doe"), parseSelector(" --name \"John  Doe\""));
+    }
+
+    @Test
+    public void parsePersonSelector_phone_returnsSelectorByPhone() throws Exception {
+        assertEquals(PersonSelector.byPhone("91234567"), parseSelector(" --phone \"9123 4567\""));
     }
 
     @Test
     public void parsePersonSelector_invalidInput_throwsParseException() {
         String invalidFormat = String.format(MESSAGE_INVALID_COMMAND_FORMAT, USAGE);
 
-        // neither --id nor --name
+        // none of --id, --name or --phone
         assertSelectorFailure("", invalidFormat);
 
         // text before the arguments
         assertSelectorFailure("1 --id 3", invalidFormat);
 
-        // both --id and --name
-        assertSelectorFailure(" --id 3 --name John", ParserUtil.MESSAGE_CONFLICTING_SELECTORS);
+        // more than one of --id, --name or --phone
+        String conflictMessage = ParserUtil.withUsage(
+                String.format(ParserUtil.MESSAGE_CONFLICTING_SELECTORS, "--id, --name or --phone"), USAGE);
+        assertSelectorFailure(" --id 3 --name John", conflictMessage);
+        assertSelectorFailure(" --name John --phone 9123", conflictMessage);
 
         // repeated --id
-        assertSelectorFailure(" --id 3 --id 4", Messages.getErrorMessageForDuplicatePrefixes(PREFIX_ID));
+        assertSelectorFailure(" --id 3 --id 4",
+                ParserUtil.withUsage(Messages.getErrorMessageForDuplicatePrefixes(PREFIX_ID), USAGE));
 
-        // blank name
-        assertSelectorFailure(" --name \"  \"", ParserUtil.MESSAGE_BLANK_NAME_KEYWORD);
-        assertSelectorFailure(" --name", ParserUtil.MESSAGE_BLANK_NAME_KEYWORD);
+        // invalid values
+        assertSelectorFailure(" --id 0", ParserUtil.withUsage(PersonId.MESSAGE_CONSTRAINTS, USAGE));
+        assertSelectorFailure(" --name \"  \"", ParserUtil.withUsage(ParserUtil.MESSAGE_BLANK_NAME_KEYWORD, USAGE));
+        assertSelectorFailure(" --name", ParserUtil.withUsage(ParserUtil.MESSAGE_BLANK_NAME_KEYWORD, USAGE));
+        assertSelectorFailure(" --phone abc", ParserUtil.withUsage(ParserUtil.MESSAGE_INVALID_PHONE_KEYWORD, USAGE));
+        assertSelectorFailure(" --phone +", ParserUtil.withUsage(ParserUtil.MESSAGE_INVALID_PHONE_KEYWORD, USAGE));
+    }
+
+    @Test
+    public void parsePersonSelector_twoAcceptedPrefixes_conflictMessageNamesBoth() {
+        ArgumentMultimap argMultimap = ArgumentTokenizer.tokenize(" --id 3 --name John", PREFIX_ID, PREFIX_NAME_LONG);
+        String expectedMessage = ParserUtil.withUsage(
+                String.format(ParserUtil.MESSAGE_CONFLICTING_SELECTORS, "--id or --name"), USAGE);
+        assertThrows(ParseException.class, expectedMessage, () ->
+                ParserUtil.parsePersonSelector(argMultimap, USAGE, PREFIX_ID, PREFIX_NAME_LONG));
+    }
+
+    @Test
+    public void parsePersonFilters_severalPrefixes_returnsFilterForEach() throws Exception {
+        ArgumentMultimap argMultimap = ArgumentTokenizer.tokenize(" --phone 9123 --name John",
+                PREFIX_ID, PREFIX_NAME_LONG, PREFIX_PHONE_LONG);
+        assertEquals(List.of(PersonSelector.byName("John"), PersonSelector.byPhone("9123")),
+                ParserUtil.parsePersonFilters(argMultimap, USAGE, PREFIX_NAME_LONG, PREFIX_PHONE_LONG, PREFIX_ID));
+    }
+
+    @Test
+    public void parsePersonFilters_noPrefix_throwsParseException() {
+        ArgumentMultimap argMultimap = ArgumentTokenizer.tokenize(" John", PREFIX_ID, PREFIX_NAME_LONG);
+        assertThrows(ParseException.class, String.format(MESSAGE_INVALID_COMMAND_FORMAT, USAGE), () ->
+                ParserUtil.parsePersonFilters(argMultimap, USAGE, PREFIX_NAME_LONG, PREFIX_ID));
+    }
+
+    @Test
+    public void withUsage() {
+        assertEquals("Error.\nusage message", ParserUtil.withUsage("Error.", USAGE));
     }
 
     @Test
@@ -296,7 +335,14 @@ public class ParserUtilTest {
      * Asserts that parsing {@code args} into a {@code PersonSelector} fails with {@code expectedMessage}.
      */
     private static void assertSelectorFailure(String args, String expectedMessage) {
-        ArgumentMultimap argMultimap = ArgumentTokenizer.tokenize(args, PREFIX_ID, PREFIX_NAME_LONG);
-        assertThrows(ParseException.class, expectedMessage, () -> ParserUtil.parsePersonSelector(argMultimap, USAGE));
+        assertThrows(ParseException.class, expectedMessage, () -> parseSelector(args));
+    }
+
+    /**
+     * Parses {@code args} into a {@code PersonSelector}, accepting {@code --id}, {@code --name} and {@code --phone}.
+     */
+    private static PersonSelector parseSelector(String args) throws ParseException {
+        ArgumentMultimap argMultimap = ArgumentTokenizer.tokenize(args, PREFIX_ID, PREFIX_NAME_LONG, PREFIX_PHONE_LONG);
+        return ParserUtil.parsePersonSelector(argMultimap, USAGE, PREFIX_ID, PREFIX_NAME_LONG, PREFIX_PHONE_LONG);
     }
 }

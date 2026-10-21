@@ -4,10 +4,14 @@ import static java.util.Objects.requireNonNull;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_ID;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME_LONG;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE_LONG;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import seedu.address.commons.core.index.Index;
 import seedu.address.commons.util.StringUtil;
@@ -26,10 +30,11 @@ import seedu.address.model.tag.Tag;
 public class ParserUtil {
 
     public static final String MESSAGE_INVALID_INDEX = "Index must be a positive integer.";
-    public static final String MESSAGE_CONFLICTING_SELECTORS =
-            "Choose the client using either " + PREFIX_ID + " or " + PREFIX_NAME_LONG + ", not both.";
+    public static final String MESSAGE_CONFLICTING_SELECTORS = "Choose the client using only one of %1$s.";
     public static final String MESSAGE_BLANK_NAME_KEYWORD =
             "Enter part of the client's name after " + PREFIX_NAME_LONG + ".";
+    public static final String MESSAGE_INVALID_PHONE_KEYWORD = "Enter digits of the client's phone number after "
+            + PREFIX_PHONE_LONG + ". Spaces, parentheses, hyphens and a leading + are allowed.";
 
     /**
      * Parses {@code oneBasedIndex} into an {@code Index} and returns it. Leading and trailing whitespaces will be
@@ -60,36 +65,111 @@ public class ParserUtil {
     }
 
     /**
-     * Parses the {@code --id} or {@code --name} argument in {@code argMultimap} into a {@code PersonSelector}.
-     * Exactly one of the two must be given, and nothing may come before them.
+     * Parses the argument in {@code argMultimap} that chooses a client into a {@code PersonSelector}.
+     * Exactly one of {@code selectorPrefixes} must be given, and nothing may come before it.
      *
-     * @param messageUsage The usage message of the command, shown if neither argument is given.
-     * @throws ParseException if neither or both arguments are given, either is given more than once,
+     * @param messageUsage The usage message of the command, added to every error message.
+     * @param selectorPrefixes The prefixes the command accepts for choosing a client, out of
+     *     {@code --id}, {@code --name} and {@code --phone}.
+     * @throws ParseException if none or more than one of the prefixes is given, a prefix is given more than once,
      *     or the given value is invalid.
      */
-    public static PersonSelector parsePersonSelector(ArgumentMultimap argMultimap, String messageUsage)
-            throws ParseException {
+    public static PersonSelector parsePersonSelector(ArgumentMultimap argMultimap, String messageUsage,
+            Prefix... selectorPrefixes) throws ParseException {
         requireNonNull(argMultimap);
         requireNonNull(messageUsage);
-        boolean hasId = argMultimap.getValue(PREFIX_ID).isPresent();
-        boolean hasName = argMultimap.getValue(PREFIX_NAME_LONG).isPresent();
+        assert selectorPrefixes.length > 0 : "A command must accept at least one way of choosing a client";
+        List<Prefix> givenPrefixes = Stream.of(selectorPrefixes)
+                .filter(prefix -> argMultimap.getValue(prefix).isPresent())
+                .toList();
 
-        if (!argMultimap.getPreamble().isEmpty() || (!hasId && !hasName)) {
+        if (!argMultimap.getPreamble().isEmpty() || givenPrefixes.isEmpty()) {
             throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, messageUsage));
         }
-        if (hasId && hasName) {
-            throw new ParseException(MESSAGE_CONFLICTING_SELECTORS);
+        if (givenPrefixes.size() > 1) {
+            throw new ParseException(withUsage(
+                    String.format(MESSAGE_CONFLICTING_SELECTORS, describePrefixes(selectorPrefixes)), messageUsage));
         }
-        argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_ID, PREFIX_NAME_LONG);
+        try {
+            argMultimap.verifyNoDuplicatePrefixesFor(selectorPrefixes);
+            Prefix prefix = givenPrefixes.get(0);
+            return parseSelectorValue(prefix, argMultimap.getValue(prefix).get());
+        } catch (ParseException pe) {
+            throw new ParseException(withUsage(pe.getMessage(), messageUsage), pe);
+        }
+    }
 
-        if (hasId) {
-            return PersonSelector.byId(parseId(argMultimap.getValue(PREFIX_ID).get()));
+    /**
+     * Parses all the arguments in {@code argMultimap} given with {@code filterPrefixes} into
+     * {@code PersonSelector}s, one for each prefix given. At least one of the prefixes must be given,
+     * and nothing may come before them.
+     *
+     * @param messageUsage The usage message of the command, added to every error message.
+     * @throws ParseException if none of the prefixes is given, a prefix is given more than once,
+     *     or a given value is invalid.
+     */
+    public static List<PersonSelector> parsePersonFilters(ArgumentMultimap argMultimap, String messageUsage,
+            Prefix... filterPrefixes) throws ParseException {
+        requireNonNull(argMultimap);
+        requireNonNull(messageUsage);
+        List<Prefix> givenPrefixes = Stream.of(filterPrefixes)
+                .filter(prefix -> argMultimap.getValue(prefix).isPresent())
+                .toList();
+
+        if (!argMultimap.getPreamble().isEmpty() || givenPrefixes.isEmpty()) {
+            throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, messageUsage));
         }
-        String nameKeyword = removeOptionalQuotes(argMultimap.getValue(PREFIX_NAME_LONG).get().trim());
-        if (nameKeyword.isBlank()) {
-            throw new ParseException(MESSAGE_BLANK_NAME_KEYWORD);
+        try {
+            argMultimap.verifyNoDuplicatePrefixesFor(filterPrefixes);
+            List<PersonSelector> filters = new ArrayList<>();
+            for (Prefix prefix : givenPrefixes) {
+                filters.add(parseSelectorValue(prefix, argMultimap.getValue(prefix).get()));
+            }
+            return filters;
+        } catch (ParseException pe) {
+            throw new ParseException(withUsage(pe.getMessage(), messageUsage), pe);
         }
-        return PersonSelector.byName(nameKeyword);
+    }
+
+    /**
+     * Parses the {@code value} given with {@code prefix} into a {@code PersonSelector}.
+     */
+    private static PersonSelector parseSelectorValue(Prefix prefix, String value) throws ParseException {
+        String trimmedValue = removeOptionalQuotes(value.trim()).trim();
+        if (prefix.equals(PREFIX_ID)) {
+            return PersonSelector.byId(parseId(trimmedValue));
+        }
+        if (prefix.equals(PREFIX_NAME_LONG)) {
+            if (trimmedValue.isEmpty()) {
+                throw new ParseException(MESSAGE_BLANK_NAME_KEYWORD);
+            }
+            return PersonSelector.byName(trimmedValue);
+        }
+        assert prefix.equals(PREFIX_PHONE_LONG) : "Clients can only be chosen by ID, name or phone number";
+        if (!PersonSelector.isValidPhoneKeyword(trimmedValue)) {
+            throw new ParseException(MESSAGE_INVALID_PHONE_KEYWORD);
+        }
+        return PersonSelector.byPhone(trimmedValue);
+    }
+
+    /**
+     * Returns {@code message} followed by {@code messageUsage} on a new line.
+     */
+    public static String withUsage(String message, String messageUsage) {
+        requireNonNull(message);
+        requireNonNull(messageUsage);
+        return message + "\n" + messageUsage;
+    }
+
+    /**
+     * Returns {@code prefixes} as a list in words, e.g. "--id, --name or --phone".
+     */
+    private static String describePrefixes(Prefix... prefixes) {
+        List<String> names = Stream.of(prefixes).map(Prefix::toString).toList();
+        if (names.size() == 1) {
+            return names.get(0);
+        }
+        return String.join(", ", names.subList(0, names.size() - 1)) + " or " + names.get(names.size() - 1);
     }
 
     /**

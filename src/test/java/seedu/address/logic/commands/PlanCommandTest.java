@@ -92,7 +92,7 @@ public class PlanCommandTest {
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
         expectedModel.updateFilteredPersonList(selector::matches);
         String message = "2 clients have a name containing \"meier\". They are listed below.\n"
-                + "Run plan again with --id 2 instead of --name, keeping all other parameters.";
+                + "Use --id to choose one of them, e.g. plan --id 2 --note \"Squats: 3 sets of 12\"";
 
         assertCommandSuccess(command, model, message, expectedModel);
     }

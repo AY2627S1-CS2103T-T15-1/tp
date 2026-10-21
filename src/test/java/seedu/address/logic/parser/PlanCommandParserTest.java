@@ -88,29 +88,35 @@ public class PlanCommandParserTest {
     @Test
     public void parse_invalidId_failure() {
         for (String id : new String[] {"", "0", "-1", "abc", "1.5", "2147483648"}) {
-            assertParseFailure(parser, " --id " + id + " --note " + PLAN, PersonId.MESSAGE_CONSTRAINTS);
+            assertParseFailure(parser, " --id " + id + " --note " + PLAN,
+                    ParserUtil.withUsage(PersonId.MESSAGE_CONSTRAINTS, PlanCommand.MESSAGE_USAGE));
         }
     }
 
     @Test
     public void parse_blankName_failure() {
-        assertParseFailure(parser, " --name --note " + PLAN, ParserUtil.MESSAGE_BLANK_NAME_KEYWORD);
-        assertParseFailure(parser, " --name \"\" --note " + PLAN, ParserUtil.MESSAGE_BLANK_NAME_KEYWORD);
+        String expected = ParserUtil.withUsage(ParserUtil.MESSAGE_BLANK_NAME_KEYWORD, PlanCommand.MESSAGE_USAGE);
+        assertParseFailure(parser, " --name --note " + PLAN, expected);
+        assertParseFailure(parser, " --name \"\" --note " + PLAN, expected);
     }
 
     @Test
     public void parse_conflictingSelectors_failure() {
         assertParseFailure(parser, " --id 2 --name Alice --note " + PLAN,
-                ParserUtil.MESSAGE_CONFLICTING_SELECTORS);
+                ParserUtil.withUsage(String.format(ParserUtil.MESSAGE_CONFLICTING_SELECTORS, "--id or --name"),
+                        PlanCommand.MESSAGE_USAGE));
     }
 
     @Test
     public void parse_repeatedPrefixes_failure() {
         assertParseFailure(parser, " --id 2 --id 3 --note " + PLAN,
-                Messages.getErrorMessageForDuplicatePrefixes(CliSyntax.PREFIX_ID));
+                ParserUtil.withUsage(Messages.getErrorMessageForDuplicatePrefixes(CliSyntax.PREFIX_ID),
+                        PlanCommand.MESSAGE_USAGE));
         assertParseFailure(parser, " --name Alice --name Bob --note " + PLAN,
-                Messages.getErrorMessageForDuplicatePrefixes(CliSyntax.PREFIX_NAME_LONG));
+                ParserUtil.withUsage(Messages.getErrorMessageForDuplicatePrefixes(CliSyntax.PREFIX_NAME_LONG),
+                        PlanCommand.MESSAGE_USAGE));
         assertParseFailure(parser, " --id 2 --note Squats --note Push-ups",
-                Messages.getErrorMessageForDuplicatePrefixes(CliSyntax.PREFIX_NOTE));
+                ParserUtil.withUsage(Messages.getErrorMessageForDuplicatePrefixes(CliSyntax.PREFIX_NOTE),
+                        PlanCommand.MESSAGE_USAGE));
     }
 }
