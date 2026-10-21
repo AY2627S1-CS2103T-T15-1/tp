@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.AddToGroupCommand;
+import seedu.address.logic.commands.DeleteGroupCommand;
 import seedu.address.logic.commands.PersonSelector;
 import seedu.address.logic.commands.TagCommand;
 import seedu.address.logic.commands.UntagCommand;
@@ -109,5 +110,28 @@ public class TagCommandParserTest {
     public void parse_repeatedGroup_failure() {
         assertParseFailure(parser, " --id 2 --group morning --group rehab", ParserUtil.withUsage(
                 Messages.getErrorMessageForDuplicatePrefixes(PREFIX_GROUP), TagCommand.MESSAGE_USAGE));
+    }
+
+    @Test
+    public void parse_deleteGroup_returnsDeleteGroupCommand() {
+        DeleteGroupCommand expectedCommand = new DeleteGroupCommand(new Tag("morning"));
+        assertParseSuccess(parser, " --delete --group morning", expectedCommand);
+
+        // order does not matter, and group ignores upper and lower case
+        assertParseSuccess(parser, " --group Morning --delete", expectedCommand);
+    }
+
+    @Test
+    public void parse_deleteWithOtherArguments_failure() {
+        assertParseFailure(parser, " --delete", INVALID_FORMAT);
+        assertParseFailure(parser, " --delete now --group morning", INVALID_FORMAT);
+        assertParseFailure(parser, " --id 2 --delete --group morning", INVALID_FORMAT);
+        assertParseFailure(parser, " --delete --group morning --untag rehab", INVALID_FORMAT);
+    }
+
+    @Test
+    public void parse_deleteClientType_failure() {
+        assertParseFailure(parser, " --delete --group gym",
+                ParserUtil.withUsage(GroupCommandParser.MESSAGE_CLIENT_TYPE_GROUP, TagCommand.MESSAGE_USAGE));
     }
 }

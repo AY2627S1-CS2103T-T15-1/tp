@@ -111,6 +111,14 @@ public class ModelManagerTest {
     }
 
     @Test
+    public void deleteGroup_existingGroup_groupRemoved() {
+        Tag morning = new Tag("morning");
+        modelManager.addGroup(morning);
+        modelManager.deleteGroup(morning);
+        assertFalse(modelManager.hasGroup(morning));
+    }
+
+    @Test
     public void equals() {
         AddressBook addressBook = new AddressBookBuilder().withPerson(ALICE).withPerson(BENSON).build();
         AddressBook differentAddressBook = new AddressBook();
