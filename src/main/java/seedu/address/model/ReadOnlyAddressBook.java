@@ -1,8 +1,11 @@
 package seedu.address.model;
 
+import java.util.List;
+
 import javafx.collections.ObservableList;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonId;
+import seedu.address.model.tag.Tag;
 
 /**
  * Unmodifiable view of an address book
@@ -20,5 +23,11 @@ public interface ReadOnlyAddressBook {
      * It is greater than the ID of every person ever added, so IDs are never reused.
      */
     PersonId getNextPersonId();
+
+    /**
+     * Returns an unmodifiable list of the custom groups, in the order they were created.
+     * It contains no duplicates and no client types.
+     */
+    List<Tag> getGroupList();
 
 }
