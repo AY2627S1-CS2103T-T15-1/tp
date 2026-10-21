@@ -11,10 +11,7 @@ import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 import static seedu.address.testutil.TypicalPersons.ALICE;
 import static seedu.address.testutil.TypicalPersons.BENSON;
 import static seedu.address.testutil.TypicalPersons.CARL;
-import static seedu.address.testutil.TypicalPersons.DANIEL;
 import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
-
-import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -94,7 +91,8 @@ public class PlanCommandTest {
         PlanCommand command = new PlanCommand(selector, new LongFormText(WORKOUT_PLAN));
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
         expectedModel.updateFilteredPersonList(selector::matches);
-        String message = selector.getMultipleMatchesMessage(List.of(withPlan, DANIEL), PlanCommand.COMMAND_WORD);
+        String message = "2 clients have a name containing \"meier\". They are listed below.\n"
+                + "Run plan again with --id 2 instead of --name, keeping all other parameters.";
 
         assertCommandSuccess(command, model, message, expectedModel);
     }

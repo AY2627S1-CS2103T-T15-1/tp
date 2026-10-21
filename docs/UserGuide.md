@@ -165,7 +165,7 @@ Examples:
 
 * `plan --id 2 --note "Squats: 3 sets of 12"` sets or replaces the plan for client #2.
 * `plan --id 2 --note "Squats: 3 sets\nPush-ups: 3 sets"` displays the two exercises on separate lines. Type the command on one line, using a backslash followed by `n` where you want a line break.
-* `plan --name Alex --note Push-ups: 3 sets of 10` updates the only client whose name contains `Alex`. If several clients match, Cindy lists them and asks you to retry with `--id`; no plans are changed.
+* `plan --name Alex --note Push-ups: 3 sets of 10` updates the only client whose name contains `Alex`. If several clients match, Cindy lists them and asks you to retry with `--id`, keeping your `--note` text; no plans are changed. For example, retry with `plan --id 2 --note Push-ups: 3 sets of 10` if client #2 is the one you intended.
 * `plan --id 2 --note ""` clears the plan for client #2.
 
 ### Locating clients by name: `find`

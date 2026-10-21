@@ -22,7 +22,7 @@ public class PersonSelector {
     public static final String MESSAGE_NO_PERSON_WITH_NAME = "No client has a name containing \"%1$s\".";
     public static final String MESSAGE_MULTIPLE_MATCHES = "%1$d clients have a name containing \"%2$s\". "
             + "They are listed below.\n"
-            + "Use " + PREFIX_ID + " to choose one of them, e.g. %3$s " + PREFIX_ID + " %4$s";
+            + "Run %3$s again with " + PREFIX_ID + " %4$s instead of --name, keeping all other parameters.";
 
     private final PersonId id;
     private final String nameKeyword;
