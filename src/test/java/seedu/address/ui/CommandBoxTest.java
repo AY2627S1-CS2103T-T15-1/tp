@@ -189,6 +189,50 @@ public class CommandBoxTest {
     }
 
     @Test
+    public void submit_repeatedFailure_keepsOneErrorStyleAndOneHistoryEntry() throws Exception {
+        runOnFxThread(() -> {
+            createCommandBox(command -> {
+                executedCommands.add(command);
+                throw new CommandException("Command failed");
+            });
+            submit("failed command");
+            commandTextField.fireEvent(new ActionEvent());
+
+            assertEquals(List.of("failed command", "failed command"), executedCommands);
+            assertEquals("failed command", commandTextField.getText());
+            assertEquals(1L, commandTextField.getStyleClass().stream()
+                    .filter(CommandBox.ERROR_STYLE_CLASS::equals).count());
+            commandTextField.setText("draft");
+            pressKey(KeyCode.UP);
+            pressKey(KeyCode.UP);
+            assertEquals("failed command", commandTextField.getText());
+            pressKey(KeyCode.DOWN);
+            assertEquals("draft", commandTextField.getText());
+        });
+    }
+
+    @Test
+    public void navigate_modifiedDownWhileBrowsing_keepsPositionAndDraft() throws Exception {
+        runOnFxThread(() -> {
+            submit("list");
+            submit("find Alice");
+            commandTextField.setText("draft");
+            pressKey(KeyCode.UP);
+            pressKey(KeyCode.UP);
+
+            for (int modifier = 0; modifier < 4; modifier++) {
+                commandTextField.fireEvent(new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.DOWN,
+                        modifier == 0, modifier == 1, modifier == 2, modifier == 3));
+                assertEquals("list", commandTextField.getText());
+            }
+            pressKey(KeyCode.DOWN);
+            assertEquals("find Alice", commandTextField.getText());
+            pressKey(KeyCode.DOWN);
+            assertEquals("draft", commandTextField.getText());
+        });
+    }
+
+    @Test
     public void navigate_otherControl_doesNotChangeCommandField() throws Exception {
         runOnFxThread(() -> {
             submit("list");
@@ -214,6 +258,9 @@ public class CommandBoxTest {
         });
     }
 
+    /**
+     * Checks that a failed submission stays editable and can be recalled later.
+     */
     private void assertFailedCommandRecall(CommandBox.CommandExecutor executor) {
         createCommandBox(executor);
         submit("failed command");
@@ -228,6 +275,9 @@ public class CommandBoxTest {
         assertEquals("new draft", commandTextField.getText());
     }
 
+    /**
+     * Loads the command field and initializes its normal JavaFX keyboard behaviour.
+     */
     private void createCommandBox(CommandBox.CommandExecutor executor) {
         commandBox = new CommandBox(executor);
         Scene scene = new Scene(commandBox.getRoot());
@@ -235,16 +285,25 @@ public class CommandBoxTest {
         commandTextField = (TextField) scene.lookup("#commandTextField");
     }
 
+    /**
+     * Replaces the input and triggers the action used by Enter.
+     */
     private void submit(String command) {
         commandTextField.setText(command);
         commandTextField.fireEvent(new ActionEvent());
     }
 
+    /**
+     * Sends an unmodified key press through the command field's event handlers.
+     */
     private void pressKey(KeyCode code) {
         commandTextField.fireEvent(new KeyEvent(KeyEvent.KEY_PRESSED, "", "", code,
                 false, false, false, false));
     }
 
+    /**
+     * Runs UI assertions on the application thread with a bounded wait.
+     */
     private void runOnFxThread(Runnable action) throws Exception {
         FutureTask<Void> task = new FutureTask<>(action, null);
         Platform.runLater(task);

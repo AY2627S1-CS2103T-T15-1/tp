@@ -26,15 +26,17 @@ You can run tests in two ways.
 They require a graphical desktop or a virtual display. On Linux without a desktop, install Xvfb and run
 `xvfb-run --auto-servernum ./gradlew clean test`. Linux CI uses the same virtual-display setup.
 
-`MainWindowTest` opens the main window and checks the default client list, `view 1`, an invalid
-`view 99`, returning to the list with `list`, and `exit` through the real command box. It checks
+`MainWindowTest` opens the main window and checks the default client list, `view --id 1`, an invalid
+`view --id 99`, returning to the list with `list`, and `exit` through the real command box. It checks
 that errors preserve the current detail card and that all FXML placeholders load successfully.
 Storage uses a temporary directory. The test also checks that the menu bar and status footer
 remain visible. The UI retains the existing command syntax, feedback, and input-clearing behavior.
+It also checks that Up/Down can recall a failed command and restore a draft without changing
+the result message or the displayed clients.
 
 `CommandHistoryTest` checks command history without starting JavaFX. `CommandBoxTest` checks
 Up/Down recall, draft restoration and editing, Enter-to-execute behaviour, failed submissions,
-blank input, modifier keys and caret movement. Run these tests with
+blank input, modifier keys (including Down while browsing), repeated failures and caret movement. Run these tests with
 `gradlew test --tests seedu.address.ui.CommandHistoryTest --tests seedu.address.ui.CommandBoxTest`
 (Mac/Linux: use `./gradlew`). The Developer Guide also provides
 [manual command-history checks](DeveloperGuide.md#recalling-commands).
