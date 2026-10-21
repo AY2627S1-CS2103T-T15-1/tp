@@ -100,8 +100,7 @@ public class SetActiveCommandTest {
         PersonSelector selector = PersonSelector.byPhone("9482");
         SetActiveCommand command = new SetActiveCommand(selector, false);
 
-        String expectedMessage = selector.getMultipleMatchesMessage(List.of(ELLE, FIONA, GEORGE),
-                SetActiveCommand.COMMAND_WORD_INACTIVE);
+        String expectedMessage = selector.getMultipleMatchesMessage(List.of(ELLE, FIONA, GEORGE), "inactive --id 5");
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
         expectedModel.updateFilteredPersonList(selector::matches);
 
