@@ -5,12 +5,17 @@ import static seedu.address.storage.JsonAdaptedPerson.MISSING_FIELD_MESSAGE_FORM
 import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalPersons.BENSON;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 import seedu.address.commons.exceptions.IllegalValueException;
 import seedu.address.model.person.Name;
+import seedu.address.model.person.Note;
+import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonId;
 import seedu.address.model.person.Phone;
+import seedu.address.model.tag.Tag;
 import seedu.address.testutil.PersonBuilder;
 
 public class JsonAdaptedPersonTest {
@@ -25,6 +30,34 @@ public class JsonAdaptedPersonTest {
     public void toModelType_validPersonDetails_returnsPerson() throws Exception {
         JsonAdaptedPerson person = new JsonAdaptedPerson(BENSON);
         assertEquals(BENSON, person.toModelType());
+    }
+
+    @Test
+    public void toModelType_personWithAllDetails_returnsPerson() throws Exception {
+        Person inactiveTaggedPerson = new PersonBuilder(BENSON).withNote("Knee injury").withActive(false)
+                .withTags("gym").build();
+        assertEquals(inactiveTaggedPerson, new JsonAdaptedPerson(inactiveTaggedPerson).toModelType());
+    }
+
+    @Test
+    public void toModelType_missingNoteActiveAndTags_returnsActivePersonWithoutNoteOrTags() throws Exception {
+        JsonAdaptedPerson person = new JsonAdaptedPerson(VALID_ID, VALID_NAME, VALID_PHONE, null, null, null);
+        assertEquals(new PersonBuilder(BENSON).withNote("").withActive(true).withTags().build(),
+                person.toModelType());
+    }
+
+    @Test
+    public void toModelType_invalidNote_throwsIllegalValueException() {
+        JsonAdaptedPerson person = new JsonAdaptedPerson(VALID_ID, VALID_NAME, VALID_PHONE, "a".repeat(501),
+                true, null);
+        assertThrows(IllegalValueException.class, Note.MESSAGE_CONSTRAINTS, person::toModelType);
+    }
+
+    @Test
+    public void toModelType_invalidTag_throwsIllegalValueException() {
+        JsonAdaptedPerson person = new JsonAdaptedPerson(VALID_ID, VALID_NAME, VALID_PHONE, "", true,
+                List.of(new JsonAdaptedTag("#gym")));
+        assertThrows(IllegalValueException.class, Tag.MESSAGE_CONSTRAINTS, person::toModelType);
     }
 
     @Test

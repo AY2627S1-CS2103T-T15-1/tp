@@ -72,7 +72,6 @@ public class JsonAddressBookStorageTest {
         String savedJson = Files.readString(filePath);
         assertFalse(savedJson.contains("\"email\""));
         assertFalse(savedJson.contains("\"address\""));
-        assertFalse(savedJson.contains("\"tags\""));
         ReadOnlyAddressBook readBack = jsonAddressBookStorage.readAddressBook(filePath).get();
         assertEquals(original, new AddressBook(readBack));
 
