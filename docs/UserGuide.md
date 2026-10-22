@@ -192,14 +192,15 @@ Examples:
 
 ### Finding clients: `find`
 
-Finds clients by name, phone number or ID, and shows only those clients in the list.
+Finds clients by name, phone number, ID or group, and shows only those clients in the list.
 
-Format: `find [--name NAME] [--phone PHONE] [--id ID]`
+Format: `find [--name NAME] [--phone PHONE] [--id ID] [--group GROUP]`
 
-* At least one of `--name`, `--phone` and `--id` must be given.
+* At least one of `--name`, `--phone`, `--id` and `--group` must be given.
 * `--name` finds clients whose names contain `NAME`, ignoring upper and lower case. For example, `--name han` finds `Hans` and `Johan Lee`.
 * `--phone` finds clients whose phone numbers contain the digits in `PHONE`. Spaces, parentheses and hyphens in `PHONE` are ignored, so `--phone 9123 4567` finds `91234567`.
 * `--id` finds the client with that ID.
+* `--group` finds clients in the group `GROUP`, ignoring upper and lower case. `GROUP` can also be `gym` or `personal`, to find all gym or personal clients.
 * If you give more than one of them, only clients that match all of them are found.
 * The clients found are still sorted by name. Use `list` to show all clients again.
 
@@ -207,6 +208,8 @@ Examples:
 * `find --name alex` finds `Alex Yeoh` and `Alexis Tan`.
 * `find --phone 9123` finds every client whose phone number contains `9123`.
 * `find --name tan --phone 8` finds clients whose names contain `tan` and whose phone numbers contain `8`.
+* `find --group morning` finds every client in the group `morning`.
+* `find --group gym --name tan` finds gym clients whose names contain `tan`.
 
 ### Deleting a client: `delete`
 
@@ -283,6 +286,22 @@ Format: `tag --id ID --type TYPE` or `tag --name NAME --type TYPE`, where `TYPE`
 Examples:
 * `tag --id 2 --type gym` labels the client with ID 2 as a gym client.
 * `tag --name bernice --type personal` labels the only client whose name contains `bernice` as a personal client.
+
+### Creating a group: `group`
+
+Creates a group of clients, such as clients you train in the morning or clients in rehab. A group must be created before clients can be added to it.
+
+Format: `group --name GROUP`
+
+* `GROUP` is made of letters and digits only, with no spaces, e.g. `morning` or `batch2`.
+* `GROUP` ignores upper and lower case, so `group --name Morning` creates the group `morning`.
+* Each group can only be created once.
+* `gym` and `personal` are built-in labels, not groups. Use [`tag --type`](#labelling-a-client-as-a-gym-or-personal-client-tag) to label a client as a gym or personal client.
+* A group is kept even when no client is in it.
+
+Examples:
+* `group --name morning` creates the group `morning`.
+* `group --name Rehab` creates the group `rehab`.
 
 ### Clearing all entries: `clear`
 
@@ -374,7 +393,7 @@ Action     | Format, Examples
 **Clear**  | `clear` to show the prompt; `clear --confirm` to delete all clients and reset IDs
 **Delete** | `delete --id ID` or `delete --name NAME`<br> e.g., `delete --id 3`
 **Edit**   | `edit --id ID [--to-name NEW_NAME] [--to-phone NEW_PHONE]` (or `--name NAME` instead of `--id ID`)<br> e.g., `edit --id 2 --to-name "James Lee"`
-**Find**   | `find [--name NAME] [--phone PHONE] [--id ID]` (at least one)<br> e.g., `find --name james`
+**Find**   | `find [--name NAME] [--phone PHONE] [--id ID] [--group GROUP]` (at least one)<br> e.g., `find --name james`, `find --group morning`
 **List**   | `list`
 **Plan**   | `plan --id ID --plan "TEXT"` (or `--name NAME` instead of `--id ID`)<br> e.g., `plan --id 2 --plan "Squats: 3 sets"`
 **Appointment** | `appointment --add --id ID --date DATE --time TIME` (or `--name NAME` instead of `--id ID`)<br> e.g., `appointment --add --id 2 --date 2026-10-26 --time 09:00`
@@ -382,5 +401,6 @@ Action     | Format, Examples
 **Note**   | `note --id ID --note "TEXT"` (or `--name NAME` instead of `--id ID`)<br> e.g., `note --id 3 --note "Knee injury"`
 **Inactive** / **Active** | `inactive --id ID` or `active --id ID` (or `--name NAME` or `--phone PHONE` instead of `--id ID`)<br> e.g., `inactive --id 4`
 **Tag**    | `tag --id ID --type gym` or `tag --id ID --type personal` (or `--name NAME` instead of `--id ID`)<br> e.g., `tag --id 2 --type gym`
+**Group**  | `group --name GROUP`<br> e.g., `group --name morning`
 **Help**   | `help`
 **Recall commands** | Up / Down while the command box has focus; Enter executes the recalled command

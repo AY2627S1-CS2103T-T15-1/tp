@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<ScrollPane styleClass="contact-list, client-detail-scroll" fitToWidth="true" hbarPolicy="NEVER" minWidth="0"
+<ScrollPane fx:id="sessionScrollPane" styleClass="contact-list, client-detail-scroll" fitToWidth="true" hbarPolicy="NEVER" minWidth="0"
             xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
   <content>
     <VBox spacing="16" minWidth="0">
@@ -19,6 +19,13 @@
           <Label text="Note" styleClass="client-note-heading" />
           <Label fx:id="note" styleClass="client-note" wrapText="true" />
         </VBox>
+      </VBox>
+      <VBox styleClass="client-detail-card, session-section" spacing="12">
+        <padding>
+          <Insets top="20" right="24" bottom="24" left="16" />
+        </padding>
+        <Label text="Recent sessions" styleClass="session-section-title" />
+        <VBox fx:id="sessionList" spacing="8" />
       </VBox>
       <VBox fx:id="workoutPlanCard" styleClass="client-detail-card" spacing="10" minWidth="0"
             visible="false" managed="false">

@@ -20,6 +20,7 @@ import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonId;
 import seedu.address.model.person.Phone;
+import seedu.address.model.session.Session;
 import seedu.address.model.tag.Tag;
 import seedu.address.testutil.PersonBuilder;
 
@@ -55,6 +56,14 @@ public class JsonAdaptedPersonTest {
                 Appointment.weeklySeries(LocalDate.of(2026, 10, 26), LocalTime.of(9, 0)));
         series.set(1, series.get(1).cancel());
         Person person = BENSON.withAppointments(series);
+        String json = JsonUtil.toJsonString(new JsonAdaptedPerson(person));
+        assertEquals(person, JsonUtil.fromJsonString(json, JsonAdaptedPerson.class).toModelType());
+    }
+
+    @Test
+    public void toModelType_personWithSessionsAndAppointments_roundTrips() throws Exception {
+        Person person = BENSON.withSessions(List.of(new Session(LocalDate.of(2026, 10, 21), "Squats")))
+                .withAppointments(Appointment.weeklySeries(LocalDate.of(2026, 10, 26), LocalTime.of(9, 0)));
         String json = JsonUtil.toJsonString(new JsonAdaptedPerson(person));
         assertEquals(person, JsonUtil.fromJsonString(json, JsonAdaptedPerson.class).toModelType());
     }
@@ -225,5 +234,42 @@ public class JsonAdaptedPersonTest {
     public void withId_personWithoutId_returnsPersonWithGivenId() throws Exception {
         JsonAdaptedPerson person = new JsonAdaptedPerson(null, VALID_NAME, VALID_PHONE);
         assertEquals(new PersonBuilder(BENSON).withId(5).build(), person.withId(5).toModelType());
+    }
+
+    @Test
+    public void toModelType_missingSessions_defaultsToEmptyList() throws Exception {
+        JsonAdaptedPerson person = new JsonAdaptedPerson(VALID_ID, VALID_NAME, VALID_PHONE, (String) null);
+        assertEquals(new PersonBuilder(BENSON).build(), person.toModelType());
+    }
+
+    @Test
+    public void toModelType_duplicateSessionDates_throwsIllegalValueException() {
+        List<JsonAdaptedSession> sessions = List.of(
+                new JsonAdaptedSession("2026-10-21", "First"),
+                new JsonAdaptedSession("2026-10-21", "Second"));
+        JsonAdaptedPerson person = new JsonAdaptedPerson(VALID_ID, VALID_NAME, VALID_PHONE, sessions);
+
+        assertThrows(IllegalValueException.class, seedu.address.model.person.Person.MESSAGE_DUPLICATE_SESSION_DATE,
+                person::toModelType);
+    }
+
+    @Test
+    public void toModelType_nullSession_throwsIllegalValueException() {
+        List<JsonAdaptedSession> sessions = new ArrayList<>();
+        sessions.add(null);
+        JsonAdaptedPerson person = new JsonAdaptedPerson(VALID_ID, VALID_NAME, VALID_PHONE, sessions);
+        String expectedMessage = String.format(MISSING_FIELD_MESSAGE_FORMAT, Session.class.getSimpleName());
+
+        assertThrows(IllegalValueException.class, expectedMessage, person::toModelType);
+    }
+
+    @Test
+    public void withId_personWithSessions_preservesSessions() throws Exception {
+        Session session = new Session(java.time.LocalDate.of(2026, 10, 21), "Squats");
+        JsonAdaptedPerson person = new JsonAdaptedPerson(
+                null, VALID_NAME, VALID_PHONE, List.of(new JsonAdaptedSession(session)));
+
+        assertEquals(new PersonBuilder(BENSON).withId(5).withSessions(session).build(),
+                person.withId(5).toModelType());
     }
 }
