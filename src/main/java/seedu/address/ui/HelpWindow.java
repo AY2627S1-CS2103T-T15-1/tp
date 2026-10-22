@@ -7,11 +7,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import seedu.address.commons.core.LogsCenter;
 
 /**
- * Controller for a help page
+ * Displays the command reference and the link to Cindy's full user guide.
  */
 public class HelpWindow extends UiPart<Stage> {
 
@@ -27,6 +29,9 @@ public class HelpWindow extends UiPart<Stage> {
     @FXML
     private Label helpMessage;
 
+    @FXML
+    private VBox commandSummaries;
+
     /**
      * Creates a new HelpWindow.
      *
@@ -35,6 +40,7 @@ public class HelpWindow extends UiPart<Stage> {
     public HelpWindow(Stage root) {
         super(FXML, root);
         helpMessage.setText(HELP_MESSAGE);
+        populateCommandSummaries();
     }
 
     /**
@@ -42,6 +48,43 @@ public class HelpWindow extends UiPart<Stage> {
      */
     public HelpWindow() {
         this(new Stage());
+    }
+
+    /**
+     * Adds category headings and command cards in the catalog's display order.
+     */
+    private void populateCommandSummaries() {
+        String previousCategory = "";
+        for (CommandSummary summary : HelpContent.getCommands()) {
+            if (!summary.getCategory().equals(previousCategory)) {
+                commandSummaries.getChildren().add(createLabel(summary.getCategory(), "help-category"));
+                previousCategory = summary.getCategory();
+            }
+            VBox card = new VBox(8);
+            card.getStyleClass().add("help-command-card");
+            card.setMinWidth(0);
+            card.setMinHeight(Region.USE_PREF_SIZE);
+            String title = summary.getCommandWord() + (summary.isAvailable() ? "" : " (coming soon)");
+            card.getChildren().addAll(
+                    createLabel(title, "help-command-name"),
+                    createLabel(summary.getDescription(), "help-description"),
+                    createLabel("Format: " + summary.getSyntax(), "help-syntax"),
+                    createLabel("Example: " + summary.getExample(), "help-example"));
+            commandSummaries.getChildren().add(card);
+        }
+    }
+
+    /**
+     * Creates a wrapping label that retains enough height to display all its text.
+     */
+    private Label createLabel(String text, String styleClass) {
+        Label label = new Label(text);
+        label.getStyleClass().add(styleClass);
+        label.setWrapText(true);
+        label.setMinWidth(0);
+        label.setMaxWidth(Double.MAX_VALUE);
+        label.setMinHeight(Region.USE_PREF_SIZE);
+        return label;
     }
 
     /**

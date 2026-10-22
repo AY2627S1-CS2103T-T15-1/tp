@@ -173,6 +173,16 @@ Classes used by multiple components are in the `seedu.address.commons` package.
 
 This section describes some noteworthy details on how certain features are implemented.
 
+### Help window
+
+`HelpContent` provides an immutable list of `CommandSummary` objects in display order. Each summary contains a category, command word, description, syntax, a complete example and an availability flag. The catalog is independent of JavaFX. Implemented entries describe commands supported by `AddressBookParser`; planned entries such as `list --today` have `isAvailable` set to `false` and are displayed as coming soon.
+
+`HelpWindow` renders each summary as a card, adding a heading whenever the category changes. `HelpWindow.fxml` keeps the User Guide controls outside the command reference's `ScrollPane`. The window is resizable, the scroll pane fits its content to the available width, and labels wrap without shrinking below their preferred height. `HelpWindow.css` uses Cindy's existing dark colors and typography. `MainWindow` retains one help window, shared by the `help` command, Help menu and F1 shortcut.
+
+When adding or changing a command, update `HelpContent` and the User Guide's command summary together. Keep entries for each category contiguous and give each distinct command form its own entry with a unique syntax. Use a complete parsable command as the example for implemented entries. Planned entries must have `isAvailable` set to `false`; change it to `true` only when the behavior is implemented, not merely when the parser ignores an unsupported option. The short descriptions are maintained separately from command error messages so that the reference stays concise.
+
+`HelpContentTest` checks command-family and parsed command-type coverage, unique formats, implemented examples, planned entries, category grouping and immutability. `HelpWindowTest` checks that the real FXML displays the catalog and coming-soon label, wraps and scrolls at a small size, keeps the guide controls fixed, copies the URL and reopens without duplicating entries. See the [manual help-window checks](#viewing-help) for entry-point and keyboard checks in the running application.
+
 ### Command history
 
 Each `CommandBox` owns one `CommandHistory` in the `seedu.address.ui` package. History belongs to the UI because recalling a command changes the input text without executing it. It does not change the `Logic`, `Model` or `Storage` interfaces. History is held in memory for the lifetime of the command box and is not restored after restarting Cindy.
@@ -670,6 +680,55 @@ testers are expected to do more *exploratory* testing.
        Expected: The most recent window size and location are retained.
 
 1. _{ more test cases … }_
+
+### Viewing help
+
+Use a disposable copy of Cindy and its data for these checks. Opening help should not change any client's details.
+
+1. HELP-001: Opening help from each entry point
+
+   1. Run `list`, note the displayed clients, then run `help`.<br>
+      Expected: The result display says `Opened help window.` and one window titled `Cindy Help` opens. The client list is unchanged.
+   1. Close the Help window using its window close button, then choose **Help > Help** in the main window.<br>
+      Expected: The same command reference opens, and Cindy continues running.
+   1. Close Help, focus the main command box and press F1. Repeat with the result display focused.<br>
+      Expected: Both uses of F1 open the Help window, including when a text control has focus.
+
+1. HELP-002: Reference content and scrolling
+
+   1. Check the syntax and client-selector guidance above the command cards.<br>
+      Expected: It explains placeholders, optional parts, alternatives, persistent client IDs and ambiguous names.
+   1. Scroll through the reference.<br>
+      Expected: There are 27 command cards in eight groups: Client details, Finding clients, Training information, Client status, Client types and groups, Appointments, Session records and Application. Each has a description, format and example. The reference covers group creation and moving, tagging and untagging, group deletion, appointment scheduling/day/week/cancellation/rescheduling, and session add/edit.
+   1. Find the `list --today` card.<br>
+      Expected: Its heading says `list (coming soon)` and its description says the option is not implemented yet. Do not treat it as a working filter: the current parser ignores arguments to `list`.
+   1. Scroll to the bottom.<br>
+      Expected: The `exit` card and keyboard shortcuts are reachable. The User Guide URL and Copy URL button remain visible at the top. Reading examples does not execute them.
+
+1. HELP-003: Resizing and keyboard navigation
+
+   1. Make Help as small as its minimum size, then enlarge it again.<br>
+      Expected: Text wraps, full commands remain readable by scrolling vertically, and no horizontal scrolling is needed. The guide controls remain usable.
+   1. Use Tab or Shift+Tab to focus Copy URL, then press Space.<br>
+      Expected: The button has a visible focus indicator and copies the guide URL.
+   1. Move keyboard focus to the command-reference scroll pane, then use Down or Page Down, followed by Up or Page Up.<br>
+      Expected: The reference scrolls in the requested direction without executing commands.
+
+1. HELP-004: Copying the guide URL and using help offline
+
+   1. Click Copy URL and paste into an empty text editor.<br>
+      Expected: The pasted text is exactly `https://ay2627s1-cs2103t-t15-1.github.io/tp/UserGuide.html`. Copying does not open a browser or modify client data.
+   1. With the computer offline, close and reopen Help.<br>
+      Expected: All command summaries and examples remain available. Copy URL still works; opening the full guide in a browser requires a connection.
+
+1. HELP-005: Reopening help and preserving the client view
+
+   1. Keep Help open, return to the main window and run `help` again.<br>
+      Expected: The existing Help window is focused; no second Help window or duplicate command cards appear.
+   1. Close Help, run `view --id ID` using an existing client's ID, then run `help` and close Help again.<br>
+      Expected: The same client's details are still displayed with unchanged values. Repeat after filtering with `find --name NAME`; the filtered client list remains unchanged.
+   1. Minimize Help and invoke `help` again.<br>
+      Expected: The existing window remains minimized, as documented in the User Guide's known issues. Restore it manually; no duplicate window should appear.
 
 ### Deleting a client
 

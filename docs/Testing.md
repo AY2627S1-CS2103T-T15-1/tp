@@ -22,7 +22,7 @@ You can run tests in two ways.
 * **Method 2: Using Gradle**
   * Open a console and run the command `gradlew clean test` (Mac/Linux: `./gradlew clean test`)
 
-`PersonListPanelTest`, `MainWindowTest` and `CommandBoxTest` construct real JavaFX controls and run assertions on the JavaFX application thread.
+`PersonListPanelTest`, `MainWindowTest`, `CommandBoxTest` and `HelpWindowTest` construct real JavaFX controls and run assertions on the JavaFX application thread.
 They require a graphical desktop or a virtual display. On Linux without a desktop, install Xvfb and run
 `xvfb-run --auto-servernum ./gradlew clean test`. Linux CI uses the same virtual-display setup.
 
@@ -40,6 +40,11 @@ blank input, modifier keys (including Down while browsing), repeated failures an
 `gradlew test --tests seedu.address.ui.CommandHistoryTest --tests seedu.address.ui.CommandBoxTest`
 (Mac/Linux: use `./gradlew`). The Developer Guide also provides
 [manual command-history checks](DeveloperGuide.md#recalling-commands).
+
+`HelpContentTest` checks the help catalog without starting JavaFX, including parsing every implemented example with the real command parser and covering each command implementation. It checks planned entries separately: `list --today` must be marked unavailable until it is implemented. `HelpWindowTest` loads the Help window's FXML and checks command rendering, the coming-soon label, wrapping and scrolling in a small window, fixed guide controls, URL copying and reopening. The clipboard test restores its previous contents afterwards. Run both classes with
+`gradlew test --tests seedu.address.ui.HelpContentTest --tests seedu.address.ui.HelpWindowTest`
+(Mac/Linux: use `./gradlew`). See the [manual help-window checks](DeveloperGuide.md#viewing-help)
+for menu and F1 entry points, keyboard navigation, offline use and preserving the current client view.
 
 <box type="info" seamless>
 
