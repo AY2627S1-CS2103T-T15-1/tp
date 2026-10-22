@@ -15,6 +15,7 @@ import seedu.address.commons.core.LogsCenter;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonId;
 import seedu.address.model.person.Phone;
+import seedu.address.model.tag.Tag;
 
 /**
  * Represents the in-memory model of the address book data.
@@ -108,6 +109,24 @@ public class ModelManager implements Model {
         requireAllNonNull(target, editedPerson);
 
         addressBook.setPerson(target, editedPerson);
+    }
+
+    @Override
+    public boolean hasGroup(Tag group) {
+        requireNonNull(group);
+        return addressBook.hasGroup(group);
+    }
+
+    @Override
+    public void addGroup(Tag group) {
+        requireNonNull(group);
+        addressBook.addGroup(group);
+    }
+
+    @Override
+    public void deleteGroup(Tag group) {
+        requireNonNull(group);
+        addressBook.removeGroup(group);
     }
 
     //=========== Filtered Person List Accessors =============================================================

@@ -1,13 +1,18 @@
 package seedu.address.testutil;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import seedu.address.model.LongFormText;
+import seedu.address.model.appointment.Appointment;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonId;
 import seedu.address.model.person.Phone;
+import seedu.address.model.session.Session;
 import seedu.address.model.tag.Tag;
 
 /**
@@ -18,6 +23,7 @@ public class PersonBuilder {
     public static final int DEFAULT_ID = 1;
     public static final String DEFAULT_NAME = "Amy Bee";
     public static final String DEFAULT_PHONE = "85355255";
+    private List<Session> sessions = new ArrayList<>();
     private PersonId id;
     private Name name;
     private Phone phone;
@@ -25,6 +31,7 @@ public class PersonBuilder {
     private LongFormText workoutPlan = new LongFormText("");
     private boolean isActive;
     private Set<Tag> tags;
+    private List<Appointment> appointments = new ArrayList<>();
 
     /**
      * Creates a {@code PersonBuilder} with the default details.
@@ -42,6 +49,7 @@ public class PersonBuilder {
      * Initializes the PersonBuilder with the data of {@code personToCopy}.
      */
     public PersonBuilder(Person personToCopy) {
+        sessions = new ArrayList<>(personToCopy.getSessions());
         id = personToCopy.getId();
         name = personToCopy.getName();
         phone = personToCopy.getPhone();
@@ -49,6 +57,7 @@ public class PersonBuilder {
         workoutPlan = personToCopy.getWorkoutPlan();
         isActive = personToCopy.isActive();
         tags = new HashSet<>(personToCopy.getTags());
+        appointments = new ArrayList<>(personToCopy.getAppointments());
     }
 
     /**
@@ -110,8 +119,24 @@ public class PersonBuilder {
         return this;
     }
 
+    /**
+     * Sets the sessions of the person being built.
+     */
+    public PersonBuilder withSessions(Session... sessions) {
+        this.sessions = new ArrayList<>(Arrays.asList(sessions));
+        return this;
+    }
+
+    /**
+     * Sets the appointments of the person being built.
+     */
+    public PersonBuilder withAppointments(Appointment... appointments) {
+        this.appointments = new ArrayList<>(List.of(appointments));
+        return this;
+    }
+
     public Person build() {
-        return new Person(id, name, phone, note, isActive, tags, workoutPlan);
+        return new Person(id, name, phone, note, isActive, tags, workoutPlan, sessions, appointments);
     }
 
 }

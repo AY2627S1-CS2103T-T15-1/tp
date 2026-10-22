@@ -7,6 +7,7 @@ import seedu.address.commons.core.GuiSettings;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonId;
 import seedu.address.model.person.Phone;
+import seedu.address.model.tag.Tag;
 
 /**
  * The API of the Model component.
@@ -71,6 +72,23 @@ public interface Model {
      * The person identity of {@code editedPerson} must not be the same as another existing person in the address book.
      */
     void setPerson(Person target, Person editedPerson);
+
+    /**
+     * Returns true if {@code group} is one of the groups in the address book.
+     */
+    boolean hasGroup(Tag group);
+
+    /**
+     * Adds the given group.
+     * {@code group} must not already be a group, and must not be a client type.
+     */
+    void addGroup(Tag group);
+
+    /**
+     * Deletes the given group, and removes it from every client in it.
+     * {@code group} must be one of the groups in the address book.
+     */
+    void deleteGroup(Tag group);
 
     /** Returns an unmodifiable view of the filtered person list, sorted alphabetically by name */
     ObservableList<Person> getFilteredPersonList();

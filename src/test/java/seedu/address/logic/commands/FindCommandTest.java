@@ -19,12 +19,17 @@ import org.junit.jupiter.api.Test;
 import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
+import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonId;
+import seedu.address.model.tag.Tag;
+import seedu.address.testutil.PersonBuilder;
 
 /**
  * Contains integration tests (interaction with the Model) for {@code FindCommand}.
  */
 public class FindCommandTest {
+    private static final Tag MORNING = new Tag("morning");
+
     private Model model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
     private Model expectedModel = new ModelManager(getTypicalAddressBook(), new UserPrefs());
 
@@ -51,6 +56,59 @@ public class FindCommandTest {
 
         // different filters -> returns false
         assertFalse(findFirstCommand.equals(findSecondCommand));
+
+        // same filters and group -> returns true
+        FindCommand findMorningCommand = new FindCommand(firstFilters, MORNING);
+        assertTrue(findMorningCommand.equals(new FindCommand(firstFilters, new Tag("morning"))));
+
+        // group and no group -> returns false
+        assertFalse(findFirstCommand.equals(findMorningCommand));
+
+        // different groups -> returns false
+        assertFalse(findMorningCommand.equals(new FindCommand(firstFilters, Tag.GYM)));
+    }
+
+    @Test
+    public void execute_groupOnly_clientsInGroupFound() {
+        Person morningAlice = tag(ALICE, "morning");
+        Person morningBenson = tag(BENSON, "morning", "rehab");
+        tag(DANIEL, "rehab");
+
+        assertGroupFindResult(List.of(), MORNING, String.format(FindCommand.MESSAGE_MATCHES, 2));
+        assertEquals(List.of(morningAlice, morningBenson), model.getFilteredPersonList());
+    }
+
+    @Test
+    public void execute_clientTypeAsGroup_clientsWithLabelFound() {
+        Person gymElle = tag(ELLE, "gym");
+        tag(FIONA, "personal");
+
+        assertGroupFindResult(List.of(), Tag.GYM, FindCommand.MESSAGE_ONE_MATCH);
+        assertEquals(List.of(gymElle), model.getFilteredPersonList());
+    }
+
+    @Test
+    public void execute_tagWithDifferentCase_clientFound() {
+        Person upperCaseAlice = tag(ALICE, "Morning");
+
+        assertGroupFindResult(List.of(), MORNING, FindCommand.MESSAGE_ONE_MATCH);
+        assertEquals(List.of(upperCaseAlice), model.getFilteredPersonList());
+    }
+
+    @Test
+    public void execute_groupWithNoClients_noClientFound() {
+        assertGroupFindResult(List.of(), MORNING, FindCommand.MESSAGE_NO_MATCHES);
+        assertEquals(List.of(), model.getFilteredPersonList());
+    }
+
+    @Test
+    public void execute_groupAndName_onlyClientsMatchingBothFound() {
+        // BENSON and DANIEL are both named Meier, but only DANIEL is in the group
+        tag(BENSON, "rehab");
+        Person morningDaniel = tag(DANIEL, "morning");
+
+        assertGroupFindResult(List.of(PersonSelector.byName("Meier")), MORNING, FindCommand.MESSAGE_ONE_MATCH);
+        assertEquals(List.of(morningDaniel), model.getFilteredPersonList());
     }
 
     @Test
@@ -102,8 +160,33 @@ public class FindCommandTest {
     public void toStringMethod() {
         List<PersonSelector> filters = List.of(PersonSelector.byName("keyword"));
         FindCommand findCommand = new FindCommand(filters);
-        String expected = FindCommand.class.getCanonicalName() + "{filters=" + filters + "}";
+        String expected = FindCommand.class.getCanonicalName() + "{filters=" + filters + ", group=null}";
         assertEquals(expected, findCommand.toString());
+
+        FindCommand findGroupCommand = new FindCommand(filters, MORNING);
+        String expectedWithGroup = FindCommand.class.getCanonicalName() + "{filters=" + filters + ", group="
+                + MORNING + "}";
+        assertEquals(expectedWithGroup, findGroupCommand.toString());
+    }
+
+    /**
+     * Gives {@code person} the tags {@code tagNames} in both models, and returns the tagged person.
+     */
+    private Person tag(Person person, String... tagNames) {
+        Person taggedPerson = new PersonBuilder(person).withTags(tagNames).build();
+        model.setPerson(person, taggedPerson);
+        expectedModel.setPerson(person, taggedPerson);
+        return taggedPerson;
+    }
+
+    /**
+     * Executes a {@code FindCommand} with {@code filters} and {@code group}, and checks that it shows
+     * {@code expectedMessage} and lists exactly the clients in {@code group} that match all {@code filters}.
+     */
+    private void assertGroupFindResult(List<PersonSelector> filters, Tag group, String expectedMessage) {
+        expectedModel.updateFilteredPersonList(person -> filters.stream().allMatch(filter -> filter.matches(person))
+                && person.getTags().stream().anyMatch(tag -> tag.tagName.equalsIgnoreCase(group.tagName)));
+        assertCommandSuccess(new FindCommand(filters, group), model, expectedMessage, expectedModel);
     }
 
     /**

@@ -10,6 +10,8 @@ import static seedu.address.logic.parser.ParserUtil.MESSAGE_INVALID_INDEX;
 import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
 
@@ -19,6 +21,7 @@ import seedu.address.logic.Messages;
 import seedu.address.logic.commands.PersonSelector;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.LongFormText;
+import seedu.address.model.appointment.Appointment;
 import seedu.address.model.person.Address;
 import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
@@ -357,6 +360,44 @@ public class ParserUtilTest {
      */
     private static void assertSelectorFailure(String args, String expectedMessage) {
         assertThrows(ParseException.class, expectedMessage, () -> parseSelector(args));
+    }
+
+    @Test
+    public void parseDate_validWithQuotes_returnsDate() throws Exception {
+        assertEquals(LocalDate.of(2026, 10, 26), ParserUtil.parseDate("2026-10-26"));
+        assertEquals(LocalDate.of(2026, 10, 26), ParserUtil.parseDate(WHITESPACE + "\"2026-10-26\"" + WHITESPACE));
+    }
+
+    @Test
+    public void parseDate_impossibleDate_throws() {
+        for (String date : new String[] {"2026-02-30", "2026-13-01", "26-10-2026", "2026-1-5", ""}) {
+            assertThrows(ParseException.class, Appointment.MESSAGE_DATE_CONSTRAINTS, () -> ParserUtil.parseDate(date));
+        }
+    }
+
+    @Test
+    public void parseDate_yearNotFourDigits_throws() {
+        for (String date : new String[] {"+999999999-12-31", "12026-10-26", "+2026-10-26", "-2026-10-26"}) {
+            assertThrows(ParseException.class, Appointment.MESSAGE_DATE_CONSTRAINTS, () -> ParserUtil.parseDate(date));
+        }
+    }
+
+    @Test
+    public void parseDate_lastFourDigitYear_returnsDate() throws Exception {
+        assertEquals(LocalDate.of(9999, 12, 31), ParserUtil.parseDate("9999-12-31"));
+    }
+
+    @Test
+    public void parseTime_validWithQuotes_returnsTime() throws Exception {
+        assertEquals(LocalTime.of(9, 0), ParserUtil.parseTime("09:00"));
+        assertEquals(LocalTime.of(18, 30), ParserUtil.parseTime(WHITESPACE + "\"18:30\"" + WHITESPACE));
+    }
+
+    @Test
+    public void parseTime_singleDigitHour_throws() {
+        for (String time : new String[] {"9:00", "24:00", "09:60", "0900", ""}) {
+            assertThrows(ParseException.class, Appointment.MESSAGE_TIME_CONSTRAINTS, () -> ParserUtil.parseTime(time));
+        }
     }
 
     /**

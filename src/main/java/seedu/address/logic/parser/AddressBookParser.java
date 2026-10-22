@@ -8,6 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import seedu.address.commons.core.LogsCenter;
+import seedu.address.logic.commands.AddAppointmentCommand;
 import seedu.address.logic.commands.AddCommand;
 import seedu.address.logic.commands.ClearCommand;
 import seedu.address.logic.commands.Command;
@@ -15,10 +16,12 @@ import seedu.address.logic.commands.DeleteCommand;
 import seedu.address.logic.commands.EditCommand;
 import seedu.address.logic.commands.ExitCommand;
 import seedu.address.logic.commands.FindCommand;
+import seedu.address.logic.commands.GroupCommand;
 import seedu.address.logic.commands.HelpCommand;
 import seedu.address.logic.commands.ListCommand;
 import seedu.address.logic.commands.NoteCommand;
 import seedu.address.logic.commands.PlanCommand;
+import seedu.address.logic.commands.SessionCommand;
 import seedu.address.logic.commands.SetActiveCommand;
 import seedu.address.logic.commands.TagCommand;
 import seedu.address.logic.commands.ViewCommand;
@@ -63,12 +66,15 @@ public class AddressBookParser {
             case ViewCommand.COMMAND_WORD -> new ViewCommandParser().parse(arguments);
             case NoteCommand.COMMAND_WORD -> new NoteCommandParser().parse(arguments);
             case PlanCommand.COMMAND_WORD -> new PlanCommandParser().parse(arguments);
+            case AddAppointmentCommand.COMMAND_WORD -> new AppointmentCommandParser().parse(arguments);
             case SetActiveCommand.COMMAND_WORD_ACTIVE -> new SetActiveCommandParser(true).parse(arguments);
             case SetActiveCommand.COMMAND_WORD_INACTIVE -> new SetActiveCommandParser(false).parse(arguments);
             case TagCommand.COMMAND_WORD -> new TagCommandParser().parse(arguments);
+            case GroupCommand.COMMAND_WORD -> new GroupCommandParser().parse(arguments);
             case ClearCommand.COMMAND_WORD -> new ClearCommandParser().parse(arguments);
             case FindCommand.COMMAND_WORD -> new FindCommandParser().parse(arguments);
             case ListCommand.COMMAND_WORD -> new ListCommand();
+            case SessionCommand.COMMAND_WORD -> new SessionCommandParser().parse(arguments);
             case ExitCommand.COMMAND_WORD -> new ExitCommand();
             case HelpCommand.COMMAND_WORD -> new HelpCommand();
             default -> {

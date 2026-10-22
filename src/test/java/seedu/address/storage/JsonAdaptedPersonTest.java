@@ -5,17 +5,22 @@ import static seedu.address.storage.JsonAdaptedPerson.MISSING_FIELD_MESSAGE_FORM
 import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalPersons.BENSON;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
 import seedu.address.commons.exceptions.IllegalValueException;
 import seedu.address.commons.util.JsonUtil;
+import seedu.address.model.appointment.Appointment;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonId;
 import seedu.address.model.person.Phone;
+import seedu.address.model.session.Session;
 import seedu.address.model.tag.Tag;
 import seedu.address.testutil.PersonBuilder;
 
@@ -34,6 +39,59 @@ public class JsonAdaptedPersonTest {
             JsonAdaptedPerson person = JsonUtil.fromJsonString("{" + fields + suffix + "}", JsonAdaptedPerson.class);
             assertEquals("", person.toModelType().getWorkoutPlan().value);
         }
+    }
+
+    @Test
+    public void toModelType_absentAppointments_defaultsToEmpty() throws Exception {
+        String fields = "\"id\": 1, \"name\": \"Alice\", \"phone\": \"91234567\"";
+        for (String suffix : new String[] {"", ", \"appointments\": null", ", \"appointments\": []"}) {
+            JsonAdaptedPerson person = JsonUtil.fromJsonString("{" + fields + suffix + "}", JsonAdaptedPerson.class);
+            assertEquals(List.of(), person.toModelType().getAppointments());
+        }
+    }
+
+    @Test
+    public void toModelType_personWithAppointments_roundTrips() throws Exception {
+        List<Appointment> series = new ArrayList<>(
+                Appointment.weeklySeries(LocalDate.of(2026, 10, 26), LocalTime.of(9, 0)));
+        series.set(1, series.get(1).cancel());
+        Person person = BENSON.withAppointments(series);
+        String json = JsonUtil.toJsonString(new JsonAdaptedPerson(person));
+        assertEquals(person, JsonUtil.fromJsonString(json, JsonAdaptedPerson.class).toModelType());
+    }
+
+    @Test
+    public void toModelType_personWithSessionsAndAppointments_roundTrips() throws Exception {
+        Person person = BENSON.withSessions(List.of(new Session(LocalDate.of(2026, 10, 21), "Squats")))
+                .withAppointments(Appointment.weeklySeries(LocalDate.of(2026, 10, 26), LocalTime.of(9, 0)));
+        String json = JsonUtil.toJsonString(new JsonAdaptedPerson(person));
+        assertEquals(person, JsonUtil.fromJsonString(json, JsonAdaptedPerson.class).toModelType());
+    }
+
+    @Test
+    public void toModelType_fiveAppointments_throwsIllegalValueException() throws Exception {
+        String appointment = "{\"date\": \"2026-10-26\", \"time\": \"09:00\"}";
+        String json = "{\"id\": 1, \"name\": \"Alice\", \"phone\": \"91234567\", \"appointments\": ["
+                + String.join(", ", Collections.nCopies(5, appointment)) + "]}";
+        JsonAdaptedPerson person = JsonUtil.fromJsonString(json, JsonAdaptedPerson.class);
+        assertThrows(IllegalValueException.class, JsonAdaptedPerson.TOO_MANY_APPOINTMENTS_MESSAGE,
+                person::toModelType);
+    }
+
+    @Test
+    public void toModelType_invalidAppointment_throwsIllegalValueException() throws Exception {
+        String json = "{\"id\": 1, \"name\": \"Alice\", \"phone\": \"91234567\", \"appointments\": ["
+                + "{\"date\": \"2026-02-30\", \"time\": \"09:00\"}]}";
+        JsonAdaptedPerson person = JsonUtil.fromJsonString(json, JsonAdaptedPerson.class);
+        assertThrows(IllegalValueException.class, Appointment.MESSAGE_DATE_CONSTRAINTS, person::toModelType);
+    }
+
+    @Test
+    public void toModelType_nullAppointment_throwsIllegalValueException() throws Exception {
+        String json = "{\"id\": 1, \"name\": \"Alice\", \"phone\": \"91234567\", \"appointments\": [null]}";
+        JsonAdaptedPerson person = JsonUtil.fromJsonString(json, JsonAdaptedPerson.class);
+        assertThrows(IllegalValueException.class, String.format(MISSING_FIELD_MESSAGE_FORMAT, "Appointment"),
+                person::toModelType);
     }
 
     @Test
@@ -176,5 +234,42 @@ public class JsonAdaptedPersonTest {
     public void withId_personWithoutId_returnsPersonWithGivenId() throws Exception {
         JsonAdaptedPerson person = new JsonAdaptedPerson(null, VALID_NAME, VALID_PHONE);
         assertEquals(new PersonBuilder(BENSON).withId(5).build(), person.withId(5).toModelType());
+    }
+
+    @Test
+    public void toModelType_missingSessions_defaultsToEmptyList() throws Exception {
+        JsonAdaptedPerson person = new JsonAdaptedPerson(VALID_ID, VALID_NAME, VALID_PHONE, (String) null);
+        assertEquals(new PersonBuilder(BENSON).build(), person.toModelType());
+    }
+
+    @Test
+    public void toModelType_duplicateSessionDates_throwsIllegalValueException() {
+        List<JsonAdaptedSession> sessions = List.of(
+                new JsonAdaptedSession("2026-10-21", "First"),
+                new JsonAdaptedSession("2026-10-21", "Second"));
+        JsonAdaptedPerson person = new JsonAdaptedPerson(VALID_ID, VALID_NAME, VALID_PHONE, sessions);
+
+        assertThrows(IllegalValueException.class, seedu.address.model.person.Person.MESSAGE_DUPLICATE_SESSION_DATE,
+                person::toModelType);
+    }
+
+    @Test
+    public void toModelType_nullSession_throwsIllegalValueException() {
+        List<JsonAdaptedSession> sessions = new ArrayList<>();
+        sessions.add(null);
+        JsonAdaptedPerson person = new JsonAdaptedPerson(VALID_ID, VALID_NAME, VALID_PHONE, sessions);
+        String expectedMessage = String.format(MISSING_FIELD_MESSAGE_FORMAT, Session.class.getSimpleName());
+
+        assertThrows(IllegalValueException.class, expectedMessage, person::toModelType);
+    }
+
+    @Test
+    public void withId_personWithSessions_preservesSessions() throws Exception {
+        Session session = new Session(java.time.LocalDate.of(2026, 10, 21), "Squats");
+        JsonAdaptedPerson person = new JsonAdaptedPerson(
+                null, VALID_NAME, VALID_PHONE, List.of(new JsonAdaptedSession(session)));
+
+        assertEquals(new PersonBuilder(BENSON).withId(5).withSessions(session).build(),
+                person.withId(5).toModelType());
     }
 }

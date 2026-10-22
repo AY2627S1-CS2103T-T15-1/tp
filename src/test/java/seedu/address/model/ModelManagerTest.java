@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import seedu.address.commons.core.GuiSettings;
 import seedu.address.logic.commands.PersonSelector;
+import seedu.address.model.tag.Tag;
 import seedu.address.testutil.AddressBookBuilder;
 
 public class ModelManagerTest {
@@ -94,6 +95,27 @@ public class ModelManagerTest {
         modelManager.addPerson(BENSON);
         modelManager.addPerson(ALICE);
         assertEquals(List.of(ALICE, BENSON), modelManager.getFilteredPersonList());
+    }
+
+    @Test
+    public void hasGroup_nullGroup_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> modelManager.hasGroup(null));
+    }
+
+    @Test
+    public void addGroup_newGroup_hasGroup() {
+        Tag morning = new Tag("morning");
+        assertFalse(modelManager.hasGroup(morning));
+        modelManager.addGroup(morning);
+        assertTrue(modelManager.hasGroup(morning));
+    }
+
+    @Test
+    public void deleteGroup_existingGroup_groupRemoved() {
+        Tag morning = new Tag("morning");
+        modelManager.addGroup(morning);
+        modelManager.deleteGroup(morning);
+        assertFalse(modelManager.hasGroup(morning));
     }
 
     @Test

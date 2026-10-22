@@ -60,7 +60,7 @@ Cindy is a **desktop application that helps freelance gym trainers manage their 
 * Long-form text, such as client notes and workout plans, must be wrapped in double quotes, even for a single word. Use `--note ""` to clear a note or `--plan ""` to clear a workout plan.
 * Inside long-form text, type `\n` for a line break or `\n\n` for a blank line. Enter the command on one line; Cindy displays the line breaks in the detail view.
 
-* Commands that act on one client (`view`, `edit`, `plan`, `delete`, `note`, `inactive`, `active` and `tag`) choose the client with either `--id ID` or `--name NAME`, but not both. `inactive` and `active` also accept `--phone PHONE` instead:
+* Commands that act on one client (`view`, `edit`, `plan`, `appointment --add`, `appointment --cancel`, `appointment --reschedule`, `delete`, `note`, `inactive`, `active` and `tag`) choose the client with either `--id ID` or `--name NAME`, but not both. `inactive` and `active` also accept `--phone PHONE` instead:
   * `--id ID` chooses the client with that ID. Every client's ID is shown as `#ID` on their card, e.g. `#3`.
   * `--name NAME` chooses the client whose name contains `NAME`, ignoring upper and lower case. For example, `--name john` matches `John`, `John Doe` and `Johnny Tan`.
   * If more than one client's name contains `NAME`, Cindy does not act on any of them. Instead, it lists those clients and asks you to run the command again with `--id`, using one of the IDs shown.
@@ -178,16 +178,93 @@ Examples:
 * `plan --name Alex --plan "Push-ups: 3 sets of 10"` updates the only client whose name contains `Alex`. If several clients match, Cindy lists them and asks you to retry with `--id`, keeping your quoted `--plan` text; no plans are changed. For example, retry with `plan --id 2 --plan "Push-ups: 3 sets of 10"` if client #2 is the one you intended.
 * `plan --id 2 --plan ""` clears the plan for client #2.
 
+### Scheduling weekly appointments: `appointment --add`
+
+Schedules 4 weekly appointments for an existing client, at the same time each week.
+
+Format: `appointment --add --id ID --date DATE --time TIME` or `appointment --add --name NAME --date DATE --time TIME`
+
+* Chooses the client using `--id` or `--name`, as described in [the notes about the command format](#features).
+* `DATE` is the date of the first appointment, in the format `YYYY-MM-DD`, e.g. `2026-10-26`. It must be a real calendar date.
+* `TIME` is in the 24-hour format `HH:MM`, e.g. `09:00` or `18:30`.
+* Creates 4 appointments, one week apart, starting on `DATE`. A client has at most 4 appointments.
+* Replaces all of the client's current appointments, including cancelled ones.
+* Exactly one selector, one `--date` and one `--time` must be provided. Repeated flags are rejected, and nothing may follow `--add` itself.
+* The appointments are saved automatically. Editing a client's contact details with `edit` preserves their appointments.
+* After scheduling, the client's detail view opens with the appointments listed in their own card, numbered in order of date and time. Clients with no appointments have no card.
+
+Examples:
+
+* `appointment --add --id 2 --date 2026-10-26 --time 09:00` schedules client #2 for 09:00 on 26 Oct, 2 Nov, 9 Nov and 16 Nov 2026.
+* `appointment --add --name Alex --date 2026-12-28 --time 18:30` schedules the only client whose name contains `Alex`, continuing into January 2027. If several clients match, Cindy lists them and asks you to retry with `--id`, keeping your `--date` and `--time`; no appointments are changed.
+
+### Cancelling an appointment: `appointment --cancel`
+
+Cancels one of a client's appointments. The appointment stays on record, marked as cancelled.
+
+Format: `appointment --cancel --id ID --index INDEX` or `appointment --cancel --name NAME --index INDEX`
+
+* Chooses the client using `--id` or `--name`, as described in [the notes about the command format](#features).
+* `INDEX` is the number of the appointment in the client's appointments card, e.g. `1` for the earliest. It must be a positive whole number no larger than the client's number of appointments.
+* The cancelled appointment keeps its place in the card, shown as e.g. `2. Mon 2026-11-02 09:00 (Cancelled)`. The other appointments are not changed.
+* An appointment that is already cancelled cannot be cancelled again.
+* Exactly one selector and one `--index` must be provided. Repeated flags are rejected, and nothing may follow `--cancel` itself.
+* After cancelling, the client's detail view opens.
+
+Examples:
+
+* `appointment --cancel --id 2 --index 1` cancels the earliest appointment of client #2.
+* `appointment --cancel --name Alex --index 3` cancels the third appointment of the only client whose name contains `Alex`. If several clients match, Cindy lists them and asks you to retry with `--id`, keeping your `--index`; no appointments are changed.
+
+### Rescheduling an appointment: `appointment --reschedule`
+
+Moves one of a client's appointments to a new date and time.
+
+Format: `appointment --reschedule --id ID --index INDEX --date DATE --time TIME` or `appointment --reschedule --name NAME --index INDEX --date DATE --time TIME`
+
+* Chooses the client using `--id` or `--name`, as described in [the notes about the command format](#features).
+* `INDEX` is the number of the appointment in the client's appointments card, as for `appointment --cancel`.
+* `DATE` and `TIME` are the new date and time, in the same formats as for `appointment --add`.
+* A cancelled appointment that is rescheduled becomes active again, even when it keeps its old date and time.
+* The client cannot have two appointments at the same date and time, including cancelled ones. Cancel or reschedule the other one first.
+* The appointments card is re-numbered in order of date and time, so the moved appointment may get a new number.
+* Exactly one selector, one `--index`, one `--date` and one `--time` must be provided. Repeated flags are rejected, and nothing may follow `--reschedule` itself.
+* After rescheduling, the client's detail view opens.
+
+Examples:
+
+* `appointment --reschedule --id 2 --index 1 --date 2026-10-27 --time 18:00` moves the earliest appointment of client #2 to 18:00 on Tuesday 27 Oct 2026.
+* `appointment --reschedule --id 2 --index 2 --date 2026-11-02 --time 09:00` makes appointment 2 of client #2 active again, if it was cancelled and is already at that time.
+
+### Viewing appointments: `appointment --date`, `appointment --week`
+
+Lists the appointments of all clients on one day, or in one week.
+
+Format: `appointment --date DATE` or `appointment --week DATE`
+
+* `DATE` is in the format `YYYY-MM-DD`, e.g. `2026-10-22`.
+* `--date` lists the appointments on `DATE`, each as its time, the client's name and the client's ID.
+* `--week` lists the appointments from Monday to Sunday of the week containing `DATE`, each with its date as well. `DATE` can be any day of that week.
+* Appointments are listed in order of date and time. Cancelled appointments are still listed, marked `(Cancelled)`.
+* The client list shows only the clients with a listed appointment. Use `list` to show all clients again.
+* Give exactly one of `--date` or `--week`, with nothing else.
+
+Examples:
+
+* `appointment --date 2026-10-26` lists the appointments on Monday 26 Oct 2026, e.g. `09:00 Alex Yeoh (ID: 1)`.
+* `appointment --week 2026-10-22` lists the appointments from Monday 19 Oct to Sunday 25 Oct 2026, e.g. `Mon 2026-10-19 09:00 Alex Yeoh (ID: 1)`.
+
 ### Finding clients: `find`
 
-Finds clients by name, phone number or ID, and shows only those clients in the list.
+Finds clients by name, phone number, ID or group, and shows only those clients in the list.
 
-Format: `find [--name NAME] [--phone PHONE] [--id ID]`
+Format: `find [--name NAME] [--phone PHONE] [--id ID] [--group GROUP]`
 
-* At least one of `--name`, `--phone` and `--id` must be given.
+* At least one of `--name`, `--phone`, `--id` and `--group` must be given.
 * `--name` finds clients whose names contain `NAME`, ignoring upper and lower case. For example, `--name han` finds `Hans` and `Johan Lee`.
 * `--phone` finds clients whose phone numbers contain the digits in `PHONE`. Spaces, parentheses and hyphens in `PHONE` are ignored, so `--phone 9123 4567` finds `91234567`.
 * `--id` finds the client with that ID.
+* `--group` finds clients in the group `GROUP`, ignoring upper and lower case. `GROUP` can also be `gym` or `personal`, to find all gym or personal clients.
 * If you give more than one of them, only clients that match all of them are found.
 * The clients found are still sorted by name. Use `list` to show all clients again.
 
@@ -195,6 +272,8 @@ Examples:
 * `find --name alex` finds `Alex Yeoh` and `Alexis Tan`.
 * `find --phone 9123` finds every client whose phone number contains `9123`.
 * `find --name tan --phone 8` finds clients whose names contain `tan` and whose phone numbers contain `8`.
+* `find --group morning` finds every client in the group `morning`.
+* `find --group gym --name tan` finds gym clients whose names contain `tan`.
 
 ### Deleting a client: `delete`
 
@@ -271,6 +350,80 @@ Format: `tag --id ID --type TYPE` or `tag --name NAME --type TYPE`, where `TYPE`
 Examples:
 * `tag --id 2 --type gym` labels the client with ID 2 as a gym client.
 * `tag --name bernice --type personal` labels the only client whose name contains `bernice` as a personal client.
+
+### Creating a group: `group`
+
+Creates a group of clients, such as clients you train in the morning or clients in rehab. A group must be created before clients can be added to it.
+
+Format: `group --name GROUP`
+
+* `GROUP` is made of letters and digits only, with no spaces, e.g. `morning` or `batch2`.
+* `GROUP` ignores upper and lower case, so `group --name Morning` creates the group `morning`.
+* Each group can only be created once.
+* `gym` and `personal` are built-in labels, not groups. Use [`tag --type`](#labelling-a-client-as-a-gym-or-personal-client-tag) to label a client as a gym or personal client.
+* A group is kept even when no client is in it.
+
+Examples:
+* `group --name morning` creates the group `morning`.
+* `group --name Rehab` creates the group `rehab`.
+
+### Adding a client to a group: `tag --group`
+
+Adds a client to a group you have created with [`group`](#creating-a-group-group).
+
+Format: `tag --id ID --group GROUP` or `tag --name NAME --group GROUP`
+
+* Adds the client chosen by `--id` or `--name`, as described in [the notes about the command format](#features).
+* The group must already exist. If it does not, Cindy shows the `group` command that creates it.
+* `GROUP` ignores upper and lower case, so `--group Morning` is the same as `--group morning`.
+* A client can be in several groups. Their other tags, including `gym` or `personal`, are kept.
+* Use `tag --type` instead to label a client as a gym or personal client.
+
+Examples:
+* `tag --id 2 --group morning` adds the client with ID 2 to the group `morning`.
+* `tag --name bernice --group rehab` adds the only client whose name contains `bernice` to the group `rehab`.
+
+### Removing a tag from a client: `tag --untag`
+
+Removes a client from a group, or removes their `gym` or `personal` label.
+
+Format: `tag --id ID --untag TAG` or `tag --name NAME --untag TAG`
+
+* Removes `TAG` from the client chosen by `--id` or `--name`, as described in [the notes about the command format](#features).
+* `TAG` ignores upper and lower case.
+* The group itself is kept, so other clients stay in it and you can add clients to it again later.
+
+Examples:
+* `tag --id 2 --untag morning` removes the client with ID 2 from the group `morning`.
+* `tag --name bernice --untag gym` removes the `gym` label from the only client whose name contains `bernice`.
+
+### Moving a client to another group: `group --move`
+
+Moves a client from one group to another, e.g. when they switch from morning to evening sessions.
+
+Format: `group --move --id ID --from GROUP --to GROUP` or `group --move --name NAME --from GROUP --to GROUP`
+
+* Moves the client chosen by `--id` or `--name`, as described in [the notes about the command format](#features).
+* The client must be in the group after `--from`, and the group after `--to` must already exist.
+* The two groups must be different. Group names ignore upper and lower case.
+* The client's other details and tags, including `gym` or `personal`, are kept. Both groups are kept too.
+
+Examples:
+* `group --move --id 2 --from morning --to evening` moves the client with ID 2 from `morning` to `evening`.
+
+### Deleting a group: `tag --delete`
+
+Deletes a group, and removes it from every client in it.
+
+Format: `tag --delete --group GROUP`
+
+* The group must exist. `GROUP` ignores upper and lower case.
+* The clients themselves are kept; only the group is removed from them.
+* `gym` and `personal` are built-in labels and cannot be deleted.
+* This cannot be undone, so you will have to create the group and add the clients to it again.
+
+Examples:
+* `tag --delete --group morning` deletes the group `morning` and removes it from every client in it.
 
 ### Clearing all entries: `clear`
 
@@ -362,13 +515,22 @@ Action     | Format, Examples
 **Clear**  | `clear` to show the prompt; `clear --confirm` to delete all clients and reset IDs
 **Delete** | `delete --id ID` or `delete --name NAME`<br> e.g., `delete --id 3`
 **Edit**   | `edit --id ID [--to-name NEW_NAME] [--to-phone NEW_PHONE]` (at least one change; or `--name NAME` instead of `--id ID`)<br> e.g., `edit --id 2 --to-name "James Lee"`
-**Find**   | `find [--name NAME] [--phone PHONE] [--id ID]` (at least one)<br> e.g., `find --name james`
+**Find**   | `find [--name NAME] [--phone PHONE] [--id ID] [--group GROUP]` (at least one)<br> e.g., `find --name james`, `find --group morning`
 **List**   | `list`
 **Plan**   | `plan --id ID --plan "TEXT"` (or `--name NAME` instead of `--id ID`)<br> e.g., `plan --id 2 --plan "Squats: 3 sets"`
+**Schedule appointments** | `appointment --add --id ID --date DATE --time TIME` (or `--name NAME` instead of `--id ID`)<br> e.g., `appointment --add --id 2 --date 2026-10-26 --time 09:00`
+**Cancel appointment** | `appointment --cancel --id ID --index INDEX` (or `--name NAME` instead of `--id ID`)<br> e.g., `appointment --cancel --id 2 --index 1`
+**Reschedule appointment** | `appointment --reschedule --id ID --index INDEX --date DATE --time TIME` (or `--name NAME` instead of `--id ID`)<br> e.g., `appointment --reschedule --id 2 --index 1 --date 2026-10-27 --time 18:00`
+**View appointments** | `appointment --date DATE` or `appointment --week DATE`<br> e.g., `appointment --week 2026-10-22`
 **View**   | `view --id ID` or `view --name NAME`<br> e.g., `view --id 2`
 **Note**   | `note --id ID --note "TEXT"` (or `--name NAME` instead of `--id ID`)<br> e.g., `note --id 3 --note "Knee injury"`
 **Inactive** / **Active** | `inactive --id ID` or `active --id ID` (or `--name NAME` or `--phone PHONE` instead of `--id ID`)<br> e.g., `inactive --id 4`
 **Tag**    | `tag --id ID --type gym` or `tag --id ID --type personal` (or `--name NAME` instead of `--id ID`)<br> e.g., `tag --id 2 --type gym`
+**Add to group** | `tag --id ID --group GROUP` (or `--name NAME` instead of `--id ID`)<br> e.g., `tag --id 2 --group morning`
+**Untag**  | `tag --id ID --untag TAG` (or `--name NAME` instead of `--id ID`)<br> e.g., `tag --id 2 --untag morning`
+**Move group** | `group --move --id ID --from GROUP --to GROUP` (or `--name NAME` instead of `--id ID`)<br> e.g., `group --move --id 2 --from morning --to evening`
+**Delete group** | `tag --delete --group GROUP`<br> e.g., `tag --delete --group morning`
+**Group**  | `group --name GROUP`<br> e.g., `group --name morning`
 **Help**   | `help`, **Help > Help** in the menu, or **F1** in the main window
 **Exit**   | `exit`
 **Recall commands** | Up / Down while the command box has focus; Enter executes the recalled command
