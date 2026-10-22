@@ -1,6 +1,7 @@
 package seedu.address.logic.commands;
 
 import static java.util.Objects.requireNonNull;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_TODAY;
 import static seedu.address.model.Model.PREDICATE_SHOW_ALL_PERSONS;
 
 import java.time.Clock;
@@ -17,8 +18,8 @@ public class ListCommand extends Command {
 
     public static final String MESSAGE_USAGE = COMMAND_WORD + ": Lists all clients, or only clients with "
             + "a non-cancelled appointment today.\n"
-            + "Parameters: [--today]\n"
-            + "Examples: " + COMMAND_WORD + ", " + COMMAND_WORD + " --today";
+            + "Parameters: [" + PREFIX_TODAY + "]\n"
+            + "Examples: " + COMMAND_WORD + ", " + COMMAND_WORD + " " + PREFIX_TODAY;
 
     public static final String MESSAGE_SUCCESS_SINGULAR = "Listed 1 client";
     public static final String MESSAGE_SUCCESS_PLURAL = "Listed %1$d clients";

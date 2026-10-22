@@ -2,6 +2,7 @@ package seedu.address.logic.parser;
 
 import static java.util.Objects.requireNonNull;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_TODAY;
 
 import java.time.Clock;
 
@@ -40,7 +41,7 @@ public class ListCommandParser implements Parser<ListCommand> {
         if (trimmedArgs.isEmpty()) {
             return new ListCommand();
         }
-        if (trimmedArgs.equals("--today")) {
+        if (trimmedArgs.equals(PREFIX_TODAY.getPrefix())) {
             return ListCommand.forToday(clock);
         }
         throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, ListCommand.MESSAGE_USAGE));
