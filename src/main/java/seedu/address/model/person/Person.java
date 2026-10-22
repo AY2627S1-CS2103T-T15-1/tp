@@ -1,12 +1,16 @@
 package seedu.address.model.person;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
 import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.model.LongFormText;
+import seedu.address.model.session.Session;
 import seedu.address.model.tag.Tag;
 
 /**
@@ -14,6 +18,11 @@ import seedu.address.model.tag.Tag;
  * Guarantees: details are present and not null, field values are validated, immutable.
  */
 public class Person {
+
+    public static final String MESSAGE_DUPLICATE_SESSION_DATE =
+            "A client cannot have more than one session on the same date.";
+
+    private final List<Session> sessions = new ArrayList<>();
 
     // Identity fields
     private final PersonId id;
@@ -53,6 +62,28 @@ public class Person {
      */
     public Person(PersonId id, Name name, Phone phone, LongFormText note, boolean isActive, Set<Tag> tags,
             LongFormText workoutPlan) {
+        this(id, name, phone, note, isActive, tags, workoutPlan, List.of());
+    }
+
+    /**
+     * Creates a person with sessions and default values for the other optional details.
+     */
+    public Person(PersonId id, Name name, Phone phone, List<Session> sessions) {
+        this(id, name, phone, new LongFormText(""), true, Set.of(), new LongFormText(""), sessions);
+    }
+
+    /**
+     * Creates a person with all details. Session dates must be unique for this client.
+     */
+    public Person(PersonId id, Name name, Phone phone, LongFormText note, boolean isActive, Set<Tag> tags,
+            LongFormText workoutPlan, List<Session> sessions) {
+        Objects.requireNonNull(sessions);
+        sessions.forEach(Objects::requireNonNull);
+        Set<LocalDate> dates = new HashSet<>();
+        if (sessions.stream().map(Session::getDate).anyMatch(date -> !dates.add(date))) {
+            throw new IllegalArgumentException(MESSAGE_DUPLICATE_SESSION_DATE);
+        }
+        this.sessions.addAll(sessions);
         Objects.requireNonNull(id);
         Objects.requireNonNull(name);
         Objects.requireNonNull(phone);
@@ -65,6 +96,20 @@ public class Person {
         this.workoutPlan = Objects.requireNonNull(workoutPlan);
         this.isActive = isActive;
         this.tags.addAll(tags);
+    }
+
+    /**
+     * Returns an immutable view of this client's sessions.
+     */
+    public List<Session> getSessions() {
+        return Collections.unmodifiableList(sessions);
+    }
+
+    /**
+     * Returns a copy with the given sessions, preserving all other client details.
+     */
+    public Person withSessions(List<Session> sessions) {
+        return new Person(id, name, phone, note, isActive, tags, workoutPlan, sessions);
     }
 
     public PersonId getId() {
@@ -103,28 +148,28 @@ public class Person {
      * Returns a copy of this person with {@code note} as their note.
      */
     public Person withNote(LongFormText note) {
-        return new Person(id, name, phone, note, isActive, tags, workoutPlan);
+        return new Person(id, name, phone, note, isActive, tags, workoutPlan, sessions);
     }
 
     /**
      * Returns a copy of this person who is active if {@code isActive} is true, and inactive otherwise.
      */
     public Person withActive(boolean isActive) {
-        return new Person(id, name, phone, note, isActive, tags, workoutPlan);
+        return new Person(id, name, phone, note, isActive, tags, workoutPlan, sessions);
     }
 
     /**
      * Returns a copy of this person with {@code tags} as their tags.
      */
     public Person withTags(Set<Tag> tags) {
-        return new Person(id, name, phone, note, isActive, tags, workoutPlan);
+        return new Person(id, name, phone, note, isActive, tags, workoutPlan, sessions);
     }
 
     /**
      * Returns a copy of this person with the given workout plan, preserving all other details.
      */
     public Person withWorkoutPlan(LongFormText workoutPlan) {
-        return new Person(id, name, phone, note, isActive, tags, workoutPlan);
+        return new Person(id, name, phone, note, isActive, tags, workoutPlan, sessions);
     }
 
     /**
@@ -163,13 +208,14 @@ public class Person {
                 && note.equals(otherPerson.note)
                 && isActive == otherPerson.isActive
                 && tags.equals(otherPerson.tags)
-                && workoutPlan.equals(otherPerson.workoutPlan);
+                && workoutPlan.equals(otherPerson.workoutPlan)
+                && sessions.equals(otherPerson.sessions);
     }
 
     @Override
     public int hashCode() {
         // use this method for custom fields hashing instead of implementing your own
-        return Objects.hash(id, name, phone, note, isActive, tags, workoutPlan);
+        return Objects.hash(id, name, phone, note, isActive, tags, workoutPlan, sessions);
     }
 
     @Override
@@ -182,6 +228,7 @@ public class Person {
                 .add("isActive", isActive)
                 .add("tags", tags)
                 .add("workoutPlan", workoutPlan)
+                .add("sessions", sessions)
                 .toString();
     }
 

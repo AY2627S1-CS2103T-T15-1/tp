@@ -1,9 +1,7 @@
 package seedu.address.logic.parser;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Tokenizes arguments string of the form: {@code preamble <prefix>value <prefix>value ...}<br>
@@ -12,6 +10,8 @@ import java.util.stream.Collectors;
  * 2. Leading and trailing whitespaces of an argument value will be discarded.<br>
  * 3. An argument may be repeated and all its values will be accumulated e.g. the value of {@code t/}
  *    in the above example.<br>
+ * 4. Long flags beginning with {@code --} must end at whitespace or the end of the input.<br>
+ * 5. Prefixes inside a value enclosed in double quotes are treated as text.
  */
 public class ArgumentTokenizer {
 
@@ -36,43 +36,41 @@ public class ArgumentTokenizer {
      * @return           List of zero-based prefix positions in the given arguments string
      */
     private static List<PrefixPosition> findAllPrefixPositions(String argsString, Prefix... prefixes) {
-        return Arrays.stream(prefixes)
-                .flatMap(prefix -> findPrefixPositions(argsString, prefix).stream())
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * @see #findAllPrefixPositions(String, Prefix...)
-     */
-    private static List<PrefixPosition> findPrefixPositions(String argsString, Prefix prefix) {
         List<PrefixPosition> positions = new ArrayList<>();
-
-        int prefixPosition = findPrefixPosition(argsString, prefix.getPrefix(), 0);
-        while (prefixPosition != -1) {
-            PrefixPosition extendedPrefix = new PrefixPosition(prefix, prefixPosition);
-            positions.add(extendedPrefix);
-            prefixPosition = findPrefixPosition(argsString, prefix.getPrefix(), prefixPosition);
+        boolean inQuotedValue = false;
+        boolean atValueStart = false;
+        for (int index = 0; index < argsString.length(); index++) {
+            char character = argsString.charAt(index);
+            if (inQuotedValue) {
+                if (character == '"') {
+                    inQuotedValue = false;
+                }
+                continue;
+            }
+            if (atValueStart && !Character.isWhitespace(character)) {
+                atValueStart = false;
+                if (character == '"' && argsString.indexOf('"', index + 1) != -1) {
+                    inQuotedValue = true;
+                    continue;
+                }
+            }
+            if (index > 0 && !Character.isWhitespace(argsString.charAt(index - 1))) {
+                continue;
+            }
+            for (Prefix prefix : prefixes) {
+                String text = prefix.getPrefix();
+                int end = index + text.length();
+                if (!text.isEmpty() && argsString.startsWith(text, index)
+                        && (!text.startsWith("--") || end == argsString.length()
+                        || Character.isWhitespace(argsString.charAt(end)))) {
+                    positions.add(new PrefixPosition(prefix, index));
+                    index = end - 1;
+                    atValueStart = true;
+                    break;
+                }
+            }
         }
-
         return positions;
-    }
-
-    /**
-     * Returns the index of the first occurrence of {@code prefix} in
-     * {@code argsString} starting from index {@code fromIndex}. An occurrence
-     * is valid if there is a whitespace before {@code prefix}. Returns -1 if no
-     * such occurrence can be found.
-     *
-     * E.g if {@code argsString} = "e/hip/900", {@code prefix} = "p/" and
-     * {@code fromIndex} = 0, this method returns -1 as there are no valid
-     * occurrences of "p/" with whitespace before it. However, if
-     * {@code argsString} = "e/hi p/900", {@code prefix} = "p/" and
-     * {@code fromIndex} = 0, this method returns 5.
-     */
-    private static int findPrefixPosition(String argsString, String prefix, int fromIndex) {
-        int prefixIndex = argsString.indexOf(" " + prefix, fromIndex);
-        return prefixIndex == -1 ? -1
-                : prefixIndex + 1; // +1 as offset for whitespace
     }
 
     /**
