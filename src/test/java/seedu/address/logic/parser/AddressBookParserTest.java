@@ -6,17 +6,21 @@ import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.Messages.MESSAGE_UNKNOWN_COMMAND;
 import static seedu.address.testutil.Assert.assertThrows;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
 import seedu.address.logic.commands.AddCommand;
+import seedu.address.logic.commands.AddSessionCommand;
 import seedu.address.logic.commands.ClearCommand;
 import seedu.address.logic.commands.DeleteCommand;
 import seedu.address.logic.commands.EditCommand;
 import seedu.address.logic.commands.EditCommand.EditPersonDescriptor;
+import seedu.address.logic.commands.EditSessionCommand;
 import seedu.address.logic.commands.ExitCommand;
 import seedu.address.logic.commands.FindCommand;
+import seedu.address.logic.commands.GroupCommand;
 import seedu.address.logic.commands.HelpCommand;
 import seedu.address.logic.commands.ListCommand;
 import seedu.address.logic.commands.NoteCommand;
@@ -130,6 +134,12 @@ public class AddressBookParserTest {
     }
 
     @Test
+    public void parseCommand_group() throws Exception {
+        assertEquals(new GroupCommand(new Tag("morning")),
+                parser.parseCommand(GroupCommand.COMMAND_WORD + " --name morning"));
+    }
+
+    @Test
     public void parseCommand_exit() throws Exception {
         assertTrue(parser.parseCommand(ExitCommand.COMMAND_WORD) instanceof ExitCommand);
         assertTrue(parser.parseCommand(ExitCommand.COMMAND_WORD + " 3") instanceof ExitCommand);
@@ -139,6 +149,9 @@ public class AddressBookParserTest {
     public void parseCommand_find() throws Exception {
         FindCommand command = (FindCommand) parser.parseCommand(FindCommand.COMMAND_WORD + " --name foo bar");
         assertEquals(new FindCommand(List.of(PersonSelector.byName("foo bar"))), command);
+
+        assertEquals(new FindCommand(List.of(), new Tag("morning")),
+                parser.parseCommand(FindCommand.COMMAND_WORD + " --group morning"));
     }
 
     @Test
@@ -151,6 +164,22 @@ public class AddressBookParserTest {
     public void parseCommand_list() throws Exception {
         assertTrue(parser.parseCommand(ListCommand.COMMAND_WORD) instanceof ListCommand);
         assertTrue(parser.parseCommand(ListCommand.COMMAND_WORD + " 3") instanceof ListCommand);
+    }
+
+    @Test
+    public void parseCommand_sessionAdd() throws Exception {
+        AddSessionCommand command = (AddSessionCommand) parser.parseCommand(
+                "session --add --id 1 --date 2026-10-21 --note Worked on squat form");
+        assertEquals(new AddSessionCommand(PersonSelector.byId(new PersonId(1)),
+                LocalDate.of(2026, 10, 21), "Worked on squat form"), command);
+    }
+
+    @Test
+    public void parseCommand_sessionEdit() throws Exception {
+        EditSessionCommand command = (EditSessionCommand) parser.parseCommand(
+                "session --edit --id 1 --date 2026-10-21 --note Improved squat depth");
+        assertEquals(new EditSessionCommand(PersonSelector.byId(new PersonId(1)),
+                LocalDate.of(2026, 10, 21), "Improved squat depth"), command);
     }
 
     @Test

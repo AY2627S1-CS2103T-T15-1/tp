@@ -1,0 +1,5 @@
+{
+  "persons": [],
+  "nextPersonId": 1,
+  "groups": [ "morning", "gym" ]
+}

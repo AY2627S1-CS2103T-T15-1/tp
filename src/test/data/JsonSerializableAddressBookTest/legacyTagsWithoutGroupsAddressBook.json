@@ -1,0 +1,12 @@
+{
+  "_comment": "AddressBook save file from before groups were saved, so custom tags on clients become groups",
+  "persons": [
+    {
+      "id": 1,
+      "name": "Alice Pauline",
+      "phone": "94351253",
+      "tags": [ "personal", "morning" ]
+    }
+  ],
+  "nextPersonId": 2
+}
