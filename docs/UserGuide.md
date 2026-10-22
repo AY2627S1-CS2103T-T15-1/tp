@@ -77,11 +77,19 @@ Cindy is a **desktop application that helps freelance gym trainers manage their 
 
 ### Viewing help: `help`
 
-Shows a message explaining how to access the help page.
-
-![help message](images/helpMessage.png)
+Opens the Help window with a summary of the commands available in Cindy.
 
 Format: `help`
+
+You can also open it from **Help > Help** in the menu or by pressing **F1** in the main window.
+
+![Cindy Help window showing grouped command summaries, syntax, examples and the User Guide controls](images/helpMessage.png)
+
+* Commands are grouped by purpose. Each command has a short description, its format and an example you can type in the command box.
+* The syntax guide explains placeholders, optional parameters and alternatives. For example, `view (--id ID | --name NAME)` means use either `view --id 2` or `view --name james`; do not type the parentheses or `|`.
+* Resize the window or scroll down to see the remaining commands and keyboard shortcuts. Long descriptions and command formats wrap to fit the window.
+* The User Guide URL and **Copy URL** button stay at the top while you scroll. Click **Copy URL**, then paste it into your browser to read the full guide. The command summary itself is available without an internet connection.
+* Opening help again brings the existing window to the front. Closing it closes only the Help window; you can open it again at any time. See [Known issues](#known-issues) if it is minimized.
 
 
 ### Adding a client: `add`
@@ -353,7 +361,7 @@ Action     | Format, Examples
 **Add**    | `add --name "NAME" --phone "PHONE_NUMBER"` <br> e.g., `add --name "James Ho" --phone "+65 9123 4567"`
 **Clear**  | `clear` to show the prompt; `clear --confirm` to delete all clients and reset IDs
 **Delete** | `delete --id ID` or `delete --name NAME`<br> e.g., `delete --id 3`
-**Edit**   | `edit --id ID [--to-name NEW_NAME] [--to-phone NEW_PHONE]` (or `--name NAME` instead of `--id ID`)<br> e.g., `edit --id 2 --to-name "James Lee"`
+**Edit**   | `edit --id ID [--to-name NEW_NAME] [--to-phone NEW_PHONE]` (at least one change; or `--name NAME` instead of `--id ID`)<br> e.g., `edit --id 2 --to-name "James Lee"`
 **Find**   | `find [--name NAME] [--phone PHONE] [--id ID]` (at least one)<br> e.g., `find --name james`
 **List**   | `list`
 **Plan**   | `plan --id ID --plan "TEXT"` (or `--name NAME` instead of `--id ID`)<br> e.g., `plan --id 2 --plan "Squats: 3 sets"`
@@ -361,5 +369,6 @@ Action     | Format, Examples
 **Note**   | `note --id ID --note "TEXT"` (or `--name NAME` instead of `--id ID`)<br> e.g., `note --id 3 --note "Knee injury"`
 **Inactive** / **Active** | `inactive --id ID` or `active --id ID` (or `--name NAME` or `--phone PHONE` instead of `--id ID`)<br> e.g., `inactive --id 4`
 **Tag**    | `tag --id ID --type gym` or `tag --id ID --type personal` (or `--name NAME` instead of `--id ID`)<br> e.g., `tag --id 2 --type gym`
-**Help**   | `help`
+**Help**   | `help`, **Help > Help** in the menu, or **F1** in the main window
+**Exit**   | `exit`
 **Recall commands** | Up / Down while the command box has focus; Enter executes the recalled command
