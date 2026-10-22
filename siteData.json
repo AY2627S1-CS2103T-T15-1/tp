@@ -64,6 +64,7 @@
         "appendix-instructions-for-manual-testing": "Appendix: Instructions for manual testing",
         "launch-and-shutdown": "Launch and shutdown",
         "deleting-a-client": "Deleting a client",
+        "listing-clients-with-appointments-today": "Listing clients with appointments today",
         "recalling-commands": "Recalling commands",
         "saving-data": "Saving data"
       },
@@ -114,7 +115,7 @@
         "features": "Features",
         "viewing-help-help": "Viewing help: help",
         "adding-a-client-add": "Adding a client: add",
-        "listing-all-clients-list": "Listing all clients: list",
+        "listing-clients-list": "Listing clients: list",
         "editing-a-client-edit": "Editing a client: edit",
         "setting-or-replacing-a-workout-plan-plan": "Setting or replacing a workout plan: plan",
         "scheduling-weekly-appointments-appointment-add": "Scheduling weekly appointments: appointment --add",
