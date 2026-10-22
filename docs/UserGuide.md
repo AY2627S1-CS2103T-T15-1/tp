@@ -190,6 +190,24 @@ Examples:
 * `appointment --add --id 2 --date 2026-10-26 --time 09:00` schedules client #2 for 09:00 on 26 Oct, 2 Nov, 9 Nov and 16 Nov 2026.
 * `appointment --add --name Alex --date 2026-12-28 --time 18:30` schedules the only client whose name contains `Alex`, continuing into January 2027. If several clients match, Cindy lists them and asks you to retry with `--id`, keeping your `--date` and `--time`; no appointments are changed.
 
+### Viewing appointments: `appointment --date`, `appointment --week`
+
+Lists the appointments of all clients on one day, or in one week.
+
+Format: `appointment --date DATE` or `appointment --week DATE`
+
+* `DATE` is in the format `YYYY-MM-DD`, e.g. `2026-10-22`.
+* `--date` lists the appointments on `DATE`, each as its time, the client's name and the client's ID.
+* `--week` lists the appointments from Monday to Sunday of the week containing `DATE`, each with its date as well. `DATE` can be any day of that week.
+* Appointments are listed in order of date and time. Cancelled appointments are still listed, marked `(Cancelled)`.
+* The client list shows only the clients with a listed appointment. Use `list` to show all clients again.
+* Give exactly one of `--date` or `--week`, with nothing else.
+
+Examples:
+
+* `appointment --date 2026-10-26` lists the appointments on Monday 26 Oct 2026, e.g. `09:00 Alex Yeoh (ID: 1)`.
+* `appointment --week 2026-10-22` lists the appointments from Monday 19 Oct to Sunday 25 Oct 2026, e.g. `Mon 2026-10-19 09:00 Alex Yeoh (ID: 1)`.
+
 ### Finding clients: `find`
 
 Finds clients by name, phone number or ID, and shows only those clients in the list.
@@ -378,6 +396,7 @@ Action     | Format, Examples
 **List**   | `list`
 **Plan**   | `plan --id ID --plan "TEXT"` (or `--name NAME` instead of `--id ID`)<br> e.g., `plan --id 2 --plan "Squats: 3 sets"`
 **Appointment** | `appointment --add --id ID --date DATE --time TIME` (or `--name NAME` instead of `--id ID`)<br> e.g., `appointment --add --id 2 --date 2026-10-26 --time 09:00`
+**View appointments** | `appointment --date DATE` or `appointment --week DATE`<br> e.g., `appointment --week 2026-10-22`
 **View**   | `view --id ID` or `view --name NAME`<br> e.g., `view --id 2`
 **Note**   | `note --id ID --note "TEXT"` (or `--name NAME` instead of `--id ID`)<br> e.g., `note --id 3 --note "Knee injury"`
 **Inactive** / **Active** | `inactive --id ID` or `active --id ID` (or `--name NAME` or `--phone PHONE` instead of `--id ID`)<br> e.g., `inactive --id 4`

@@ -17,5 +17,6 @@ public class CliSyntax {
     public static final Prefix PREFIX_ADD = new Prefix("--add");
     public static final Prefix PREFIX_DATE = new Prefix("--date");
     public static final Prefix PREFIX_TIME = new Prefix("--time");
+    public static final Prefix PREFIX_WEEK = new Prefix("--week");
 
 }
