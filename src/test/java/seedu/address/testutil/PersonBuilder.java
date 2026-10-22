@@ -1,6 +1,9 @@
 package seedu.address.testutil;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import seedu.address.model.LongFormText;
@@ -8,6 +11,7 @@ import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonId;
 import seedu.address.model.person.Phone;
+import seedu.address.model.session.Session;
 import seedu.address.model.tag.Tag;
 
 /**
@@ -18,6 +22,7 @@ public class PersonBuilder {
     public static final int DEFAULT_ID = 1;
     public static final String DEFAULT_NAME = "Amy Bee";
     public static final String DEFAULT_PHONE = "85355255";
+    private List<Session> sessions = new ArrayList<>();
     private PersonId id;
     private Name name;
     private Phone phone;
@@ -42,6 +47,7 @@ public class PersonBuilder {
      * Initializes the PersonBuilder with the data of {@code personToCopy}.
      */
     public PersonBuilder(Person personToCopy) {
+        sessions = new ArrayList<>(personToCopy.getSessions());
         id = personToCopy.getId();
         name = personToCopy.getName();
         phone = personToCopy.getPhone();
@@ -110,8 +116,16 @@ public class PersonBuilder {
         return this;
     }
 
+    /**
+     * Sets the sessions of the person being built.
+     */
+    public PersonBuilder withSessions(Session... sessions) {
+        this.sessions = new ArrayList<>(Arrays.asList(sessions));
+        return this;
+    }
+
     public Person build() {
-        return new Person(id, name, phone, note, isActive, tags, workoutPlan);
+        return new Person(id, name, phone, note, isActive, tags, workoutPlan, sessions);
     }
 
 }

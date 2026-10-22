@@ -6,15 +6,18 @@ import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.Messages.MESSAGE_UNKNOWN_COMMAND;
 import static seedu.address.testutil.Assert.assertThrows;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
 import seedu.address.logic.commands.AddCommand;
+import seedu.address.logic.commands.AddSessionCommand;
 import seedu.address.logic.commands.ClearCommand;
 import seedu.address.logic.commands.DeleteCommand;
 import seedu.address.logic.commands.EditCommand;
 import seedu.address.logic.commands.EditCommand.EditPersonDescriptor;
+import seedu.address.logic.commands.EditSessionCommand;
 import seedu.address.logic.commands.ExitCommand;
 import seedu.address.logic.commands.FindCommand;
 import seedu.address.logic.commands.HelpCommand;
@@ -151,6 +154,22 @@ public class AddressBookParserTest {
     public void parseCommand_list() throws Exception {
         assertTrue(parser.parseCommand(ListCommand.COMMAND_WORD) instanceof ListCommand);
         assertTrue(parser.parseCommand(ListCommand.COMMAND_WORD + " 3") instanceof ListCommand);
+    }
+
+    @Test
+    public void parseCommand_sessionAdd() throws Exception {
+        AddSessionCommand command = (AddSessionCommand) parser.parseCommand(
+                "session --add --id 1 --date 2026-10-21 --note Worked on squat form");
+        assertEquals(new AddSessionCommand(PersonSelector.byId(new PersonId(1)),
+                LocalDate.of(2026, 10, 21), "Worked on squat form"), command);
+    }
+
+    @Test
+    public void parseCommand_sessionEdit() throws Exception {
+        EditSessionCommand command = (EditSessionCommand) parser.parseCommand(
+                "session --edit --id 1 --date 2026-10-21 --note Improved squat depth");
+        assertEquals(new EditSessionCommand(PersonSelector.byId(new PersonId(1)),
+                LocalDate.of(2026, 10, 21), "Improved squat depth"), command);
     }
 
     @Test
