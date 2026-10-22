@@ -313,6 +313,34 @@ Examples:
 * `tag --id 2 --untag morning` removes the client with ID 2 from the group `morning`.
 * `tag --name bernice --untag gym` removes the `gym` label from the only client whose name contains `bernice`.
 
+### Moving a client to another group: `group --move`
+
+Moves a client from one group to another, e.g. when they switch from morning to evening sessions.
+
+Format: `group --move --id ID --from GROUP --to GROUP` or `group --move --name NAME --from GROUP --to GROUP`
+
+* Moves the client chosen by `--id` or `--name`, as described in [the notes about the command format](#features).
+* The client must be in the group after `--from`, and the group after `--to` must already exist.
+* The two groups must be different. Group names ignore upper and lower case.
+* The client's other details and tags, including `gym` or `personal`, are kept. Both groups are kept too.
+
+Examples:
+* `group --move --id 2 --from morning --to evening` moves the client with ID 2 from `morning` to `evening`.
+
+### Deleting a group: `tag --delete`
+
+Deletes a group, and removes it from every client in it.
+
+Format: `tag --delete --group GROUP`
+
+* The group must exist. `GROUP` ignores upper and lower case.
+* The clients themselves are kept; only the group is removed from them.
+* `gym` and `personal` are built-in labels and cannot be deleted.
+* This cannot be undone, so you will have to create the group and add the clients to it again.
+
+Examples:
+* `tag --delete --group morning` deletes the group `morning` and removes it from every client in it.
+
 ### Clearing all entries: `clear`
 
 Deletes all clients from Cindy after confirmation.
@@ -412,6 +440,8 @@ Action     | Format, Examples
 **Tag**    | `tag --id ID --type gym` or `tag --id ID --type personal` (or `--name NAME` instead of `--id ID`)<br> e.g., `tag --id 2 --type gym`
 **Add to group** | `tag --id ID --group GROUP` (or `--name NAME` instead of `--id ID`)<br> e.g., `tag --id 2 --group morning`
 **Untag**  | `tag --id ID --untag TAG` (or `--name NAME` instead of `--id ID`)<br> e.g., `tag --id 2 --untag morning`
+**Move group** | `group --move --id ID --from GROUP --to GROUP` (or `--name NAME` instead of `--id ID`)<br> e.g., `group --move --id 2 --from morning --to evening`
+**Delete group** | `tag --delete --group GROUP`<br> e.g., `tag --delete --group morning`
 **Group**  | `group --name GROUP`<br> e.g., `group --name morning`
 **Help**   | `help`
 **Recall commands** | Up / Down while the command box has focus; Enter executes the recalled command
