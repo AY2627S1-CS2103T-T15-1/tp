@@ -18,6 +18,7 @@ Class PersonId
 Class Name
 Class Phone
 Class LongFormText
+Class Appointment
 Class Tag
 
 Class I #FFFFFF
@@ -43,6 +44,7 @@ Person *--> "1" Name
 Person *--> "1" Phone
 Person *--> "2" LongFormText : note,\nworkout plan
 Person --> "*" Tag
+Person *--> "0..4" Appointment
 
 Person -[hidden]up--> I
 UniquePersonList -[hidden]right-> I
@@ -50,6 +52,7 @@ UniquePersonList -[hidden]right-> I
 PersonId -[hidden]right-> Name
 Name -[hidden]right-> Phone
 Phone -[hidden]right-> LongFormText
+LongFormText -[hidden]right-> Appointment
 
 ModelManager --> "~* filtered" Person
 @enduml
