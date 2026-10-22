@@ -1,5 +1,6 @@
 package seedu.address.storage;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -15,6 +16,7 @@ import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonId;
 import seedu.address.model.person.Phone;
+import seedu.address.model.session.Session;
 import seedu.address.model.tag.Tag;
 
 /**
@@ -25,6 +27,7 @@ class JsonAdaptedPerson {
 
     public static final String MISSING_FIELD_MESSAGE_FORMAT = "Person's %s field is missing!";
 
+    private final List<JsonAdaptedSession> sessions = new ArrayList<>();
     private final Integer id;
     private final String name;
     private final String phone;
@@ -42,7 +45,11 @@ class JsonAdaptedPerson {
     public JsonAdaptedPerson(@JsonProperty("id") Integer id, @JsonProperty("name") String name,
             @JsonProperty("phone") String phone, @JsonProperty("note") String note,
             @JsonProperty("active") Boolean active, @JsonProperty("tags") List<JsonAdaptedTag> tags,
-            @JsonProperty("workoutPlan") String workoutPlan) {
+            @JsonProperty("workoutPlan") String workoutPlan,
+            @JsonProperty("sessions") List<JsonAdaptedSession> sessions) {
+        if (sessions != null) {
+            this.sessions.addAll(sessions);
+        }
         this.id = id;
         this.name = name;
         this.phone = phone;
@@ -78,9 +85,25 @@ class JsonAdaptedPerson {
     }
 
     /**
+     * Constructs an adapted person with no saved sessions.
+     */
+    public JsonAdaptedPerson(Integer id, String name, String phone, String note, Boolean active,
+            List<JsonAdaptedTag> tags, String workoutPlan) {
+        this(id, name, phone, note, active, tags, workoutPlan, null);
+    }
+
+    /**
+     * Constructs an adapted person with sessions and default values for other optional details.
+     */
+    public JsonAdaptedPerson(Integer id, String name, String phone, List<JsonAdaptedSession> sessions) {
+        this(id, name, phone, null, null, null, null, sessions);
+    }
+
+    /**
      * Converts a given {@code Person} into this class for Jackson use.
      */
     public JsonAdaptedPerson(Person source) {
+        source.getSessions().stream().map(JsonAdaptedSession::new).forEach(sessions::add);
         id = source.getId().value;
         name = source.getName().fullName;
         phone = source.getPhone().value;
@@ -110,7 +133,7 @@ class JsonAdaptedPerson {
      * Returns a copy of this person that has {@code newId} as its ID.
      */
     JsonAdaptedPerson withId(int newId) {
-        return new JsonAdaptedPerson(newId, name, phone, note, active, tags, workoutPlan);
+        return new JsonAdaptedPerson(newId, name, phone, note, active, tags, workoutPlan, sessions);
     }
 
     /**
@@ -143,6 +166,20 @@ class JsonAdaptedPerson {
         }
         final Phone modelPhone = new Phone(phone);
 
+        final List<Session> modelSessions = new ArrayList<>();
+        final Set<LocalDate> sessionDates = new HashSet<>();
+        for (JsonAdaptedSession session : sessions) {
+            if (session == null) {
+                throw new IllegalValueException(
+                        String.format(MISSING_FIELD_MESSAGE_FORMAT, Session.class.getSimpleName()));
+            }
+            Session modelSession = session.toModelType();
+            if (!sessionDates.add(modelSession.getDate())) {
+                throw new IllegalValueException(Person.MESSAGE_DUPLICATE_SESSION_DATE);
+            }
+            modelSessions.add(modelSession);
+        }
+
         // Missing or null text fields in legacy files represent absent text.
         final LongFormText modelNote = new LongFormText(note == null ? "" : note);
         final LongFormText modelWorkoutPlan = new LongFormText(workoutPlan == null ? "" : workoutPlan);
@@ -158,7 +195,7 @@ class JsonAdaptedPerson {
         }
 
         return new Person(modelId, modelName, modelPhone, modelNote, modelIsActive, modelTags,
-                modelWorkoutPlan);
+                modelWorkoutPlan, modelSessions);
     }
 
 }

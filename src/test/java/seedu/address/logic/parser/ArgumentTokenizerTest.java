@@ -147,4 +147,52 @@ public class ArgumentTokenizerTest {
         assertNotEquals(aaa, new Prefix("aab"));
     }
 
+    @Test
+    public void tokenize_longFlags_requireCompleteNames() {
+        Prefix add = new Prefix("--add");
+        ArgumentMultimap result = ArgumentTokenizer.tokenize(" --address --addendum", add);
+        assertArgumentAbsent(result, add);
+        assertPreamblePresent(result, "--address --addendum");
+    }
+
+    @Test
+    public void tokenize_quotedValue_preservesLiteralFlags() {
+        Prefix note = new Prefix("--note");
+        Prefix date = new Prefix("--date");
+        ArgumentMultimap result = ArgumentTokenizer.tokenize(
+                " --note \"Remember --date and --note\" --date 2026-10-22", note, date);
+        assertArgumentPresent(result, note, "\"Remember --date and --note\"");
+        assertArgumentPresent(result, date, "2026-10-22");
+    }
+
+    @Test
+    public void tokenize_whitespaceSeparators_recognizesFlags() {
+        Prefix note = new Prefix("--note");
+        Prefix date = new Prefix("--date");
+        ArgumentMultimap result = ArgumentTokenizer.tokenize(
+                "--date\t2026-10-22\t--note A note", note, date);
+        assertArgumentPresent(result, date, "2026-10-22");
+        assertArgumentPresent(result, note, "A note");
+    }
+
+    @Test
+    public void tokenize_quoteInsideUnquotedValue_doesNotHideFollowingFlag() {
+        Prefix note = new Prefix("--note");
+        Prefix date = new Prefix("--date");
+        ArgumentMultimap result = ArgumentTokenizer.tokenize(
+                " --note Improved by 2\" --date 2026-10-22", note, date);
+        assertArgumentPresent(result, note, "Improved by 2\"");
+        assertArgumentPresent(result, date, "2026-10-22");
+    }
+
+    @Test
+    public void tokenize_unmatchedQuote_doesNotHideFollowingFlag() {
+        Prefix name = new Prefix("--name");
+        Prefix phone = new Prefix("--phone");
+        ArgumentMultimap result = ArgumentTokenizer.tokenize(
+                " --name \"John Doe --phone 61234567", name, phone);
+        assertArgumentPresent(result, name, "\"John Doe");
+        assertArgumentPresent(result, phone, "61234567");
+    }
+
 }
