@@ -4,7 +4,9 @@ import static java.util.Objects.requireNonNull;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_ID;
 
 import java.util.List;
+import java.util.logging.Logger;
 
+import seedu.address.commons.core.LogsCenter;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.LongFormText;
 import seedu.address.model.Model;
@@ -16,6 +18,8 @@ import seedu.address.model.person.Person;
  * so that the user can choose one by ID.
  */
 public abstract class PersonTargetedCommand extends Command {
+
+    private static final Logger logger = LogsCenter.getLogger(PersonTargetedCommand.class);
 
     protected final PersonSelector selector;
 
@@ -33,9 +37,12 @@ public abstract class PersonTargetedCommand extends Command {
         List<Person> matches = selector.findMatches(model.getAddressBook().getPersonList());
 
         if (matches.isEmpty()) {
+            logger.fine(getCommandWord() + ": no client matched " + selector);
             throw new CommandException(selector.getNoMatchMessage());
         }
         if (matches.size() > 1) {
+            logger.info(getCommandWord() + ": " + matches.size() + " clients matched " + selector
+                    + ", asking the user to choose one by ID");
             model.updateFilteredPersonList(selector::matches);
             String retryExample = getCommandWord() + " " + PREFIX_ID + " " + matches.get(0).getId()
                     + getArgumentsAfterSelector();
