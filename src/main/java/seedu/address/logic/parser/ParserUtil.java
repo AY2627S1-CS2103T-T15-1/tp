@@ -6,6 +6,8 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_ID;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME_LONG;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE_LONG;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -18,6 +20,7 @@ import seedu.address.commons.util.StringUtil;
 import seedu.address.logic.commands.PersonSelector;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.LongFormText;
+import seedu.address.model.appointment.Appointment;
 import seedu.address.model.person.Address;
 import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
@@ -199,6 +202,36 @@ public class ParserUtil {
             return value.substring(1, value.length() - 1);
         }
         return value;
+    }
+
+    /**
+     * Parses {@code date} in the format YYYY-MM-DD into a {@code LocalDate}.
+     * Leading and trailing whitespaces and optional surrounding quotes will be removed.
+     *
+     * @throws ParseException if the given {@code date} is not a real date in that format.
+     */
+    public static LocalDate parseDate(String date) throws ParseException {
+        requireNonNull(date);
+        String trimmedDate = removeOptionalQuotes(date.trim()).trim();
+        if (!Appointment.isValidDate(trimmedDate)) {
+            throw new ParseException(Appointment.MESSAGE_DATE_CONSTRAINTS);
+        }
+        return LocalDate.parse(trimmedDate, Appointment.DATE_FORMAT);
+    }
+
+    /**
+     * Parses {@code time} in the 24-hour format HH:MM into a {@code LocalTime}.
+     * Leading and trailing whitespaces and optional surrounding quotes will be removed.
+     *
+     * @throws ParseException if the given {@code time} is not a time in that format.
+     */
+    public static LocalTime parseTime(String time) throws ParseException {
+        requireNonNull(time);
+        String trimmedTime = removeOptionalQuotes(time.trim()).trim();
+        if (!Appointment.isValidTime(trimmedTime)) {
+            throw new ParseException(Appointment.MESSAGE_TIME_CONSTRAINTS);
+        }
+        return LocalTime.parse(trimmedTime, Appointment.TIME_FORMAT);
     }
 
     /**

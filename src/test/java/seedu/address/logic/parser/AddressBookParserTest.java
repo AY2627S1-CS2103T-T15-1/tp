@@ -6,10 +6,13 @@ import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.Messages.MESSAGE_UNKNOWN_COMMAND;
 import static seedu.address.testutil.Assert.assertThrows;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import seedu.address.logic.commands.AddAppointmentCommand;
 import seedu.address.logic.commands.AddCommand;
 import seedu.address.logic.commands.ClearCommand;
 import seedu.address.logic.commands.DeleteCommand;
@@ -46,6 +49,12 @@ public class AddressBookParserTest {
     public void parseCommand_plan() throws Exception {
         assertEquals(new PlanCommand(PersonSelector.byId(new PersonId(2)), new LongFormText("Squats")),
                 parser.parseCommand("plan --id 2 --plan \"Squats\""));
+    }
+
+    @Test
+    public void parseCommand_appointmentAdd() throws Exception {
+        assertEquals(new AddAppointmentCommand(PersonSelector.byId(new PersonId(2)), LocalDate.of(2026, 10, 26),
+                LocalTime.of(9, 0)), parser.parseCommand("appointment --add --id 2 --date 2026-10-26 --time 09:00"));
     }
 
     @Test

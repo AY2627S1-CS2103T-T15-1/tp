@@ -60,7 +60,7 @@ Cindy is a **desktop application that helps freelance gym trainers manage their 
 * Long-form text, such as client notes and workout plans, must be wrapped in double quotes, even for a single word. Use `--note ""` to clear a note or `--plan ""` to clear a workout plan.
 * Inside long-form text, type `\n` for a line break or `\n\n` for a blank line. Enter the command on one line; Cindy displays the line breaks in the detail view.
 
-* Commands that act on one client (`view`, `edit`, `plan`, `delete`, `note`, `inactive`, `active` and `tag`) choose the client with either `--id ID` or `--name NAME`, but not both. `inactive` and `active` also accept `--phone PHONE` instead:
+* Commands that act on one client (`view`, `edit`, `plan`, `appointment --add`, `delete`, `note`, `inactive`, `active` and `tag`) choose the client with either `--id ID` or `--name NAME`, but not both. `inactive` and `active` also accept `--phone PHONE` instead:
   * `--id ID` chooses the client with that ID. Every client's ID is shown as `#ID` on their card, e.g. `#3`.
   * `--name NAME` chooses the client whose name contains `NAME`, ignoring upper and lower case. For example, `--name john` matches `John`, `John Doe` and `Johnny Tan`.
   * If more than one client's name contains `NAME`, Cindy does not act on any of them. Instead, it lists those clients and asks you to run the command again with `--id`, using one of the IDs shown.
@@ -169,6 +169,26 @@ Examples:
 * `plan --id 2 --plan "Squats: 3 sets\nPush-ups: 3 sets"` displays the two exercises on separate lines. Type the command on one line, using a backslash followed by `n` where you want a line break.
 * `plan --name Alex --plan "Push-ups: 3 sets of 10"` updates the only client whose name contains `Alex`. If several clients match, Cindy lists them and asks you to retry with `--id`, keeping your quoted `--plan` text; no plans are changed. For example, retry with `plan --id 2 --plan "Push-ups: 3 sets of 10"` if client #2 is the one you intended.
 * `plan --id 2 --plan ""` clears the plan for client #2.
+
+### Scheduling weekly appointments: `appointment --add`
+
+Schedules 4 weekly appointments for an existing client, at the same time each week.
+
+Format: `appointment --add --id ID --date DATE --time TIME` or `appointment --add --name NAME --date DATE --time TIME`
+
+* Chooses the client using `--id` or `--name`, as described in [the notes about the command format](#features).
+* `DATE` is the date of the first appointment, in the format `YYYY-MM-DD`, e.g. `2026-10-26`. It must be a real calendar date.
+* `TIME` is in the 24-hour format `HH:MM`, e.g. `09:00` or `18:30`.
+* Creates 4 appointments, one week apart, starting on `DATE`. A client has at most 4 appointments.
+* Replaces all of the client's current appointments, including cancelled ones.
+* Exactly one selector, one `--date` and one `--time` must be provided. Repeated flags are rejected, and nothing may follow `--add` itself.
+* The appointments are saved automatically. Editing a client's contact details with `edit` preserves their appointments.
+* After scheduling, the client's detail view opens with the appointments listed in their own card, numbered in order of date and time. Clients with no appointments have no card.
+
+Examples:
+
+* `appointment --add --id 2 --date 2026-10-26 --time 09:00` schedules client #2 for 09:00 on 26 Oct, 2 Nov, 9 Nov and 16 Nov 2026.
+* `appointment --add --name Alex --date 2026-12-28 --time 18:30` schedules the only client whose name contains `Alex`, continuing into January 2027. If several clients match, Cindy lists them and asks you to retry with `--id`, keeping your `--date` and `--time`; no appointments are changed.
 
 ### Finding clients: `find`
 
@@ -357,6 +377,7 @@ Action     | Format, Examples
 **Find**   | `find [--name NAME] [--phone PHONE] [--id ID]` (at least one)<br> e.g., `find --name james`
 **List**   | `list`
 **Plan**   | `plan --id ID --plan "TEXT"` (or `--name NAME` instead of `--id ID`)<br> e.g., `plan --id 2 --plan "Squats: 3 sets"`
+**Appointment** | `appointment --add --id ID --date DATE --time TIME` (or `--name NAME` instead of `--id ID`)<br> e.g., `appointment --add --id 2 --date 2026-10-26 --time 09:00`
 **View**   | `view --id ID` or `view --name NAME`<br> e.g., `view --id 2`
 **Note**   | `note --id ID --note "TEXT"` (or `--name NAME` instead of `--id ID`)<br> e.g., `note --id 3 --note "Knee injury"`
 **Inactive** / **Active** | `inactive --id ID` or `active --id ID` (or `--name NAME` or `--phone PHONE` instead of `--id ID`)<br> e.g., `inactive --id 4`
