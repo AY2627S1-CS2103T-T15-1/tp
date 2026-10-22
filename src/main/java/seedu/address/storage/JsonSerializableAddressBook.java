@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
 
+import seedu.address.commons.core.LogsCenter;
 import seedu.address.commons.exceptions.IllegalValueException;
 import seedu.address.model.AddressBook;
 import seedu.address.model.ReadOnlyAddressBook;
@@ -30,6 +32,8 @@ class JsonSerializableAddressBook {
     public static final String MESSAGE_MISSING_GROUP = "Groups list contains an empty entry.";
     public static final String MESSAGE_DUPLICATE_GROUP = "Groups list contains duplicate group(s).";
     public static final String MESSAGE_CLIENT_TYPE_GROUP = "Groups list contains a client type (gym or personal).";
+
+    private static final Logger logger = LogsCenter.getLogger(JsonSerializableAddressBook.class);
 
     private final List<JsonAdaptedPerson> persons = new ArrayList<>();
     private final Integer nextPersonId;
@@ -83,7 +87,8 @@ class JsonSerializableAddressBook {
         }
 
         AddressBook addressBook = new AddressBook();
-        int nextFreeId = getLargestSavedId() + 1;
+        int firstNewId = getLargestSavedId() + 1;
+        int nextFreeId = firstNewId;
         Set<Integer> usedIds = new HashSet<>();
         for (JsonAdaptedPerson jsonAdaptedPerson : persons) {
             JsonAdaptedPerson personWithId = jsonAdaptedPerson.hasId()
@@ -97,6 +102,9 @@ class JsonSerializableAddressBook {
                 throw new IllegalValueException(MESSAGE_DUPLICATE_ID);
             }
             addressBook.addPerson(person);
+        }
+        if (nextFreeId > firstNewId) {
+            logger.info("Gave new IDs to " + (nextFreeId - firstNewId) + " client(s) saved without an ID");
         }
 
         if (nextPersonId != null) {

@@ -25,6 +25,7 @@ public class CliSyntax {
     public static final Prefix PREFIX_TO = new Prefix("--to");
     public static final Prefix PREFIX_TIME = new Prefix("--time");
     public static final Prefix PREFIX_WEEK = new Prefix("--week");
+    public static final Prefix PREFIX_TODAY = new Prefix("--today");
     public static final Prefix PREFIX_CANCEL = new Prefix("--cancel");
     public static final Prefix PREFIX_INDEX = new Prefix("--index");
     public static final Prefix PREFIX_RESCHEDULE = new Prefix("--reschedule");

@@ -5,6 +5,9 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_ID;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME_LONG;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NOTE;
 
+import java.util.logging.Logger;
+
+import seedu.address.commons.core.LogsCenter;
 import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.logic.Messages;
 import seedu.address.model.LongFormText;
@@ -29,6 +32,8 @@ public class NoteCommand extends PersonTargetedCommand {
     public static final String MESSAGE_NOTE_UPDATED = "Updated note of client: %1$s";
     public static final String MESSAGE_NOTE_REMOVED = "Removed note of client: %1$s";
 
+    private static final Logger logger = LogsCenter.getLogger(NoteCommand.class);
+
     private final LongFormText note;
 
     /**
@@ -44,6 +49,7 @@ public class NoteCommand extends PersonTargetedCommand {
     protected CommandResult executeOn(Person target, Model model) {
         Person editedPerson = target.withNote(note);
         model.setPerson(target, editedPerson);
+        logger.info((note.isBlank() ? "Removed note of client " : "Updated note of client ") + target.getId());
 
         String messageFormat = note.isBlank() ? MESSAGE_NOTE_REMOVED : MESSAGE_NOTE_UPDATED;
         return new CommandResult(String.format(messageFormat, Messages.format(editedPerson)), editedPerson);

@@ -3,6 +3,9 @@ package seedu.address.logic.commands;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_ID;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME_LONG;
 
+import java.util.logging.Logger;
+
+import seedu.address.commons.core.LogsCenter;
 import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.logic.Messages;
 import seedu.address.model.Model;
@@ -22,6 +25,8 @@ public class ViewCommand extends PersonTargetedCommand {
 
     public static final String MESSAGE_VIEW_PERSON_SUCCESS = "Viewing client: %1$s";
 
+    private static final Logger logger = LogsCenter.getLogger(ViewCommand.class);
+
     /**
      * Creates a ViewCommand to show the details of the client chosen by {@code selector}.
      */
@@ -31,6 +36,7 @@ public class ViewCommand extends PersonTargetedCommand {
 
     @Override
     protected CommandResult executeOn(Person target, Model model) {
+        logger.fine("Showing details of client " + target.getId());
         return new CommandResult(String.format(MESSAGE_VIEW_PERSON_SUCCESS, Messages.format(target)), target);
     }
 

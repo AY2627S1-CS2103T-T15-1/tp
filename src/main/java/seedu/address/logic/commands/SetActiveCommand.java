@@ -4,6 +4,9 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_ID;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME_LONG;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE_LONG;
 
+import java.util.logging.Logger;
+
+import seedu.address.commons.core.LogsCenter;
 import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.logic.Messages;
 import seedu.address.model.Model;
@@ -27,6 +30,8 @@ public class SetActiveCommand extends PersonTargetedCommand {
     public static final String MESSAGE_MARKED_INACTIVE = "Marked client as inactive: %1$s";
     public static final String MESSAGE_ALREADY_ACTIVE = "This client is already active: %1$s";
     public static final String MESSAGE_ALREADY_INACTIVE = "This client is already inactive: %1$s";
+
+    private static final Logger logger = LogsCenter.getLogger(SetActiveCommand.class);
 
     private final boolean isActive;
 
@@ -55,6 +60,7 @@ public class SetActiveCommand extends PersonTargetedCommand {
 
         Person editedPerson = target.withActive(isActive);
         model.setPerson(target, editedPerson);
+        logger.info("Marked client " + target.getId() + " as " + (isActive ? "active" : "inactive"));
         String messageFormat = isActive ? MESSAGE_MARKED_ACTIVE : MESSAGE_MARKED_INACTIVE;
         return new CommandResult(String.format(messageFormat, Messages.format(editedPerson)));
     }
