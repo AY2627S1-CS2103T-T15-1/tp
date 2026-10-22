@@ -180,6 +180,24 @@ public class AddressBook implements ReadOnlyAddressBook {
     }
 
     /**
+     * Removes {@code group} from the groups, and from every person in it.
+     * {@code group} must be one of the groups in the address book.
+     */
+    public void removeGroup(Tag group) {
+        requireNonNull(group);
+        assert groups.contains(group) : "Only an existing group can be removed";
+        List<Person> personsInGroup = persons.asUnmodifiableObservableList().stream()
+                .filter(person -> person.getTags().contains(group))
+                .toList();
+        for (Person person : personsInGroup) {
+            Set<Tag> remainingTags = new LinkedHashSet<>(person.getTags());
+            remainingTags.remove(group);
+            persons.setPerson(person, person.withTags(remainingTags));
+        }
+        groups.remove(group);
+    }
+
+    /**
      * Adds the custom tags of {@code person}, i.e. the tags that are not client types, to the groups.
      */
     private void addGroupsOf(Person person) {
