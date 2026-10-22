@@ -20,10 +20,51 @@ import org.junit.jupiter.api.Test;
 
 import seedu.address.model.LongFormText;
 import seedu.address.model.appointment.Appointment;
+import seedu.address.model.session.Session;
 import seedu.address.model.tag.Tag;
 import seedu.address.testutil.PersonBuilder;
 
 public class PersonTest {
+
+    private static final Session SESSION = new Session(LocalDate.of(2026, 10, 21), "Squats");
+
+    @Test
+    public void constructor_sessionsChangedAfterConstruction_preservesOriginalSessions() {
+        List<Session> sessions = new ArrayList<>(List.of(SESSION));
+        Person person = new Person(ALICE.getId(), ALICE.getName(), ALICE.getPhone(), sessions);
+
+        sessions.clear();
+
+        assertEquals(List.of(SESSION), person.getSessions());
+        assertThrows(UnsupportedOperationException.class, () -> person.getSessions().add(SESSION));
+    }
+
+    @Test
+    public void constructor_duplicateSessionDates_throwsIllegalArgumentException() {
+        Session sameDate = new Session(SESSION.getDate(), "Different note");
+
+        assertThrows(IllegalArgumentException.class, Person.MESSAGE_DUPLICATE_SESSION_DATE, () ->
+                new Person(ALICE.getId(), ALICE.getName(), ALICE.getPhone(), List.of(SESSION, sameDate)));
+    }
+
+    @Test
+    public void withSessions_returnsPersonWithSessions() {
+        assertEquals(new PersonBuilder(ALICE).withSessions(SESSION).build(), ALICE.withSessions(List.of(SESSION)));
+        assertTrue(ALICE.getSessions().isEmpty());
+    }
+
+    @Test
+    public void withSessions_preservesAllClientDetails() {
+        Person original = new PersonBuilder(ALICE).withNote("Client note").withActive(false)
+                .withTags("strength").withWorkoutPlan("Squats and rest").build();
+        Person updated = original.withSessions(List.of(SESSION));
+
+        assertEquals(new PersonBuilder(original).withSessions(SESSION).build(), updated);
+        assertEquals(List.of(SESSION), updated.withNote(new LongFormText("Updated note")).getSessions());
+        assertEquals(List.of(SESSION), updated.withActive(true).getSessions());
+        assertEquals(List.of(SESSION), updated.withTags(Set.of(new Tag("mobility"))).getSessions());
+        assertEquals(List.of(SESSION), updated.withWorkoutPlan(new LongFormText("New plan")).getSessions());
+    }
 
     @Test
     public void constructor_absentWorkoutPlan_defaultsToEmpty() {
@@ -77,7 +118,7 @@ public class PersonTest {
         assertThrows(NullPointerException.class, () -> new Person(ALICE.getId(), null, ALICE.getPhone(), plan));
         assertThrows(NullPointerException.class, () -> new Person(ALICE.getId(), ALICE.getName(), null, plan));
         assertThrows(NullPointerException.class, ()
-                -> new Person(ALICE.getId(), ALICE.getName(), ALICE.getPhone(), null));
+                -> new Person(ALICE.getId(), ALICE.getName(), ALICE.getPhone(), (LongFormText) null));
     }
 
     @Test
@@ -165,13 +206,17 @@ public class PersonTest {
         editedAlice = new PersonBuilder(ALICE).withPhone(VALID_PHONE_BOB).build();
         assertFalse(ALICE.equals(editedAlice));
 
+        // different sessions -> returns false
+        editedAlice = new PersonBuilder(ALICE).withSessions(SESSION).build();
+        assertFalse(ALICE.equals(editedAlice));
+
     }
 
     @Test
     public void toStringMethod() {
         String expected = Person.class.getCanonicalName() + "{id=" + ALICE.getId() + ", name=" + ALICE.getName()
                 + ", phone=" + ALICE.getPhone() + ", note=" + ALICE.getNote() + ", isActive=" + ALICE.isActive()
-                + ", tags=" + ALICE.getTags() + ", workoutPlan=" + ALICE.getWorkoutPlan()
+                + ", tags=" + ALICE.getTags() + ", workoutPlan=" + ALICE.getWorkoutPlan() + ", sessions=[]"
                 + ", appointments=" + ALICE.getAppointments() + "}";
         assertEquals(expected, ALICE.toString());
     }
@@ -218,6 +263,14 @@ public class PersonTest {
         assertEquals(series, person.withActive(false).getAppointments());
         assertEquals(series, person.withTags(Set.of(new Tag("gym"))).getAppointments());
         assertEquals(series, person.withWorkoutPlan(new LongFormText("Squats")).getAppointments());
+    }
+
+    @Test
+    public void withSessionsAndWithAppointments_keepEachOther() {
+        List<Appointment> series = Appointment.weeklySeries(LocalDate.of(2026, 10, 26), LocalTime.of(9, 0));
+        Person person = new PersonBuilder().build().withAppointments(series).withSessions(List.of(SESSION));
+        assertEquals(series, person.getAppointments());
+        assertEquals(List.of(SESSION), person.withAppointments(List.of()).getSessions());
     }
 
     @Test
