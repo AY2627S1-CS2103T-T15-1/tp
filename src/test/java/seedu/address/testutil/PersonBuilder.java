@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import seedu.address.model.LongFormText;
+import seedu.address.model.appointment.Appointment;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonId;
@@ -30,6 +31,7 @@ public class PersonBuilder {
     private LongFormText workoutPlan = new LongFormText("");
     private boolean isActive;
     private Set<Tag> tags;
+    private List<Appointment> appointments = new ArrayList<>();
 
     /**
      * Creates a {@code PersonBuilder} with the default details.
@@ -55,6 +57,7 @@ public class PersonBuilder {
         workoutPlan = personToCopy.getWorkoutPlan();
         isActive = personToCopy.isActive();
         tags = new HashSet<>(personToCopy.getTags());
+        appointments = new ArrayList<>(personToCopy.getAppointments());
     }
 
     /**
@@ -124,8 +127,16 @@ public class PersonBuilder {
         return this;
     }
 
+    /**
+     * Sets the appointments of the person being built.
+     */
+    public PersonBuilder withAppointments(Appointment... appointments) {
+        this.appointments = new ArrayList<>(List.of(appointments));
+        return this;
+    }
+
     public Person build() {
-        return new Person(id, name, phone, note, isActive, tags, workoutPlan, sessions);
+        return new Person(id, name, phone, note, isActive, tags, workoutPlan, sessions, appointments);
     }
 
 }

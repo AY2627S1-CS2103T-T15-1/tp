@@ -7,6 +7,10 @@ import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalPersons.ALICE;
 import static seedu.address.testutil.TypicalPersons.BENSON;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
@@ -20,6 +24,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Region;
+import seedu.address.model.appointment.Appointment;
 import seedu.address.testutil.PersonBuilder;
 
 public class PersonDetailPanelTest {
@@ -169,6 +174,39 @@ public class PersonDetailPanelTest {
             assertFalse(content.lookup("#noteSection").isManaged());
             assertEquals("", ((Label) content.lookup("#note")).getText());
             assertTrue(content.lookup("#workoutPlanCard").isVisible());
+        });
+    }
+
+    @Test
+    public void showPerson_withAppointments_listsThemNumbered() throws Exception {
+        runOnFxThread(() -> {
+            List<Appointment> series = new ArrayList<>(
+                    Appointment.weeklySeries(LocalDate.of(2026, 10, 26), LocalTime.of(9, 0)).subList(0, 2));
+            series.set(1, series.get(1).cancel());
+            PersonDetailPanel panel = new PersonDetailPanel();
+            panel.showPerson(ALICE.withAppointments(series));
+
+            Region content = (Region) ((ScrollPane) panel.getRoot()).getContent();
+            assertTrue(content.lookup("#appointmentsCard").isVisible());
+            assertTrue(content.lookup("#appointmentsCard").isManaged());
+            Label appointmentsText = (Label) content.lookup("#appointmentsText");
+            assertEquals("1. Mon 2026-10-26 09:00\n2. Mon 2026-11-02 09:00 (Cancelled)",
+                    appointmentsText.getText());
+        });
+    }
+
+    @Test
+    public void showPerson_noAppointments_hidesCardWithoutStaleText() throws Exception {
+        runOnFxThread(() -> {
+            PersonDetailPanel panel = new PersonDetailPanel();
+            panel.showPerson(ALICE.withAppointments(
+                    Appointment.weeklySeries(LocalDate.of(2026, 10, 26), LocalTime.of(9, 0))));
+            panel.showPerson(BENSON);
+
+            Region content = (Region) ((ScrollPane) panel.getRoot()).getContent();
+            assertFalse(content.lookup("#appointmentsCard").isVisible());
+            assertFalse(content.lookup("#appointmentsCard").isManaged());
+            assertEquals("", ((Label) content.lookup("#appointmentsText")).getText());
         });
     }
 

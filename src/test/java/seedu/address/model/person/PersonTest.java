@@ -10,6 +10,7 @@ import static seedu.address.testutil.TypicalPersons.ALICE;
 import static seedu.address.testutil.TypicalPersons.BOB;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 import seedu.address.model.LongFormText;
+import seedu.address.model.appointment.Appointment;
 import seedu.address.model.session.Session;
 import seedu.address.model.tag.Tag;
 import seedu.address.testutil.PersonBuilder;
@@ -214,7 +216,8 @@ public class PersonTest {
     public void toStringMethod() {
         String expected = Person.class.getCanonicalName() + "{id=" + ALICE.getId() + ", name=" + ALICE.getName()
                 + ", phone=" + ALICE.getPhone() + ", note=" + ALICE.getNote() + ", isActive=" + ALICE.isActive()
-                + ", tags=" + ALICE.getTags() + ", workoutPlan=" + ALICE.getWorkoutPlan() + ", sessions=[]}";
+                + ", tags=" + ALICE.getTags() + ", workoutPlan=" + ALICE.getWorkoutPlan() + ", sessions=[]"
+                + ", appointments=" + ALICE.getAppointments() + "}";
         assertEquals(expected, ALICE.toString());
     }
 
@@ -241,5 +244,50 @@ public class PersonTest {
     public void getTags_modifyTags_throwsUnsupportedOperationException() {
         Person person = new PersonBuilder().withTags("gym").build();
         assertThrows(UnsupportedOperationException.class, () -> person.getTags().clear());
+    }
+
+    @Test
+    public void getAppointments_unsortedInput_returnsSorted() {
+        Appointment later = new Appointment(LocalDate.of(2026, 11, 2), LocalTime.of(9, 0));
+        Appointment earlier = new Appointment(LocalDate.of(2026, 10, 26), LocalTime.of(18, 0));
+        Person person = new PersonBuilder().withAppointments(later, earlier).build();
+        assertEquals(List.of(earlier, later), person.getAppointments());
+        assertThrows(UnsupportedOperationException.class, () -> person.getAppointments().clear());
+    }
+
+    @Test
+    public void withDetails_keepAppointments() {
+        List<Appointment> series = Appointment.weeklySeries(LocalDate.of(2026, 10, 26), LocalTime.of(9, 0));
+        Person person = new PersonBuilder().build().withAppointments(series);
+        assertEquals(series, person.withNote(new LongFormText("Note")).getAppointments());
+        assertEquals(series, person.withActive(false).getAppointments());
+        assertEquals(series, person.withTags(Set.of(new Tag("gym"))).getAppointments());
+        assertEquals(series, person.withWorkoutPlan(new LongFormText("Squats")).getAppointments());
+    }
+
+    @Test
+    public void withSessionsAndWithAppointments_keepEachOther() {
+        List<Appointment> series = Appointment.weeklySeries(LocalDate.of(2026, 10, 26), LocalTime.of(9, 0));
+        Person person = new PersonBuilder().build().withAppointments(series).withSessions(List.of(SESSION));
+        assertEquals(series, person.getAppointments());
+        assertEquals(List.of(SESSION), person.withAppointments(List.of()).getSessions());
+    }
+
+    @Test
+    public void withAppointments_moreThanFour_throwsIllegalArgumentException() {
+        List<Appointment> five = new ArrayList<>(Appointment.weeklySeries(LocalDate.of(2026, 10, 26),
+                LocalTime.of(9, 0)));
+        five.add(new Appointment(LocalDate.of(2026, 12, 1), LocalTime.of(9, 0)));
+        assertThrows(IllegalArgumentException.class, Person.MESSAGE_TOO_MANY_APPOINTMENTS, ()
+            -> new PersonBuilder().build().withAppointments(five));
+    }
+
+    @Test
+    public void equals_differentAppointments_returnsFalse() {
+        Person person = new PersonBuilder().build();
+        Person withAppointments = person.withAppointments(
+                Appointment.weeklySeries(LocalDate.of(2026, 10, 26), LocalTime.of(9, 0)));
+        assertFalse(person.equals(withAppointments));
+        assertTrue(withAppointments.equals(new PersonBuilder(withAppointments).build()));
     }
 }
