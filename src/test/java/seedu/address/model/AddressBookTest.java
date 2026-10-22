@@ -245,6 +245,23 @@ public class AddressBookTest {
     }
 
     @Test
+    public void removeGroup_groupWithPersons_removesGroupFromRegistryAndPersons() {
+        Person morningAlice = new PersonBuilder(ALICE).withTags("gym", "morning").build();
+        addressBook.addPerson(morningAlice);
+        addressBook.addGroup(REHAB);
+
+        addressBook.removeGroup(MORNING);
+
+        assertEquals(List.of(REHAB), addressBook.getGroupList());
+        assertEquals(List.of(new PersonBuilder(ALICE).withTags("gym").build()), addressBook.getPersonList());
+    }
+
+    @Test
+    public void removeGroup_missingGroup_throwsAssertionError() {
+        assertThrows(AssertionError.class, () -> addressBook.removeGroup(MORNING));
+    }
+
+    @Test
     public void equals_differentGroups_returnsFalse() {
         AddressBook withGroup = new AddressBook();
         withGroup.addGroup(MORNING);

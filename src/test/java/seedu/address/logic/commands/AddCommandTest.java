@@ -192,6 +192,11 @@ public class AddCommandTest {
         public void addGroup(Tag group) {
             throw new AssertionError("This method should not be called.");
         }
+
+        @Override
+        public void deleteGroup(Tag group) {
+            throw new AssertionError("This method should not be called.");
+        }
     }
 
     /**
