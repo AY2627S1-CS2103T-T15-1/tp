@@ -76,6 +76,12 @@ public class AppointmentCommandParserTest {
     }
 
     @Test
+    public void parse_addYearBeyondFourDigits_failure() {
+        assertParseFailure(parser, " --add --id 2 --date +999999999-12-31 --time 09:00",
+                ParserUtil.withUsage(Appointment.MESSAGE_DATE_CONSTRAINTS, ADD_USAGE));
+    }
+
+    @Test
     public void parse_addInvalidTime_failure() {
         assertParseFailure(parser, " --add --id 2 --date 2026-10-26 --time 9:00",
                 ParserUtil.withUsage(Appointment.MESSAGE_TIME_CONSTRAINTS, ADD_USAGE));
