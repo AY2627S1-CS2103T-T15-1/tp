@@ -124,6 +124,8 @@
         "marking-a-client-as-inactive-or-active-inactive-active": "Marking a client as inactive or active: inactive, active",
         "labelling-a-client-as-a-gym-or-personal-client-tag": "Labelling a client as a gym or personal client: tag",
         "creating-a-group-group": "Creating a group: group",
+        "adding-a-client-to-a-group-tag-group": "Adding a client to a group: tag --group",
+        "removing-a-tag-from-a-client-tag-untag": "Removing a tag from a client: tag --untag",
         "clearing-all-entries-clear": "Clearing all entries: clear",
         "recalling-previous-commands-up-down": "Recalling previous commands: Up / Down",
         "exiting-the-program-exit": "Exiting the program: exit",
