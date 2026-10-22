@@ -29,6 +29,15 @@
         <Label fx:id="workoutPlanText" styleClass="contact-phone, workout-plan-text" wrapText="true"
                minWidth="0" maxWidth="Infinity" minHeight="-Infinity" />
       </VBox>
+      <VBox fx:id="appointmentsCard" styleClass="client-detail-card" spacing="10" minWidth="0"
+            visible="false" managed="false">
+        <padding>
+          <Insets top="20" right="24" bottom="24" left="16" />
+        </padding>
+        <Label text="Appointments" styleClass="contact-name" />
+        <Label fx:id="appointmentsText" styleClass="contact-phone, workout-plan-text" wrapText="true"
+               minWidth="0" maxWidth="Infinity" minHeight="-Infinity" />
+      </VBox>
     </VBox>
   </content>
 </ScrollPane>

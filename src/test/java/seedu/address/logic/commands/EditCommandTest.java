@@ -17,6 +17,8 @@ import static seedu.address.testutil.TypicalPersons.DANIEL;
 import static seedu.address.testutil.TypicalPersons.GEORGE;
 import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -27,6 +29,7 @@ import seedu.address.model.AddressBook;
 import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
+import seedu.address.model.appointment.Appointment;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonId;
 import seedu.address.testutil.EditPersonDescriptorBuilder;
@@ -53,6 +56,18 @@ public class EditCommandTest {
         assertEquals(ALICE.getId(), edited.getId());
         assertEquals(VALID_NAME_BOB, edited.getName().fullName);
         assertEquals(VALID_PHONE_BOB, edited.getPhone().value);
+    }
+
+    @Test
+    public void execute_clientWithAppointments_keepsAppointments() throws Exception {
+        List<Appointment> series = Appointment.weeklySeries(LocalDate.of(2026, 10, 26), LocalTime.of(9, 0));
+        model.setPerson(ALICE, ALICE.withAppointments(series));
+        EditCommand command = new EditCommand(PersonSelector.byId(ALICE.getId()),
+                new EditPersonDescriptorBuilder().withName(VALID_NAME_BOB).build());
+
+        command.execute(model);
+
+        assertEquals(series, model.getAddressBook().getPersonList().get(0).getAppointments());
     }
 
     @Test
