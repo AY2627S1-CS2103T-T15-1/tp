@@ -17,6 +17,7 @@ import seedu.address.logic.commands.AddAppointmentCommand;
 import seedu.address.logic.commands.CancelAppointmentCommand;
 import seedu.address.logic.commands.ListAppointmentsCommand;
 import seedu.address.logic.commands.PersonSelector;
+import seedu.address.logic.commands.RescheduleAppointmentCommand;
 import seedu.address.model.appointment.Appointment;
 import seedu.address.model.person.PersonId;
 
@@ -30,6 +31,11 @@ public class AppointmentCommandParserTest {
     private static final String INVALID_CANCEL_FORMAT = String.format(MESSAGE_INVALID_COMMAND_FORMAT, CANCEL_USAGE);
     private static final LocalDate DATE = LocalDate.of(2026, 10, 26);
     private static final LocalTime TIME = LocalTime.of(9, 0);
+    private static final String RESCHEDULE_USAGE = RescheduleAppointmentCommand.MESSAGE_USAGE;
+    private static final String INVALID_RESCHEDULE_FORMAT =
+            String.format(MESSAGE_INVALID_COMMAND_FORMAT, RESCHEDULE_USAGE);
+    private static final LocalDate NEW_DATE = LocalDate.of(2026, 10, 27);
+    private static final LocalTime NEW_TIME = LocalTime.of(18, 0);
 
     private final AppointmentCommandParser parser = new AppointmentCommandParser();
 
@@ -188,7 +194,60 @@ public class AppointmentCommandParserTest {
     }
 
     @Test
+    public void parse_rescheduleById_success() {
+        RescheduleAppointmentCommand expected = new RescheduleAppointmentCommand(PersonSelector.byId(new PersonId(2)),
+                Index.fromOneBased(1), NEW_DATE, NEW_TIME);
+        assertParseSuccess(parser, " --reschedule --id 2 --index 1 --date 2026-10-27 --time 18:00", expected);
+        assertParseSuccess(parser, " --reschedule --time \"18:00\" --date \"2026-10-27\" --index \"1\" --id 2",
+                expected);
+    }
+
+    @Test
+    public void parse_rescheduleByName_success() {
+        assertParseSuccess(parser, " --reschedule --name Alice --index 2 --date 2026-10-27 --time 18:00",
+                new RescheduleAppointmentCommand(PersonSelector.byName("Alice"), Index.fromOneBased(2),
+                        NEW_DATE, NEW_TIME));
+    }
+
+    @Test
+    public void parse_rescheduleMissingDate_failure() {
+        assertParseFailure(parser, " --reschedule --id 2 --index 1 --time 18:00", INVALID_RESCHEDULE_FORMAT);
+        assertParseFailure(parser, " --reschedule --id 2 --index 1 --date 2026-10-27", INVALID_RESCHEDULE_FORMAT);
+        assertParseFailure(parser, " --reschedule --id 2 --date 2026-10-27 --time 18:00", INVALID_RESCHEDULE_FORMAT);
+        assertParseFailure(parser, " --reschedule --index 1 --date 2026-10-27 --time 18:00",
+                INVALID_RESCHEDULE_FORMAT);
+    }
+
+    @Test
+    public void parse_rescheduleInvalidValue_failure() {
+        assertParseFailure(parser, " --reschedule --id 2 --index 0 --date 2026-10-27 --time 18:00",
+                ParserUtil.withUsage(ParserUtil.MESSAGE_INVALID_INDEX, RESCHEDULE_USAGE));
+        assertParseFailure(parser, " --reschedule --id 2 --index 1 --date 2026-02-30 --time 18:00",
+                ParserUtil.withUsage(Appointment.MESSAGE_DATE_CONSTRAINTS, RESCHEDULE_USAGE));
+        assertParseFailure(parser, " --reschedule --id 2 --index 1 --date 2026-10-27 --time 25:00",
+                ParserUtil.withUsage(Appointment.MESSAGE_TIME_CONSTRAINTS, RESCHEDULE_USAGE));
+    }
+
+    @Test
+    public void parse_rescheduleDuplicateTime_failure() {
+        assertParseFailure(parser, " --reschedule --id 2 --index 1 --date 2026-10-27 --time 18:00 --time 19:00",
+                ParserUtil.withUsage(Messages.getErrorMessageForDuplicatePrefixes(CliSyntax.PREFIX_TIME),
+                        RESCHEDULE_USAGE));
+    }
+
+    @Test
+    public void parse_twoActions_failure() {
+        String moveArguments = " --id 2 --index 1 --date 2026-10-27 --time 18:00";
+        assertParseFailure(parser, " --cancel --reschedule" + moveArguments, INVALID_CANCEL_FORMAT);
+        assertParseFailure(parser, " --reschedule --cancel" + moveArguments, INVALID_CANCEL_FORMAT);
+        assertParseFailure(parser, " --add --reschedule --id 2 --date 2026-10-27 --time 18:00", INVALID_ADD_FORMAT);
+        assertParseFailure(parser, " --reschedule x" + moveArguments, INVALID_RESCHEDULE_FORMAT);
+        assertParseFailure(parser, " --reschedule --week 2026-10-27" + moveArguments, INVALID_RESCHEDULE_FORMAT);
+    }
+
+    @Test
     public void usage_listsEveryForm() {
+        assertTrue(AppointmentCommandParser.MESSAGE_USAGE.contains(RESCHEDULE_USAGE));
         assertTrue(AppointmentCommandParser.MESSAGE_USAGE.contains(CANCEL_USAGE));
         assertTrue(AppointmentCommandParser.MESSAGE_USAGE.contains(AddAppointmentCommand.MESSAGE_USAGE));
         assertTrue(AppointmentCommandParser.MESSAGE_USAGE.contains(ListAppointmentsCommand.MESSAGE_USAGE));
