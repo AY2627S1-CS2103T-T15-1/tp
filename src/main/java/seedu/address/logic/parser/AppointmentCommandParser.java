@@ -8,6 +8,7 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_DATE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_ID;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_INDEX;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME_LONG;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_RESCHEDULE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_TIME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_WEEK;
 
@@ -21,6 +22,7 @@ import seedu.address.logic.commands.CancelAppointmentCommand;
 import seedu.address.logic.commands.Command;
 import seedu.address.logic.commands.ListAppointmentsCommand;
 import seedu.address.logic.commands.PersonSelector;
+import seedu.address.logic.commands.RescheduleAppointmentCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
 
 /**
@@ -31,10 +33,12 @@ public class AppointmentCommandParser implements Parser<Command> {
     /** Usage of every form of the {@code appointment} command, shown when the input matches none of them. */
     public static final String MESSAGE_USAGE = AddAppointmentCommand.MESSAGE_USAGE
             + "\n\n" + CancelAppointmentCommand.MESSAGE_USAGE
+            + "\n\n" + RescheduleAppointmentCommand.MESSAGE_USAGE
             + "\n\n" + ListAppointmentsCommand.MESSAGE_USAGE;
 
     private static final Prefix[] ALL_PREFIXES = {
-        PREFIX_ADD, PREFIX_CANCEL, PREFIX_ID, PREFIX_NAME_LONG, PREFIX_DATE, PREFIX_TIME, PREFIX_WEEK, PREFIX_INDEX
+        PREFIX_ADD, PREFIX_CANCEL, PREFIX_RESCHEDULE,
+        PREFIX_ID, PREFIX_NAME_LONG, PREFIX_INDEX, PREFIX_DATE, PREFIX_TIME, PREFIX_WEEK
     };
 
     /**
@@ -51,6 +55,9 @@ public class AppointmentCommandParser implements Parser<Command> {
         }
         if (argMultimap.getValue(PREFIX_CANCEL).isPresent()) {
             return parseCancel(argMultimap);
+        }
+        if (argMultimap.getValue(PREFIX_RESCHEDULE).isPresent()) {
+            return parseReschedule(argMultimap);
         }
         if (argMultimap.getValue(PREFIX_DATE).isPresent() || argMultimap.getValue(PREFIX_WEEK).isPresent()) {
             return parseList(argMultimap);
@@ -97,7 +104,7 @@ public class AppointmentCommandParser implements Parser<Command> {
         PersonSelector selector = ParserUtil.parsePersonSelector(argMultimap, usage, PREFIX_ID, PREFIX_NAME_LONG);
         if (hasValueAfter(argMultimap, PREFIX_ADD) || argMultimap.getValue(PREFIX_DATE).isEmpty()
                 || argMultimap.getValue(PREFIX_TIME).isEmpty()
-                || hasAny(argMultimap, PREFIX_WEEK, PREFIX_CANCEL, PREFIX_INDEX)) {
+                || hasAny(argMultimap, PREFIX_WEEK, PREFIX_CANCEL, PREFIX_RESCHEDULE, PREFIX_INDEX)) {
             throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, usage));
         }
         try {
@@ -117,16 +124,44 @@ public class AppointmentCommandParser implements Parser<Command> {
         String usage = CancelAppointmentCommand.MESSAGE_USAGE;
         PersonSelector selector = ParserUtil.parsePersonSelector(argMultimap, usage, PREFIX_ID, PREFIX_NAME_LONG);
         if (hasValueAfter(argMultimap, PREFIX_CANCEL) || argMultimap.getValue(PREFIX_INDEX).isEmpty()
-                || hasAny(argMultimap, PREFIX_DATE, PREFIX_TIME, PREFIX_WEEK)) {
+                || hasAny(argMultimap, PREFIX_DATE, PREFIX_TIME, PREFIX_WEEK, PREFIX_RESCHEDULE)) {
             throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, usage));
         }
         try {
             argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_CANCEL, PREFIX_INDEX);
-            String indexValue = ParserUtil.removeOptionalQuotes(argMultimap.getValue(PREFIX_INDEX).get());
-            Index index = ParserUtil.parseIndex(indexValue);
-            return new CancelAppointmentCommand(selector, index);
+            return new CancelAppointmentCommand(selector, parseAppointmentIndex(argMultimap));
         } catch (ParseException pe) {
             throw new ParseException(ParserUtil.withUsage(pe.getMessage(), usage), pe);
         }
+    }
+
+    /**
+     * Parses the arguments of {@code appointment --reschedule}.
+     */
+    private static RescheduleAppointmentCommand parseReschedule(ArgumentMultimap argMultimap) throws ParseException {
+        String usage = RescheduleAppointmentCommand.MESSAGE_USAGE;
+        PersonSelector selector = ParserUtil.parsePersonSelector(argMultimap, usage, PREFIX_ID, PREFIX_NAME_LONG);
+        boolean isMissingArgument = argMultimap.getValue(PREFIX_INDEX).isEmpty()
+                || argMultimap.getValue(PREFIX_DATE).isEmpty() || argMultimap.getValue(PREFIX_TIME).isEmpty();
+        if (hasValueAfter(argMultimap, PREFIX_RESCHEDULE) || isMissingArgument
+                || hasAny(argMultimap, PREFIX_WEEK)) {
+            throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, usage));
+        }
+        try {
+            argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_RESCHEDULE, PREFIX_INDEX, PREFIX_DATE, PREFIX_TIME);
+            Index index = parseAppointmentIndex(argMultimap);
+            LocalDate date = ParserUtil.parseDate(argMultimap.getValue(PREFIX_DATE).get());
+            LocalTime time = ParserUtil.parseTime(argMultimap.getValue(PREFIX_TIME).get());
+            return new RescheduleAppointmentCommand(selector, index, date, time);
+        } catch (ParseException pe) {
+            throw new ParseException(ParserUtil.withUsage(pe.getMessage(), usage), pe);
+        }
+    }
+
+    /**
+     * Parses the value of {@code --index}, which may be in double quotes.
+     */
+    private static Index parseAppointmentIndex(ArgumentMultimap argMultimap) throws ParseException {
+        return ParserUtil.parseIndex(ParserUtil.removeOptionalQuotes(argMultimap.getValue(PREFIX_INDEX).get()));
     }
 }

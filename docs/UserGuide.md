@@ -60,7 +60,7 @@ Cindy is a **desktop application that helps freelance gym trainers manage their 
 * Long-form text, such as client notes and workout plans, must be wrapped in double quotes, even for a single word. Use `--note ""` to clear a note or `--plan ""` to clear a workout plan.
 * Inside long-form text, type `\n` for a line break or `\n\n` for a blank line. Enter the command on one line; Cindy displays the line breaks in the detail view.
 
-* Commands that act on one client (`view`, `edit`, `plan`, `appointment --add`, `appointment --cancel`, `delete`, `note`, `inactive`, `active` and `tag`) choose the client with either `--id ID` or `--name NAME`, but not both. `inactive` and `active` also accept `--phone PHONE` instead:
+* Commands that act on one client (`view`, `edit`, `plan`, `appointment --add`, `appointment --cancel`, `appointment --reschedule`, `delete`, `note`, `inactive`, `active` and `tag`) choose the client with either `--id ID` or `--name NAME`, but not both. `inactive` and `active` also accept `--phone PHONE` instead:
   * `--id ID` chooses the client with that ID. Every client's ID is shown as `#ID` on their card, e.g. `#3`.
   * `--name NAME` chooses the client whose name contains `NAME`, ignoring upper and lower case. For example, `--name john` matches `John`, `John Doe` and `Johnny Tan`.
   * If more than one client's name contains `NAME`, Cindy does not act on any of them. Instead, it lists those clients and asks you to run the command again with `--id`, using one of the IDs shown.
@@ -207,6 +207,26 @@ Examples:
 
 * `appointment --cancel --id 2 --index 1` cancels the earliest appointment of client #2.
 * `appointment --cancel --name Alex --index 3` cancels the third appointment of the only client whose name contains `Alex`. If several clients match, Cindy lists them and asks you to retry with `--id`, keeping your `--index`; no appointments are changed.
+
+### Rescheduling an appointment: `appointment --reschedule`
+
+Moves one of a client's appointments to a new date and time.
+
+Format: `appointment --reschedule --id ID --index INDEX --date DATE --time TIME` or `appointment --reschedule --name NAME --index INDEX --date DATE --time TIME`
+
+* Chooses the client using `--id` or `--name`, as described in [the notes about the command format](#features).
+* `INDEX` is the number of the appointment in the client's appointments card, as for `appointment --cancel`.
+* `DATE` and `TIME` are the new date and time, in the same formats as for `appointment --add`.
+* A cancelled appointment that is rescheduled becomes active again, even when it keeps its old date and time.
+* The client cannot have two appointments at the same date and time, including cancelled ones. Cancel or reschedule the other one first.
+* The appointments card is re-numbered in order of date and time, so the moved appointment may get a new number.
+* Exactly one selector, one `--index`, one `--date` and one `--time` must be provided. Repeated flags are rejected, and nothing may follow `--reschedule` itself.
+* After rescheduling, the client's detail view opens.
+
+Examples:
+
+* `appointment --reschedule --id 2 --index 1 --date 2026-10-27 --time 18:00` moves the earliest appointment of client #2 to 18:00 on Tuesday 27 Oct 2026.
+* `appointment --reschedule --id 2 --index 2 --date 2026-11-02 --time 09:00` makes appointment 2 of client #2 active again, if it was cancelled and is already at that time.
 
 ### Viewing appointments: `appointment --date`, `appointment --week`
 
@@ -490,8 +510,9 @@ Action     | Format, Examples
 **Find**   | `find [--name NAME] [--phone PHONE] [--id ID] [--group GROUP]` (at least one)<br> e.g., `find --name james`, `find --group morning`
 **List**   | `list`
 **Plan**   | `plan --id ID --plan "TEXT"` (or `--name NAME` instead of `--id ID`)<br> e.g., `plan --id 2 --plan "Squats: 3 sets"`
-**Appointment** | `appointment --add --id ID --date DATE --time TIME` (or `--name NAME` instead of `--id ID`)<br> e.g., `appointment --add --id 2 --date 2026-10-26 --time 09:00`
+**Schedule appointments** | `appointment --add --id ID --date DATE --time TIME` (or `--name NAME` instead of `--id ID`)<br> e.g., `appointment --add --id 2 --date 2026-10-26 --time 09:00`
 **Cancel appointment** | `appointment --cancel --id ID --index INDEX` (or `--name NAME` instead of `--id ID`)<br> e.g., `appointment --cancel --id 2 --index 1`
+**Reschedule appointment** | `appointment --reschedule --id ID --index INDEX --date DATE --time TIME` (or `--name NAME` instead of `--id ID`)<br> e.g., `appointment --reschedule --id 2 --index 1 --date 2026-10-27 --time 18:00`
 **View appointments** | `appointment --date DATE` or `appointment --week DATE`<br> e.g., `appointment --week 2026-10-22`
 **View**   | `view --id ID` or `view --name NAME`<br> e.g., `view --id 2`
 **Note**   | `note --id ID --note "TEXT"` (or `--name NAME` instead of `--id ID`)<br> e.g., `note --id 3 --note "Knee injury"`
