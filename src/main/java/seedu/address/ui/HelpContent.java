@@ -61,7 +61,7 @@ public final class HelpContent {
                     ListCommand.COMMAND_WORD,
                     "list"),
             new CommandSummary(FINDING_CLIENTS, ListCommand.COMMAND_WORD,
-                    "Show clients with appointments today. This command option is not implemented yet.",
+                    "Show clients with appointments today.",
                     ListCommand.COMMAND_WORD + " --today",
                     "list --today", false),
             new CommandSummary(FINDING_CLIENTS, FindCommand.COMMAND_WORD,
