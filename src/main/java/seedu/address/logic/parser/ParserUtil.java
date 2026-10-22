@@ -213,7 +213,8 @@ public class ParserUtil {
     public static LocalDate parseDate(String date) throws ParseException {
         requireNonNull(date);
         String trimmedDate = removeOptionalQuotes(date.trim()).trim();
-        if (!Appointment.isValidDate(trimmedDate)) {
+        // Only four-digit years are accepted, so a weekly series cannot run past the largest supported date.
+        if (!trimmedDate.matches("\\d{4}-\\d{2}-\\d{2}") || !Appointment.isValidDate(trimmedDate)) {
             throw new ParseException(Appointment.MESSAGE_DATE_CONSTRAINTS);
         }
         return LocalDate.parse(trimmedDate, Appointment.DATE_FORMAT);

@@ -376,6 +376,18 @@ public class ParserUtilTest {
     }
 
     @Test
+    public void parseDate_yearNotFourDigits_throws() {
+        for (String date : new String[] {"+999999999-12-31", "12026-10-26", "+2026-10-26", "-2026-10-26"}) {
+            assertThrows(ParseException.class, Appointment.MESSAGE_DATE_CONSTRAINTS, () -> ParserUtil.parseDate(date));
+        }
+    }
+
+    @Test
+    public void parseDate_lastFourDigitYear_returnsDate() throws Exception {
+        assertEquals(LocalDate.of(9999, 12, 31), ParserUtil.parseDate("9999-12-31"));
+    }
+
+    @Test
     public void parseTime_validWithQuotes_returnsTime() throws Exception {
         assertEquals(LocalTime.of(9, 0), ParserUtil.parseTime("09:00"));
         assertEquals(LocalTime.of(18, 30), ParserUtil.parseTime(WHITESPACE + "\"18:30\"" + WHITESPACE));
