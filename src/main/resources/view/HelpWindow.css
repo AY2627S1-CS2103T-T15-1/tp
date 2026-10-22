@@ -1,19 +1,91 @@
-#copyButton, #helpMessage {
+/* Match Cindy's main window without changing styles in other windows. */
+.help-shell {
+    -fx-background-color: #151515;
+    -fx-font-family: "Inter", "Segoe UI", sans-serif;
+    -fx-font-size: 14px;
+}
+
+.help-shell .label {
+    -fx-text-fill: #bebebe;
+}
+
+.help-shell .help-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
     -fx-text-fill: white;
 }
 
-#copyButton {
-    -fx-background-color: dimgray;
+.help-shell .help-section-title,
+.help-shell .help-category,
+.help-shell .help-command-name {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
 }
 
-#copyButton:hover {
-    -fx-background-color: gray;
+.help-shell .help-category {
+    -fx-padding: 12 0 0 0;
 }
 
-#copyButton:armed {
-    -fx-background-color: darkgray;
+.help-shell .help-command-card {
+    -fx-background-color: #282828;
+    -fx-background-radius: 20;
+    -fx-padding: 16 20;
 }
 
-#helpMessageContainer {
-    -fx-background-color: derive(#1d1d1d, 20%);
+.help-shell .help-syntax,
+.help-shell .help-example {
+    -fx-font-family: "Consolas", "Monospaced", monospace;
+    -fx-font-size: 13px;
+    -fx-text-fill: white;
+}
+
+.help-shell .help-example {
+    -fx-text-fill: #b9d8ba;
+}
+
+.help-shell .help-shortcuts {
+    -fx-padding: 12 0;
+}
+
+.help-shell #copyButton {
+    -fx-background-color: #243526;
+    -fx-background-radius: 16;
+    -fx-border-color: #056200;
+    -fx-border-radius: 16;
+    -fx-padding: 8 16;
+    -fx-text-fill: white;
+    -fx-cursor: hand;
+}
+
+.help-shell #copyButton:hover,
+.help-shell #copyButton:focused {
+    -fx-background-color: #2d352e;
+    -fx-border-color: #23851e;
+}
+
+.help-shell #copyButton:armed {
+    -fx-background-color: #056200;
+}
+
+.help-shell #commandScroll,
+.help-shell #commandScroll > .viewport {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.help-shell .scroll-bar,
+.help-shell .scroll-bar .track {
+    -fx-background-color: #151515;
+}
+
+.help-shell .scroll-bar .thumb {
+    -fx-background-color: #555555;
+    -fx-background-radius: 8;
+}
+
+.help-shell .scroll-bar .increment-button,
+.help-shell .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
 }
