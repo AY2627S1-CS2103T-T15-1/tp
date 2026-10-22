@@ -15,6 +15,11 @@ public class ListCommand extends Command {
 
     public static final String COMMAND_WORD = "list";
 
+    public static final String MESSAGE_USAGE = COMMAND_WORD + ": Lists all clients, or only clients with "
+            + "a non-cancelled appointment today.\n"
+            + "Parameters: [--today]\n"
+            + "Examples: " + COMMAND_WORD + ", " + COMMAND_WORD + " --today";
+
     public static final String MESSAGE_SUCCESS_SINGULAR = "Listed 1 client";
     public static final String MESSAGE_SUCCESS_PLURAL = "Listed %1$d clients";
     public static final String MESSAGE_NO_CLIENTS = "No clients yet. Use `add` to add your first client.";
