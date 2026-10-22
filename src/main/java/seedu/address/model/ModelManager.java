@@ -123,6 +123,12 @@ public class ModelManager implements Model {
         addressBook.addGroup(group);
     }
 
+    @Override
+    public void deleteGroup(Tag group) {
+        requireNonNull(group);
+        addressBook.removeGroup(group);
+    }
+
     //=========== Filtered Person List Accessors =============================================================
 
     /**

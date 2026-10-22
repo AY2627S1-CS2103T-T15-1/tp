@@ -15,8 +15,10 @@ import org.junit.jupiter.api.Test;
 import seedu.address.logic.commands.AddAppointmentCommand;
 import seedu.address.logic.commands.AddCommand;
 import seedu.address.logic.commands.AddSessionCommand;
+import seedu.address.logic.commands.AddToGroupCommand;
 import seedu.address.logic.commands.ClearCommand;
 import seedu.address.logic.commands.DeleteCommand;
+import seedu.address.logic.commands.DeleteGroupCommand;
 import seedu.address.logic.commands.EditCommand;
 import seedu.address.logic.commands.EditCommand.EditPersonDescriptor;
 import seedu.address.logic.commands.EditSessionCommand;
@@ -25,11 +27,13 @@ import seedu.address.logic.commands.FindCommand;
 import seedu.address.logic.commands.GroupCommand;
 import seedu.address.logic.commands.HelpCommand;
 import seedu.address.logic.commands.ListCommand;
+import seedu.address.logic.commands.MoveGroupCommand;
 import seedu.address.logic.commands.NoteCommand;
 import seedu.address.logic.commands.PersonSelector;
 import seedu.address.logic.commands.PlanCommand;
 import seedu.address.logic.commands.SetActiveCommand;
 import seedu.address.logic.commands.TagCommand;
+import seedu.address.logic.commands.UntagCommand;
 import seedu.address.logic.commands.ViewCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.LongFormText;
@@ -139,12 +143,21 @@ public class AddressBookParserTest {
     public void parseCommand_tag() throws Exception {
         assertEquals(new TagCommand(PersonSelector.byId(new PersonId(1)), Tag.GYM),
                 parser.parseCommand(TagCommand.COMMAND_WORD + " --id 1 --type gym"));
+        assertEquals(new AddToGroupCommand(PersonSelector.byId(new PersonId(1)), new Tag("morning")),
+                parser.parseCommand(TagCommand.COMMAND_WORD + " --id 1 --group morning"));
+        assertEquals(new UntagCommand(PersonSelector.byId(new PersonId(1)), new Tag("morning")),
+                parser.parseCommand(TagCommand.COMMAND_WORD + " --id 1 --untag morning"));
+        assertEquals(new DeleteGroupCommand(new Tag("morning")),
+                parser.parseCommand(TagCommand.COMMAND_WORD + " --delete --group morning"));
     }
 
     @Test
     public void parseCommand_group() throws Exception {
         assertEquals(new GroupCommand(new Tag("morning")),
                 parser.parseCommand(GroupCommand.COMMAND_WORD + " --name morning"));
+        assertEquals(new MoveGroupCommand(PersonSelector.byId(new PersonId(1)), new Tag("morning"),
+                new Tag("evening")),
+                parser.parseCommand(GroupCommand.COMMAND_WORD + " --move --id 1 --from morning --to evening"));
     }
 
     @Test

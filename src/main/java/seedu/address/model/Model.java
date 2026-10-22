@@ -84,6 +84,12 @@ public interface Model {
      */
     void addGroup(Tag group);
 
+    /**
+     * Deletes the given group, and removes it from every client in it.
+     * {@code group} must be one of the groups in the address book.
+     */
+    void deleteGroup(Tag group);
+
     /** Returns an unmodifiable view of the filtered person list, sorted alphabetically by name */
     ObservableList<Person> getFilteredPersonList();
 
