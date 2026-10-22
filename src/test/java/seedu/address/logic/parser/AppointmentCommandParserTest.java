@@ -11,8 +11,10 @@ import java.time.LocalTime;
 
 import org.junit.jupiter.api.Test;
 
+import seedu.address.commons.core.index.Index;
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.AddAppointmentCommand;
+import seedu.address.logic.commands.CancelAppointmentCommand;
 import seedu.address.logic.commands.ListAppointmentsCommand;
 import seedu.address.logic.commands.PersonSelector;
 import seedu.address.model.appointment.Appointment;
@@ -24,6 +26,8 @@ public class AppointmentCommandParserTest {
     private static final String INVALID_ADD_FORMAT = String.format(MESSAGE_INVALID_COMMAND_FORMAT, ADD_USAGE);
     private static final String INVALID_LIST_FORMAT =
             String.format(MESSAGE_INVALID_COMMAND_FORMAT, ListAppointmentsCommand.MESSAGE_USAGE);
+    private static final String CANCEL_USAGE = CancelAppointmentCommand.MESSAGE_USAGE;
+    private static final String INVALID_CANCEL_FORMAT = String.format(MESSAGE_INVALID_COMMAND_FORMAT, CANCEL_USAGE);
     private static final LocalDate DATE = LocalDate.of(2026, 10, 26);
     private static final LocalTime TIME = LocalTime.of(9, 0);
 
@@ -141,7 +145,51 @@ public class AppointmentCommandParserTest {
     }
 
     @Test
+    public void parse_cancelById_success() {
+        CancelAppointmentCommand expected =
+                new CancelAppointmentCommand(PersonSelector.byId(new PersonId(2)), Index.fromOneBased(3));
+        assertParseSuccess(parser, " --cancel --id 2 --index 3", expected);
+        assertParseSuccess(parser, " --cancel --index \"3\" --id 2", expected);
+    }
+
+    @Test
+    public void parse_cancelByName_success() {
+        assertParseSuccess(parser, " --cancel --name Alice --index 1",
+                new CancelAppointmentCommand(PersonSelector.byName("Alice"), Index.fromOneBased(1)));
+    }
+
+    @Test
+    public void parse_cancelMissingIndex_failure() {
+        assertParseFailure(parser, " --cancel --id 2", INVALID_CANCEL_FORMAT);
+        assertParseFailure(parser, " --cancel --index 1", INVALID_CANCEL_FORMAT);
+    }
+
+    @Test
+    public void parse_cancelZeroIndex_failure() {
+        for (String index : new String[] {"0", "-1", "abc", ""}) {
+            assertParseFailure(parser, " --cancel --id 2 --index " + index,
+                    ParserUtil.withUsage(ParserUtil.MESSAGE_INVALID_INDEX, CANCEL_USAGE));
+        }
+    }
+
+    @Test
+    public void parse_cancelWithOtherFlag_failure() {
+        assertParseFailure(parser, " --cancel x --id 2 --index 1", INVALID_CANCEL_FORMAT);
+        assertParseFailure(parser, " --cancel --id 2 --index 1 --date 2026-10-26", INVALID_CANCEL_FORMAT);
+        assertParseFailure(parser, " --add --cancel --id 2 --date 2026-10-26 --time 09:00", INVALID_ADD_FORMAT);
+        assertParseFailure(parser, " --date 2026-10-26 --index 1", INVALID_LIST_FORMAT);
+    }
+
+    @Test
+    public void parse_cancelDuplicateIndex_failure() {
+        assertParseFailure(parser, " --cancel --id 2 --index 1 --index 2",
+                ParserUtil.withUsage(Messages.getErrorMessageForDuplicatePrefixes(CliSyntax.PREFIX_INDEX),
+                        CANCEL_USAGE));
+    }
+
+    @Test
     public void usage_listsEveryForm() {
+        assertTrue(AppointmentCommandParser.MESSAGE_USAGE.contains(CANCEL_USAGE));
         assertTrue(AppointmentCommandParser.MESSAGE_USAGE.contains(AddAppointmentCommand.MESSAGE_USAGE));
         assertTrue(AppointmentCommandParser.MESSAGE_USAGE.contains(ListAppointmentsCommand.MESSAGE_USAGE));
     }

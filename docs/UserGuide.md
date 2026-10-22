@@ -60,7 +60,7 @@ Cindy is a **desktop application that helps freelance gym trainers manage their 
 * Long-form text, such as client notes and workout plans, must be wrapped in double quotes, even for a single word. Use `--note ""` to clear a note or `--plan ""` to clear a workout plan.
 * Inside long-form text, type `\n` for a line break or `\n\n` for a blank line. Enter the command on one line; Cindy displays the line breaks in the detail view.
 
-* Commands that act on one client (`view`, `edit`, `plan`, `appointment --add`, `delete`, `note`, `inactive`, `active` and `tag`) choose the client with either `--id ID` or `--name NAME`, but not both. `inactive` and `active` also accept `--phone PHONE` instead:
+* Commands that act on one client (`view`, `edit`, `plan`, `appointment --add`, `appointment --cancel`, `delete`, `note`, `inactive`, `active` and `tag`) choose the client with either `--id ID` or `--name NAME`, but not both. `inactive` and `active` also accept `--phone PHONE` instead:
   * `--id ID` chooses the client with that ID. Every client's ID is shown as `#ID` on their card, e.g. `#3`.
   * `--name NAME` chooses the client whose name contains `NAME`, ignoring upper and lower case. For example, `--name john` matches `John`, `John Doe` and `Johnny Tan`.
   * If more than one client's name contains `NAME`, Cindy does not act on any of them. Instead, it lists those clients and asks you to run the command again with `--id`, using one of the IDs shown.
@@ -189,6 +189,24 @@ Examples:
 
 * `appointment --add --id 2 --date 2026-10-26 --time 09:00` schedules client #2 for 09:00 on 26 Oct, 2 Nov, 9 Nov and 16 Nov 2026.
 * `appointment --add --name Alex --date 2026-12-28 --time 18:30` schedules the only client whose name contains `Alex`, continuing into January 2027. If several clients match, Cindy lists them and asks you to retry with `--id`, keeping your `--date` and `--time`; no appointments are changed.
+
+### Cancelling an appointment: `appointment --cancel`
+
+Cancels one of a client's appointments. The appointment stays on record, marked as cancelled.
+
+Format: `appointment --cancel --id ID --index INDEX` or `appointment --cancel --name NAME --index INDEX`
+
+* Chooses the client using `--id` or `--name`, as described in [the notes about the command format](#features).
+* `INDEX` is the number of the appointment in the client's appointments card, e.g. `1` for the earliest. It must be a positive whole number no larger than the client's number of appointments.
+* The cancelled appointment keeps its place in the card, shown as e.g. `2. Mon 2026-11-02 09:00 (Cancelled)`. The other appointments are not changed.
+* An appointment that is already cancelled cannot be cancelled again.
+* Exactly one selector and one `--index` must be provided. Repeated flags are rejected, and nothing may follow `--cancel` itself.
+* After cancelling, the client's detail view opens.
+
+Examples:
+
+* `appointment --cancel --id 2 --index 1` cancels the earliest appointment of client #2.
+* `appointment --cancel --name Alex --index 3` cancels the third appointment of the only client whose name contains `Alex`. If several clients match, Cindy lists them and asks you to retry with `--id`, keeping your `--index`; no appointments are changed.
 
 ### Viewing appointments: `appointment --date`, `appointment --week`
 
@@ -396,6 +414,7 @@ Action     | Format, Examples
 **List**   | `list`
 **Plan**   | `plan --id ID --plan "TEXT"` (or `--name NAME` instead of `--id ID`)<br> e.g., `plan --id 2 --plan "Squats: 3 sets"`
 **Appointment** | `appointment --add --id ID --date DATE --time TIME` (or `--name NAME` instead of `--id ID`)<br> e.g., `appointment --add --id 2 --date 2026-10-26 --time 09:00`
+**Cancel appointment** | `appointment --cancel --id ID --index INDEX` (or `--name NAME` instead of `--id ID`)<br> e.g., `appointment --cancel --id 2 --index 1`
 **View appointments** | `appointment --date DATE` or `appointment --week DATE`<br> e.g., `appointment --week 2026-10-22`
 **View**   | `view --id ID` or `view --name NAME`<br> e.g., `view --id 2`
 **Note**   | `note --id ID --note "TEXT"` (or `--name NAME` instead of `--id ID`)<br> e.g., `note --id 3 --note "Knee injury"`
