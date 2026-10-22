@@ -398,11 +398,18 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 **Extensions**
 
-* 1a. Trainer includes extra parameters in the request.
+* 1a. Trainer includes `--today` in the request.
 
-    * 1a1. Cindy ignores the extra parameters.
+    * 1a1. Cindy replaces any previous filter and shows only clients with a non-cancelled appointment on the computer's local date at execution time, using the same alphabetical roster layout and client IDs.
+    * 1a2. Each matching client appears once, including inactive clients and clients whose appointment time has already passed today. If no clients match, Cindy shows an empty list and reports `No clients have appointments today.`
 
-      Use case resumes at step 2.
+      Use case ends.
+
+* 1b. Trainer includes an unknown flag, repeats `--today`, or supplies extra arguments.
+
+    * 1b1. Cindy shows usage feedback without changing the current list or detail view.
+
+      Use case ends.
 
 * 2a. The client roster is empty.
 
@@ -684,6 +691,27 @@ testers are expected to do more *exploratory* testing.
 
 1. _{ more test cases … }_
 
+### Listing clients with appointments today
+
+1. Filtering and restoring the full list
+
+   1. Prerequisites: Prepare three clients with IDs 1, 2 and 3. Client 1 has a non-cancelled appointment today, client 2 has only a cancelled appointment today, and client 3 has only an appointment tomorrow. Use the computer's current local date for today.
+   1. Run `find --id 3`, then `list --today`.<br>
+      Expected: Only client 1 appears, using the same card layout as `list`, with their original ID. The feedback is `Listed 1 client with appointments today`. The earlier search does not restrict the results.
+   1. Run `view --id 1`, then `list --today`.<br>
+      Expected: The detail view is replaced by the same filtered client list. The command box clears and the menu and status bar remain visible.
+   1. Run `list --today --today`, `list --todai`, `list --today tomorrow` and `list 3`.<br>
+      Expected: Each command shows usage feedback and leaves the displayed clients unchanged. Invalid text stays in the command box.
+   1. Run `list`.<br>
+      Expected: All three clients reappear in alphabetical order with their original IDs.
+
+1. Empty results and cancellation
+
+   1. Using the same data, cancel client 1's appointment today with `appointment --cancel --id 1 --index INDEX`, replacing `INDEX` with that appointment's index from the detail view. Run `list --today`.<br>
+      Expected: The client list is visible and empty. The feedback is `No clients have appointments today.` Client 2's cancelled appointment does not qualify either client for the list.
+   1. Run `list`.<br>
+      Expected: All three clients are restored; filtering has not deleted any client or appointment data.
+
 ### Recalling commands
 
 1. Navigation, boundaries and draft restoration
@@ -712,10 +740,10 @@ testers are expected to do more *exploratory* testing.
 
 1. Capacity, duplicate suppression and session lifetime
 
-   1. Restart Cindy, then submit `list 1`, `list 2`, and so on through `list 51`. These are safe list commands: arguments to `list` are ignored by the parser, but history preserves their full text.
-   1. Submit `list 51` again, then submit an empty input and an input containing only spaces.
+   1. Restart Cindy, then submit `find --phone 1`, `find --phone 2`, and so on through `find --phone 51`. These valid searches change only the displayed filter, and history preserves their full text.
+   1. Submit `find --phone 51` again, then submit an empty input and an input containing only spaces.
    1. Press Up 50 times, then once more.<br>
-      Expected: The first recall is `list 51`; the fiftieth is `list 2`, and further Up presses stay at `list 2`. The oldest command was evicted, and the duplicate and blank submissions used no entries.
+      Expected: The first recall is `find --phone 51`; the fiftieth is `find --phone 2`, and further Up presses stay at `find --phone 2`. The oldest command was evicted, and the duplicate and blank submissions used no entries.
    1. Close and reopen Cindy, focus the command box and press Up.<br>
       Expected: The command box stays empty; the previous session's history is unavailable.
 

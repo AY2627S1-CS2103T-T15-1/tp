@@ -184,7 +184,24 @@ public class AddressBookParserTest {
     @Test
     public void parseCommand_list() throws Exception {
         assertTrue(parser.parseCommand(ListCommand.COMMAND_WORD) instanceof ListCommand);
-        assertTrue(parser.parseCommand(ListCommand.COMMAND_WORD + " 3") instanceof ListCommand);
+    }
+
+    @Test
+    public void parseCommand_listToday_filtersClients() throws Exception {
+        Model model = new ModelManager(TypicalPersons.getTypicalAddressBook(), new UserPrefs());
+
+        assertEquals(ListCommand.MESSAGE_NO_CLIENTS_TODAY,
+                parser.parseCommand(" \t list \t --today \t ").execute(model).getFeedbackToUser());
+        assertTrue(model.getFilteredPersonList().isEmpty());
+        assertEquals(TypicalPersons.getTypicalAddressBook(), model.getAddressBook());
+    }
+
+    @Test
+    public void parseCommand_listInvalidArgs_throwsParseException() {
+        String expectedMessage = String.format(MESSAGE_INVALID_COMMAND_FORMAT, ListCommand.MESSAGE_USAGE);
+        for (String args : new String[]{"3", "--todai", "--today --today", "--today tomorrow"}) {
+            assertThrows(ParseException.class, expectedMessage, () -> parser.parseCommand("list " + args));
+        }
     }
 
     @Test
