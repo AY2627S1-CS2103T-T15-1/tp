@@ -88,7 +88,7 @@ You can also open it from **Help > Help** in the menu or by pressing **F1** in t
 ![Cindy Help window showing grouped command summaries, syntax, examples and the User Guide controls](images/helpMessage.png)
 
 * Commands are grouped by purpose. Each command has a short description, its format and an example you can type in the command box.
-* The reference includes groups, appointments and session records. Entries marked **coming soon**, such as `list --today`, describe planned features that are not implemented yet.
+* The reference includes groups, appointments, session records and the `list --today` shortcut.
 * The syntax guide explains placeholders, optional parameters and alternatives. For example, `view (--id ID | --name NAME)` means use either `view --id 2` or `view --name james`; do not type the parentheses or `|`.
 * Resize the window or scroll down to see the remaining commands and keyboard shortcuts. Long descriptions and command formats wrap to fit the window.
 * The User Guide URL and **Copy URL** button stay at the top while you scroll. Click **Copy URL**, then paste it into your browser to read the full guide. The command summary itself is available without an internet connection.
@@ -151,14 +151,6 @@ Format: `list [--today]`
 Examples:
 * `list --today` shows today's clients in alphabetical order by name.
 * `list` shows all clients again.
-
-### Listing today's clients: `list --today` [coming soon]
-
-Planned shortcut for showing clients with appointments today.
-
-Planned format: `list --today`
-
-This option is not implemented yet. To view today's appointments with the current version, use `appointment --date YYYY-MM-DD`, replacing the date with today's date.
 
 ### Editing a client: `edit`
 
