@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import seedu.address.logic.commands.AddCommand;
 import seedu.address.logic.commands.AddSessionCommand;
+import seedu.address.logic.commands.AddToGroupCommand;
 import seedu.address.logic.commands.ClearCommand;
 import seedu.address.logic.commands.DeleteCommand;
 import seedu.address.logic.commands.EditCommand;
@@ -28,6 +29,7 @@ import seedu.address.logic.commands.PersonSelector;
 import seedu.address.logic.commands.PlanCommand;
 import seedu.address.logic.commands.SetActiveCommand;
 import seedu.address.logic.commands.TagCommand;
+import seedu.address.logic.commands.UntagCommand;
 import seedu.address.logic.commands.ViewCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.LongFormText;
@@ -131,6 +133,10 @@ public class AddressBookParserTest {
     public void parseCommand_tag() throws Exception {
         assertEquals(new TagCommand(PersonSelector.byId(new PersonId(1)), Tag.GYM),
                 parser.parseCommand(TagCommand.COMMAND_WORD + " --id 1 --type gym"));
+        assertEquals(new AddToGroupCommand(PersonSelector.byId(new PersonId(1)), new Tag("morning")),
+                parser.parseCommand(TagCommand.COMMAND_WORD + " --id 1 --group morning"));
+        assertEquals(new UntagCommand(PersonSelector.byId(new PersonId(1)), new Tag("morning")),
+                parser.parseCommand(TagCommand.COMMAND_WORD + " --id 1 --untag morning"));
     }
 
     @Test

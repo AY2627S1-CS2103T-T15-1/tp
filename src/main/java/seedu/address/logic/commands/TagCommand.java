@@ -1,9 +1,11 @@
 package seedu.address.logic.commands;
 
 import static java.util.Objects.requireNonNull;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_GROUP;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_ID;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME_LONG;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_TYPE;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_UNTAG;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -23,11 +25,16 @@ public class TagCommand extends PersonTargetedCommand {
     public static final String COMMAND_WORD = "tag";
 
     public static final String MESSAGE_USAGE = COMMAND_WORD + ": Labels a client as a gym or a personal client, "
-            + "chosen by ID or by part of their name. A client is either a gym or a personal client, so this "
-            + "replaces the client's previous label.\n"
-            + "Parameters: " + PREFIX_ID + " ID or " + PREFIX_NAME_LONG + " NAME, then "
-            + PREFIX_TYPE + " gym or " + PREFIX_TYPE + " personal\n"
-            + "Example: " + COMMAND_WORD + " " + PREFIX_ID + " 1 " + PREFIX_TYPE + " gym";
+            + "adds a client to a group, or removes a tag from a client. The client is chosen by ID or by part of "
+            + "their name. A client is either a gym or a personal client, so " + PREFIX_TYPE + " replaces the "
+            + "client's previous label. A group must be created with group " + PREFIX_NAME_LONG + " GROUP before "
+            + "clients can be added to it.\n"
+            + "Parameters: " + PREFIX_ID + " ID or " + PREFIX_NAME_LONG + " NAME, then one of "
+            + PREFIX_TYPE + " gym, " + PREFIX_TYPE + " personal, " + PREFIX_GROUP + " GROUP or "
+            + PREFIX_UNTAG + " TAG\n"
+            + "Examples: " + COMMAND_WORD + " " + PREFIX_ID + " 1 " + PREFIX_TYPE + " gym, "
+            + COMMAND_WORD + " " + PREFIX_ID + " 1 " + PREFIX_GROUP + " morning, "
+            + COMMAND_WORD + " " + PREFIX_ID + " 1 " + PREFIX_UNTAG + " morning";
 
     public static final String MESSAGE_TYPE_SET = "Labelled client as a %1$s client: %2$s";
     public static final String MESSAGE_TYPE_UNCHANGED = "This client is already a %1$s client: %2$s";
