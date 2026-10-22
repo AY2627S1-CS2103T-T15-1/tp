@@ -119,6 +119,7 @@
         "setting-or-replacing-a-workout-plan-plan": "Setting or replacing a workout plan: plan",
         "scheduling-weekly-appointments-appointment-add": "Scheduling weekly appointments: appointment --add",
         "cancelling-an-appointment-appointment-cancel": "Cancelling an appointment: appointment --cancel",
+        "rescheduling-an-appointment-appointment-reschedule": "Rescheduling an appointment: appointment --reschedule",
         "viewing-appointments-appointment-date-appointment-week": "Viewing appointments: appointment --date, appointment --week",
         "finding-clients-find": "Finding clients: find",
         "deleting-a-client-delete": "Deleting a client: delete",
