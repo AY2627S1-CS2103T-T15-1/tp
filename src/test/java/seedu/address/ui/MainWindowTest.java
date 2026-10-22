@@ -3,11 +3,16 @@ package seedu.address.ui;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.TypicalPersons.ALICE;
+import static seedu.address.testutil.TypicalPersons.BENSON;
+import static seedu.address.testutil.TypicalPersons.CARL;
 
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
@@ -19,6 +24,7 @@ import org.junit.jupiter.api.io.TempDir;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -28,7 +34,9 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import seedu.address.logic.LogicManager;
+import seedu.address.logic.commands.ListCommand;
 import seedu.address.model.ModelManager;
+import seedu.address.model.appointment.Appointment;
 import seedu.address.model.person.Person;
 import seedu.address.model.session.Session;
 import seedu.address.storage.JsonAddressBookStorage;
@@ -183,6 +191,94 @@ public class MainWindowTest {
         }, null);
         Platform.runLater(task);
         task.get(15, TimeUnit.SECONDS);
+    }
+
+    @Test
+    public void listToday_commandFlow_reusesFullListAndRestoresAllClients() throws Exception {
+        FutureTask<Void> task = new FutureTask<>(() -> {
+            Path dataFile = testFolder.resolve("addressbook.json");
+            StorageManager storage = new StorageManager(new JsonAddressBookStorage(dataFile),
+                    new JsonUserPrefsStorage(testFolder.resolve("preferences.json")));
+            LocalDate today = LocalDate.now();
+            Person alice = new PersonBuilder(ALICE).withAppointments(
+                    new Appointment(today, LocalTime.NOON)).build();
+            Person benson = new PersonBuilder(BENSON).withAppointments(
+                    new Appointment(today, LocalTime.NOON, true)).build();
+            Person carl = new PersonBuilder(CARL).withAppointments(
+                    new Appointment(today.plusDays(1), LocalTime.NOON)).build();
+            ModelManager model = new ModelManager();
+            model.addPerson(carl);
+            model.addPerson(benson);
+            model.addPerson(alice);
+            Stage stage = new Stage();
+            try {
+                MainWindow window = new MainWindow(stage, new LogicManager(model, storage), dataFile);
+                window.show();
+                window.fillInnerParts();
+                stage.getScene().getRoot().applyCss();
+                stage.getScene().getRoot().layout();
+                StackPane list = (StackPane) stage.getScene().lookup("#personListPanelPlaceholder");
+                StackPane details = (StackPane) stage.getScene().lookup("#personDetailPanelPlaceholder");
+                ListView<?> listView = (ListView<?>) list.lookup("#personListView");
+                TextField command = (TextField) stage.getScene().lookup("#commandTextField");
+                TextArea feedback = (TextArea) stage.getScene().lookup("#resultDisplay");
+                assertEquals(List.of(alice, benson, carl), listView.getItems());
+
+                submitCommand(command, "find --name Carl");
+                assertEquals(List.of(carl), listView.getItems());
+                submitCommand(command, "list --today");
+                assertEquals(List.of(alice), listView.getItems());
+
+                submitCommand(command, "view --id 1");
+                assertTrue(details.isVisible());
+                submitCommand(command, "list --today extra");
+                assertTrue(details.isVisible());
+                assertFalse(list.isVisible());
+                assertEquals("list --today extra", command.getText());
+                assertTrue(feedback.getText().contains(ListCommand.MESSAGE_USAGE));
+
+                submitCommand(command, "list --today");
+                assertEquals("", command.getText());
+                assertEquals("Listed 1 client with appointments today", feedback.getText());
+                assertTrue(list.isVisible());
+                assertTrue(list.isManaged());
+                assertFalse(details.isVisible());
+                assertFalse(details.isManaged());
+                assertSame(listView, list.lookup("#personListView"));
+                assertEquals(List.of(alice), listView.getItems());
+                stage.getScene().getRoot().applyCss();
+                stage.getScene().getRoot().layout();
+                assertEquals("Alice Pauline", ((Label) list.lookup("#name")).getText());
+                assertEquals("#1", ((Label) list.lookup("#id")).getText());
+
+                submitCommand(command, "appointment --cancel --id 1 --index 1");
+                assertTrue(details.isVisible());
+                submitCommand(command, "list --today");
+                assertEquals("No clients have appointments today.", feedback.getText());
+                assertTrue(list.isVisible());
+                assertTrue(list.isManaged());
+                assertFalse(details.isVisible());
+                assertTrue(listView.getItems().isEmpty());
+
+                submitCommand(command, "list");
+                assertEquals("Listed 3 clients", feedback.getText());
+                assertSame(listView, list.lookup("#personListView"));
+                assertEquals(model.getFilteredPersonList(), listView.getItems());
+                assertEquals(List.of(alice.getId(), benson.getId(), carl.getId()),
+                        model.getFilteredPersonList().stream().map(Person::getId).toList());
+                assertTrue(stage.getScene().lookup("#menuBar").isVisible());
+                assertTrue(stage.getScene().lookup("#statusbarPlaceholder").isVisible());
+            } finally {
+                stage.hide();
+            }
+        }, null);
+        Platform.runLater(task);
+        task.get(15, TimeUnit.SECONDS);
+    }
+
+    private static void submitCommand(TextField command, String text) {
+        command.setText(text);
+        command.fireEvent(new ActionEvent());
     }
 
     private static void assertSessionRow(VBox row, String expectedDate, String expectedNote) {
