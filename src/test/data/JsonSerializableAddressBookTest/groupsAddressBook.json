@@ -1,0 +1,12 @@
+{
+  "persons": [
+    {
+      "id": 1,
+      "name": "Alice Pauline",
+      "phone": "94351253",
+      "tags": [ "gym", "rehab" ]
+    }
+  ],
+  "nextPersonId": 2,
+  "groups": [ "morning", "rehab" ]
+}
