@@ -147,6 +147,33 @@
     -fx-border-width: 0;
 }
 
+.session-section-title {
+    -fx-font-family: "Inter", "Segoe UI", sans-serif;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.session-row {
+    -fx-background-color: #303030;
+    -fx-background-radius: 12;
+    -fx-padding: 12 14;
+}
+
+.session-date {
+    -fx-font-family: "Inter", "Segoe UI", sans-serif;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.session-note,
+.session-empty {
+    -fx-font-family: "Inter", "Segoe UI", sans-serif;
+    -fx-font-size: 13px;
+    -fx-text-fill: #bebebe;
+}
+
 .command-feedback .scroll-bar,
 .contact-list .scroll-bar {
     -fx-background-color: transparent;
