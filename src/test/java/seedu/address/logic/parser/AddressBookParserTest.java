@@ -20,6 +20,7 @@ import seedu.address.logic.commands.EditCommand.EditPersonDescriptor;
 import seedu.address.logic.commands.EditSessionCommand;
 import seedu.address.logic.commands.ExitCommand;
 import seedu.address.logic.commands.FindCommand;
+import seedu.address.logic.commands.GroupCommand;
 import seedu.address.logic.commands.HelpCommand;
 import seedu.address.logic.commands.ListCommand;
 import seedu.address.logic.commands.NoteCommand;
@@ -130,6 +131,12 @@ public class AddressBookParserTest {
     public void parseCommand_tag() throws Exception {
         assertEquals(new TagCommand(PersonSelector.byId(new PersonId(1)), Tag.GYM),
                 parser.parseCommand(TagCommand.COMMAND_WORD + " --id 1 --type gym"));
+    }
+
+    @Test
+    public void parseCommand_group() throws Exception {
+        assertEquals(new GroupCommand(new Tag("morning")),
+                parser.parseCommand(GroupCommand.COMMAND_WORD + " --name morning"));
     }
 
     @Test

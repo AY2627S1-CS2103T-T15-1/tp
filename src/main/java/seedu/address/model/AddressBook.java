@@ -2,8 +2,11 @@ package seedu.address.model;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import javafx.collections.ObservableList;
 import seedu.address.commons.util.ToStringBuilder;
@@ -11,10 +14,12 @@ import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonId;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.UniquePersonList;
+import seedu.address.model.tag.Tag;
 
 /**
  * Wraps all data at the address-book level.
  * Duplicates are not allowed (by .isSamePerson comparison).
+ * Every custom tag a person has is also one of the address book's groups.
  */
 public class AddressBook implements ReadOnlyAddressBook {
 
@@ -22,6 +27,7 @@ public class AddressBook implements ReadOnlyAddressBook {
 
     private final UniquePersonList persons = new UniquePersonList();
     private PersonId nextPersonId = FIRST_PERSON_ID;
+    private final Set<Tag> groups = new LinkedHashSet<>();
 
     public AddressBook() {}
 
@@ -43,6 +49,18 @@ public class AddressBook implements ReadOnlyAddressBook {
         this.persons.setPersons(persons);
         nextPersonId = FIRST_PERSON_ID;
         persons.forEach(this::reserveIdOf);
+        persons.forEach(this::addGroupsOf);
+    }
+
+    /**
+     * Replaces the groups with {@code groups}, keeping the custom tags of every person as groups.
+     * {@code groups} must not contain a client type.
+     */
+    public void setGroups(Collection<Tag> groups) {
+        requireNonNull(groups);
+        this.groups.clear();
+        groups.forEach(this::addGroup);
+        persons.forEach(this::addGroupsOf);
     }
 
     /**
@@ -66,6 +84,7 @@ public class AddressBook implements ReadOnlyAddressBook {
 
         setPersons(newData.getPersonList());
         setNextPersonId(newData.getNextPersonId());
+        setGroups(newData.getGroupList());
     }
 
     //// person-level operations
@@ -107,6 +126,7 @@ public class AddressBook implements ReadOnlyAddressBook {
         }
         persons.add(p);
         reserveIdOf(p);
+        addGroupsOf(p);
     }
 
     /**
@@ -128,6 +148,7 @@ public class AddressBook implements ReadOnlyAddressBook {
         assert target.getId().equals(editedPerson.getId()) : "Editing a person should not change their ID";
 
         persons.setPerson(target, editedPerson);
+        addGroupsOf(editedPerson);
     }
 
     /**
@@ -138,6 +159,35 @@ public class AddressBook implements ReadOnlyAddressBook {
         persons.remove(key);
     }
 
+    //// group-level operations
+
+    /**
+     * Returns true if {@code group} is one of the groups in the address book.
+     */
+    public boolean hasGroup(Tag group) {
+        requireNonNull(group);
+        return groups.contains(group);
+    }
+
+    /**
+     * Adds {@code group} to the groups in the address book, if it is not already one of them.
+     * {@code group} must not be a client type.
+     */
+    public void addGroup(Tag group) {
+        requireNonNull(group);
+        assert !Tag.CLIENT_TYPES.contains(group) : "Client types are built in and cannot be groups";
+        groups.add(group);
+    }
+
+    /**
+     * Adds the custom tags of {@code person}, i.e. the tags that are not client types, to the groups.
+     */
+    private void addGroupsOf(Person person) {
+        person.getTags().stream()
+                .filter(tag -> !Tag.CLIENT_TYPES.contains(tag))
+                .forEach(groups::add);
+    }
+
     //// util methods
 
     @Override
@@ -145,6 +195,7 @@ public class AddressBook implements ReadOnlyAddressBook {
         return new ToStringBuilder(this)
                 .add("persons", persons)
                 .add("nextPersonId", nextPersonId)
+                .add("groups", groups)
                 .toString();
     }
 
@@ -159,6 +210,11 @@ public class AddressBook implements ReadOnlyAddressBook {
     }
 
     @Override
+    public List<Tag> getGroupList() {
+        return List.copyOf(groups);
+    }
+
+    @Override
     public boolean equals(Object other) {
         if (other == this) {
             return true;
@@ -170,11 +226,12 @@ public class AddressBook implements ReadOnlyAddressBook {
         }
 
         return persons.equals(otherAddressBook.persons)
-                && nextPersonId.equals(otherAddressBook.nextPersonId);
+                && nextPersonId.equals(otherAddressBook.nextPersonId)
+                && groups.equals(otherAddressBook.groups);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(persons, nextPersonId);
+        return Objects.hash(persons, nextPersonId, groups);
     }
 }
