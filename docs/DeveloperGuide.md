@@ -126,6 +126,7 @@ How the parsing works:
 The `Model` component,
 
 * stores the address book data i.e., all `Person` objects (which are contained in a `UniquePersonList` object).
+* stores the custom groups (e.g. `morning`, `rehab`) as a list of `Tag` objects in `AddressBook`, in the order they were created. Every custom tag of a `Person` is also one of these groups, so a client can never be in a group that does not exist. `gym` and `personal` are built-in client types, not groups.
 * stores the `Person` objects selected by the current filter, such as search results, in a separate _filtered_ list, which is kept sorted alphabetically by name (case-insensitive). It exposes this list as an unmodifiable `ObservableList<Person>` that the UI can observe and bind to, so the UI updates when the list changes.
 * stores a `UserPrefs` object that represents the user’s preferences (currently, just the GUI settings). This is exposed to the outside as a `ReadOnlyUserPrefs` object.
 * does not depend on any of the other three components (as the `Model` represents data entities of the domain, they should make sense on their own without depending on other components)
