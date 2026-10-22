@@ -15,5 +15,7 @@ public class CliSyntax {
     public static final Prefix PREFIX_PHONE_LONG = new Prefix("--phone");
     public static final Prefix PREFIX_TO_NAME = new Prefix("--to-name");
     public static final Prefix PREFIX_TO_PHONE = new Prefix("--to-phone");
+    public static final Prefix PREFIX_PLAN = new Prefix("--plan");
+    public static final Prefix PREFIX_TYPE = new Prefix("--type");
 
 }

@@ -117,7 +117,8 @@ public class EditSessionCommandTest {
         PersonSelector selector = PersonSelector.byName("Meier");
         EditSessionCommand command = new EditSessionCommand(selector, DATE, UPDATED_NOTE);
         String expectedMessage = selector.getMultipleMatchesMessage(
-                List.of(BENSON, DANIEL), SessionCommand.COMMAND_WORD);
+                List.of(BENSON, DANIEL), "session --id " + BENSON.getId()
+                        + " --edit --date " + DATE + " --note \"" + UPDATED_NOTE + "\"");
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
         expectedModel.updateFilteredPersonList(selector::matches);
 

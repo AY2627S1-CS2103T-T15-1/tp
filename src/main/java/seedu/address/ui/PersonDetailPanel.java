@@ -1,5 +1,7 @@
 package seedu.address.ui;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.Comparator;
 
 import javafx.fxml.FXML;
@@ -7,6 +9,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import seedu.address.model.LongFormText;
 import seedu.address.model.person.Person;
 import seedu.address.model.session.Session;
 
@@ -21,9 +24,22 @@ public class PersonDetailPanel extends UiPart<Region> {
     private static final String NO_SESSIONS_TEXT = "No sessions recorded";
 
     @FXML
-    private StackPane personHeader;
-    @FXML
     private VBox sessionList;
+
+    @FXML
+    private StackPane personHeader;
+
+    @FXML
+    private VBox workoutPlanCard;
+
+    @FXML
+    private Label workoutPlanText;
+
+    @FXML
+    private VBox noteSection;
+
+    @FXML
+    private Label note;
 
     /**
      * Creates an empty {@code PersonDetailPanel}.
@@ -33,11 +49,21 @@ public class PersonDetailPanel extends UiPart<Region> {
     }
 
     /**
-     * Displays the client's contact details using the same header as the list cards.
+     * Displays the client's contact details and their workout plan, if present.
      */
     public void showPerson(Person person) {
+        requireNonNull(person);
         personHeader.getChildren().setAll(new PersonCard(person).getRoot());
         showSessions(person);
+        boolean hasNote = !person.getNote().isBlank();
+        note.setText(person.getNote().value);
+        noteSection.setVisible(hasNote);
+        noteSection.setManaged(hasNote);
+        LongFormText plan = person.getWorkoutPlan();
+        boolean hasPlan = !plan.isBlank();
+        workoutPlanText.setText(hasPlan ? plan.value : "");
+        workoutPlanCard.setVisible(hasPlan);
+        workoutPlanCard.setManaged(hasPlan);
     }
 
     private void showSessions(Person person) {

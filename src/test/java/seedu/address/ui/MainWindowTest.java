@@ -22,6 +22,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -70,7 +72,10 @@ public class MainWindowTest {
                     new Session(LocalDate.of(2026, 10, 22), "Worked on squat form"),
                     new Session(LocalDate.of(2026, 12, 31), longNote),
                     new Session(LocalDate.of(2026, 9, 10), "Improved mobility"),
-                    new Session(LocalDate.of(2026, 11, 15), "")).build();
+                    new Session(LocalDate.of(2026, 11, 15), ""))
+                    .withNote("Client note")
+                    .withWorkoutPlan("Squats and rest")
+                    .build();
             Person clientWithoutSessions = new PersonBuilder()
                     .withId(2)
                     .withName("Client Without Sessions")
@@ -107,6 +112,10 @@ public class MainWindowTest {
                 assertEquals("Alice Pauline", ((Label) details.lookup("#name")).getText());
                 assertEquals("94351253", ((Label) details.lookup("#phone")).getText());
                 assertEquals("#1", ((Label) details.lookup("#id")).getText());
+                assertEquals("Client note", ((Label) details.lookup("#note")).getText());
+                assertTrue(details.lookup("#noteSection").isVisible());
+                assertEquals("Squats and rest", ((Label) details.lookup("#workoutPlanText")).getText());
+                assertTrue(details.lookup("#workoutPlanCard").isVisible());
                 VBox sessionList = (VBox) details.lookup("#sessionList");
                 assertEquals(4, sessionList.getChildren().size());
                 assertSessionRow((VBox) sessionList.getChildren().get(0), "2026-12-31", longNote);
@@ -134,6 +143,8 @@ public class MainWindowTest {
                 command.fireEvent(new ActionEvent());
                 assertEquals(1, sessionList.getChildren().size());
                 assertEquals("No sessions recorded", ((Label) sessionList.getChildren().get(0)).getText());
+                assertFalse(details.lookup("#noteSection").isVisible());
+                assertFalse(details.lookup("#workoutPlanCard").isVisible());
 
                 command.setText("list");
                 command.fireEvent(new ActionEvent());
@@ -143,6 +154,24 @@ public class MainWindowTest {
                 assertTrue(stage.getScene().lookup("#menuBar").isVisible());
                 assertTrue(stage.getScene().lookup("#statusbarPlaceholder").isVisible());
                 assertFalse(details.isVisible());
+
+                // Recall must leave the real command result and displayed client list unchanged.
+                command.setText("unfinished command");
+                command.fireEvent(new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.UP,
+                        false, false, false, false));
+                assertEquals("list", command.getText());
+                command.fireEvent(new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.UP,
+                        false, false, false, false));
+                assertEquals("view --id 2", command.getText());
+                assertEquals("Listed 2 clients", feedback.getText());
+                assertTrue(list.isVisible());
+                assertFalse(details.isVisible());
+                command.fireEvent(new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.DOWN,
+                        false, false, false, false));
+                assertEquals("list", command.getText());
+                command.fireEvent(new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.DOWN,
+                        false, false, false, false));
+                assertEquals("unfinished command", command.getText());
 
                 command.setText("exit");
                 command.fireEvent(new ActionEvent());

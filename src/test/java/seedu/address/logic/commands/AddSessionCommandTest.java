@@ -86,7 +86,8 @@ public class AddSessionCommandTest {
         PersonSelector selector = PersonSelector.byName("Meier");
         AddSessionCommand command = new AddSessionCommand(selector, DATE, NOTE);
         String expectedMessage = selector.getMultipleMatchesMessage(
-                List.of(BENSON, DANIEL), SessionCommand.COMMAND_WORD);
+                List.of(BENSON, DANIEL), "session --id " + BENSON.getId()
+                        + " --add --date " + DATE + " --note \"" + NOTE + "\"");
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
         expectedModel.updateFilteredPersonList(selector::matches);
 

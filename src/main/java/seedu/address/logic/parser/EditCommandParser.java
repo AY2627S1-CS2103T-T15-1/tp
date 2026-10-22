@@ -27,7 +27,22 @@ public class EditCommandParser implements Parser<EditCommand> {
         ArgumentMultimap argMultimap = ArgumentTokenizer.tokenize(args,
                 PREFIX_ID, PREFIX_NAME_LONG, PREFIX_TO_NAME, PREFIX_TO_PHONE);
 
-        PersonSelector selector = ParserUtil.parsePersonSelector(argMultimap, EditCommand.MESSAGE_USAGE);
+        PersonSelector selector = ParserUtil.parsePersonSelector(argMultimap, EditCommand.MESSAGE_USAGE,
+                PREFIX_ID, PREFIX_NAME_LONG);
+        try {
+            return new EditCommand(selector, parseEditPersonDescriptor(argMultimap));
+        } catch (ParseException pe) {
+            throw new ParseException(ParserUtil.withUsage(pe.getMessage(), EditCommand.MESSAGE_USAGE), pe);
+        }
+    }
+
+    /**
+     * Parses the new values in {@code argMultimap} into an {@code EditPersonDescriptor}.
+     *
+     * @throws ParseException if a new value is invalid or given more than once, or no new value is given.
+     */
+    private static EditPersonDescriptor parseEditPersonDescriptor(ArgumentMultimap argMultimap)
+            throws ParseException {
         argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_TO_NAME, PREFIX_TO_PHONE);
 
         EditPersonDescriptor editPersonDescriptor = new EditPersonDescriptor();
@@ -43,7 +58,6 @@ public class EditCommandParser implements Parser<EditCommand> {
         if (!editPersonDescriptor.isAnyFieldEdited()) {
             throw new ParseException(EditCommand.MESSAGE_NOT_EDITED);
         }
-
-        return new EditCommand(selector, editPersonDescriptor);
+        return editPersonDescriptor;
     }
 }

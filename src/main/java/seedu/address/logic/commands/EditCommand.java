@@ -76,6 +76,16 @@ public class EditCommand extends PersonTargetedCommand {
         return COMMAND_WORD;
     }
 
+    @Override
+    protected String getArgumentsAfterSelector() {
+        StringBuilder arguments = new StringBuilder();
+        editPersonDescriptor.getName().ifPresent(name ->
+                arguments.append(" ").append(PREFIX_TO_NAME).append(" ").append(quote(name.fullName)));
+        editPersonDescriptor.getPhone().ifPresent(phone ->
+                arguments.append(" ").append(PREFIX_TO_PHONE).append(" ").append(quote(phone.value)));
+        return arguments.toString();
+    }
+
     /**
      * Creates and returns a {@code Person} with the details of {@code personToEdit}
      * edited with {@code editPersonDescriptor}.
@@ -86,7 +96,9 @@ public class EditCommand extends PersonTargetedCommand {
         Name updatedName = editPersonDescriptor.getName().orElse(personToEdit.getName());
         Phone updatedPhone = editPersonDescriptor.getPhone().orElse(personToEdit.getPhone());
 
-        return new Person(personToEdit.getId(), updatedName, updatedPhone, personToEdit.getSessions());
+        return new Person(personToEdit.getId(), updatedName, updatedPhone, personToEdit.getNote(),
+                personToEdit.isActive(), personToEdit.getTags(), personToEdit.getWorkoutPlan(),
+                personToEdit.getSessions());
     }
 
     @Override

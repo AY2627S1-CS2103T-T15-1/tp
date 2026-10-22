@@ -42,6 +42,22 @@ public class EditCommandTest {
     private Model model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
 
     @Test
+    public void execute_editContactDetails_preservesWorkoutPlan() throws Exception {
+        Person withPlan = new PersonBuilder(ALICE).withWorkoutPlan("Squats: 3 sets of 12").build();
+        model.setPerson(ALICE, withPlan);
+        EditCommand command = new EditCommand(PersonSelector.byId(ALICE.getId()),
+                new EditPersonDescriptorBuilder().withName(VALID_NAME_BOB).withPhone(VALID_PHONE_BOB).build());
+
+        command.execute(model);
+
+        Person edited = model.getAddressBook().getPersonList().get(0);
+        assertEquals("Squats: 3 sets of 12", edited.getWorkoutPlan().value);
+        assertEquals(ALICE.getId(), edited.getId());
+        assertEquals(VALID_NAME_BOB, edited.getName().fullName);
+        assertEquals(VALID_PHONE_BOB, edited.getPhone().value);
+    }
+
+    @Test
     public void execute_allFieldsSpecified_success() {
         Person editedPerson = new PersonBuilder().withId(ALICE.getId().value).build();
         EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder(editedPerson).build();
@@ -118,7 +134,9 @@ public class EditCommandTest {
         EditCommand editCommand = new EditCommand(selector,
                 new EditPersonDescriptorBuilder().withPhone(VALID_PHONE_BOB).build());
 
-        String expectedMessage = selector.getMultipleMatchesMessage(List.of(BENSON, DANIEL), EditCommand.COMMAND_WORD);
+        // the example is a complete edit command, including the new phone number
+        String expectedMessage = selector.getMultipleMatchesMessage(List.of(BENSON, DANIEL),
+                "edit --id 2 --to-phone \"" + VALID_PHONE_BOB + "\"");
 
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
         expectedModel.updateFilteredPersonList(selector::matches);
@@ -200,7 +218,7 @@ public class EditCommandTest {
         assertFalse(standardCommand.equals(null));
 
         // different types -> returns false
-        assertFalse(standardCommand.equals(new ClearCommand()));
+        assertFalse(standardCommand.equals(new ClearCommand(false)));
 
         // different client -> returns false
         assertFalse(standardCommand.equals(new EditCommand(PersonSelector.byId(BENSON.getId()), DESC_AMY)));

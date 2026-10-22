@@ -70,6 +70,11 @@ public class EditSessionCommand extends SessionCommand {
     }
 
     @Override
+    protected String getArgumentsAfterSelector() {
+        return " " + PREFIX_EDIT + " " + PREFIX_DATE + " " + date + " " + PREFIX_NOTE + " " + quote(note);
+    }
+
+    @Override
     public boolean equals(Object other) {
         if (other == this) {
             return true;

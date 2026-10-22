@@ -20,6 +20,7 @@ import org.junit.jupiter.api.io.TempDir;
 import seedu.address.commons.exceptions.DataLoadingException;
 import seedu.address.model.AddressBook;
 import seedu.address.model.ReadOnlyAddressBook;
+import seedu.address.model.person.Person;
 import seedu.address.model.session.Session;
 import seedu.address.testutil.PersonBuilder;
 
@@ -28,6 +29,22 @@ public class JsonAddressBookStorageTest {
 
     @TempDir
     public Path testFolder;
+
+    @Test
+    public void readAndSaveAddressBook_workoutPlan_preservesText() throws Exception {
+        String plan = "Squats: 3 sets of 12\nCoach says \"keep steady\"; warm-up --name drills; literal \\n";
+        String note = "  " + "Training preferences. ".repeat(30) + "\nRest\\nLiteral  ";
+        Person client = new PersonBuilder(ALICE).withWorkoutPlan(plan).withNote(note)
+                .withActive(false).withTags("gym").build();
+        AddressBook original = new AddressBook();
+        original.addPerson(client);
+        JsonAddressBookStorage storage = new JsonAddressBookStorage(testFolder.resolve("workoutPlan.json"));
+
+        storage.saveAddressBook(original);
+        Person readBack = storage.readAddressBook().get().getPersonList().get(0);
+        assertEquals(plan, readBack.getWorkoutPlan().value);
+        assertEquals(client, readBack);
+    }
 
     @Test
     public void readAddressBook_nullFilePath_throwsNullPointerException() {
@@ -65,6 +82,17 @@ public class JsonAddressBookStorageTest {
     }
 
     @Test
+    public void readAddressBook_nullTag_throwDataLoadingException() {
+        // an invalid data file must not crash the app, so it is reported like any other invalid data
+        assertThrows(DataLoadingException.class, () -> readAddressBook("nullTagAddressBook.json"));
+    }
+
+    @Test
+    public void readAddressBook_nullPerson_throwDataLoadingException() {
+        assertThrows(DataLoadingException.class, () -> readAddressBook("nullPersonAddressBook.json"));
+    }
+
+    @Test
     public void readAndSaveAddressBook_allInOrder_success() throws Exception {
         Path filePath = testFolder.resolve("TempAddressBook.json");
         AddressBook original = getTypicalAddressBook();
@@ -75,7 +103,6 @@ public class JsonAddressBookStorageTest {
         String savedJson = Files.readString(filePath);
         assertFalse(savedJson.contains("\"email\""));
         assertFalse(savedJson.contains("\"address\""));
-        assertFalse(savedJson.contains("\"tags\""));
         ReadOnlyAddressBook readBack = jsonAddressBookStorage.readAddressBook(filePath).get();
         assertEquals(original, new AddressBook(readBack));
 
@@ -99,6 +126,10 @@ public class JsonAddressBookStorageTest {
         Path filePath = testFolder.resolve("SessionsAddressBook.json");
         AddressBook original = new AddressBook();
         original.addPerson(new PersonBuilder(ALICE)
+                .withNote("Client note")
+                .withActive(false)
+                .withTags("strength")
+                .withWorkoutPlan("Squats and rest")
                 .withSessions(
                         new Session(LocalDate.of(2026, 10, 21), "Worked on squat form"),
                         new Session(LocalDate.of(2026, 11, 15), "Future reminder"))

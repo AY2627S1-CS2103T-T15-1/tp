@@ -70,10 +70,54 @@ public class PersonSelectorTest {
     }
 
     @Test
-    public void getMultipleMatchesMessage_severalMatches_suggestsIdOfFirstMatch() {
-        String message = PersonSelector.byName("Meier").getMultipleMatchesMessage(List.of(BENSON, DANIEL), "view");
-        assertEquals(String.format(PersonSelector.MESSAGE_MULTIPLE_MATCHES, 2, "Meier", "view", BENSON.getId()),
+    public void getMultipleMatchesMessage_severalMatches_includesRetryExample() {
+        String message = PersonSelector.byName("Meier")
+                .getMultipleMatchesMessage(List.of(BENSON, DANIEL), "view --id 2");
+        assertEquals(String.format(PersonSelector.MESSAGE_MULTIPLE_MATCHES, 2, "name", "Meier", "view --id 2"),
                 message);
+
+        message = PersonSelector.byPhone("9").getMultipleMatchesMessage(List.of(ALICE, BENSON), "inactive --id 1");
+        assertEquals(String.format(PersonSelector.MESSAGE_MULTIPLE_MATCHES, 2, "phone number", "9",
+                "inactive --id 1"), message);
+    }
+
+    @Test
+    public void matches_byPhone() {
+        // ALICE's phone number is 94351253
+        assertTrue(PersonSelector.byPhone("94351253").matches(ALICE));
+
+        // part of the number, with separators that are ignored
+        assertTrue(PersonSelector.byPhone("9435 (1253)").matches(ALICE));
+        assertTrue(PersonSelector.byPhone("351-2").matches(ALICE));
+
+        // not part of the number
+        assertFalse(PersonSelector.byPhone("1234").matches(ALICE));
+
+        // leading + must also be in the stored number
+        assertTrue(PersonSelector.byPhone("+65").matches(new PersonBuilder().withPhone("+65 9123 4567").build()));
+        assertFalse(PersonSelector.byPhone("+65").matches(ALICE));
+    }
+
+    @Test
+    public void isValidPhoneKeyword() {
+        assertTrue(PersonSelector.isValidPhoneKeyword("9123"));
+        assertTrue(PersonSelector.isValidPhoneKeyword("+65 (9123)-4567"));
+
+        assertFalse(PersonSelector.isValidPhoneKeyword(""));
+        assertFalse(PersonSelector.isValidPhoneKeyword("+"));
+        assertFalse(PersonSelector.isValidPhoneKeyword("91a3"));
+        assertFalse(PersonSelector.isValidPhoneKeyword("91+23"));
+    }
+
+    @Test
+    public void byPhone_invalidKeyword_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> PersonSelector.byPhone("abc"));
+    }
+
+    @Test
+    public void getNoMatchMessage_byPhone() {
+        assertEquals(String.format(PersonSelector.MESSAGE_NO_PERSON_WITH_PHONE, "9123"),
+                PersonSelector.byPhone("91 23").getNoMatchMessage());
     }
 
     @Test
@@ -108,6 +152,7 @@ public class PersonSelectorTest {
     @Test
     public void toStringMethod() {
         PersonSelector selector = PersonSelector.byId(new PersonId(3));
-        assertEquals(PersonSelector.class.getCanonicalName() + "{id=3, nameKeyword=null}", selector.toString());
+        assertEquals(PersonSelector.class.getCanonicalName() + "{id=3, nameKeyword=null, phoneKeyword=null}",
+                selector.toString());
     }
 }

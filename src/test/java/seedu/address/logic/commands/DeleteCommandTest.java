@@ -75,8 +75,7 @@ public class DeleteCommandTest {
         PersonSelector selector = PersonSelector.byName("Meier");
         DeleteCommand deleteCommand = new DeleteCommand(selector);
 
-        String expectedMessage = selector.getMultipleMatchesMessage(List.of(BENSON, DANIEL),
-                DeleteCommand.COMMAND_WORD);
+        String expectedMessage = selector.getMultipleMatchesMessage(List.of(BENSON, DANIEL), "delete --id 2");
 
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         expectedModel.updateFilteredPersonList(selector::matches);

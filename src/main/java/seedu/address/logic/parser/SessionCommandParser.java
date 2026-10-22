@@ -50,7 +50,8 @@ public class SessionCommandParser implements Parser<SessionCommand> {
             throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, messageUsage));
         }
 
-        PersonSelector selector = ParserUtil.parsePersonSelector(argMultimap, messageUsage);
+        PersonSelector selector = ParserUtil.parsePersonSelector(argMultimap, messageUsage,
+                PREFIX_ID, PREFIX_NAME_LONG);
         String dateValue = argMultimap.getValue(PREFIX_DATE)
                 .orElseThrow(() -> new ParseException(
                         String.format(MESSAGE_INVALID_COMMAND_FORMAT, messageUsage)));

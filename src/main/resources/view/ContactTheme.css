@@ -131,7 +131,45 @@
     -fx-text-fill: #bebebe;
 }
 
-/* Reuse the list's text styles while giving only the detail view its own card. */
+.contact-list #cardPane.inactive-contact .contact-name,
+.contact-list #cardPane.inactive-contact .contact-phone {
+    -fx-opacity: 0.55;
+}
+
+.contact-list .contact-status {
+    -fx-font-family: "Inter", "Segoe UI", sans-serif;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #bebebe;
+    -fx-background-color: #3a3a3a;
+    -fx-background-radius: 8;
+    -fx-padding: 1 8;
+}
+
+.contact-list .contact-tags .label {
+    -fx-font-family: "Inter", "Segoe UI", sans-serif;
+    -fx-font-size: 11px;
+    -fx-text-fill: white;
+    -fx-background-color: #2d352e;
+    -fx-border-color: #056200;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 1 8;
+}
+
+.client-note-heading {
+    -fx-font-family: "Inter", "Segoe UI", sans-serif;
+    -fx-font-size: 12px;
+    -fx-text-fill: #bebebe;
+}
+
+.client-note {
+    -fx-font-family: "Inter", "Segoe UI", sans-serif;
+    -fx-font-size: 14px;
+    -fx-text-fill: white;
+}
+
+/* Reuse the list's text styles for the detail view's contact and workout plan cards. */
 .client-detail-container {
     -fx-background-color: #151515;
 }
@@ -184,6 +222,17 @@
 .command-feedback .scroll-bar,
 .contact-list .scroll-bar {
     -fx-background-color: transparent;
+}
+
+.client-detail-scroll,
+.client-detail-scroll > .viewport {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-border-width: 0;
+}
+
+.contact-list .workout-plan-text {
+    -fx-font-size: 14px;
 }
 
 .command-feedback .scroll-bar .thumb,

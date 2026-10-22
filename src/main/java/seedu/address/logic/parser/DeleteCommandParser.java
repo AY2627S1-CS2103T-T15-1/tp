@@ -18,7 +18,8 @@ public class DeleteCommandParser implements Parser<DeleteCommand> {
      */
     public DeleteCommand parse(String args) throws ParseException {
         ArgumentMultimap argMultimap = ArgumentTokenizer.tokenize(args, PREFIX_ID, PREFIX_NAME_LONG);
-        return new DeleteCommand(ParserUtil.parsePersonSelector(argMultimap, DeleteCommand.MESSAGE_USAGE));
+        return new DeleteCommand(ParserUtil.parsePersonSelector(argMultimap, DeleteCommand.MESSAGE_USAGE,
+                PREFIX_ID, PREFIX_NAME_LONG));
     }
 
 }

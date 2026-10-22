@@ -18,7 +18,8 @@ public class ViewCommandParser implements Parser<ViewCommand> {
      */
     public ViewCommand parse(String args) throws ParseException {
         ArgumentMultimap argMultimap = ArgumentTokenizer.tokenize(args, PREFIX_ID, PREFIX_NAME_LONG);
-        return new ViewCommand(ParserUtil.parsePersonSelector(argMultimap, ViewCommand.MESSAGE_USAGE));
+        return new ViewCommand(ParserUtil.parsePersonSelector(argMultimap, ViewCommand.MESSAGE_USAGE,
+                PREFIX_ID, PREFIX_NAME_LONG));
     }
 
 }
