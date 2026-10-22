@@ -274,11 +274,12 @@ public class PersonTest {
     }
 
     @Test
-    public void withAppointments_moreThanFour_throwsAssertionError() {
+    public void withAppointments_moreThanFour_throwsIllegalArgumentException() {
         List<Appointment> five = new ArrayList<>(Appointment.weeklySeries(LocalDate.of(2026, 10, 26),
                 LocalTime.of(9, 0)));
         five.add(new Appointment(LocalDate.of(2026, 12, 1), LocalTime.of(9, 0)));
-        assertThrows(AssertionError.class, () -> new PersonBuilder().build().withAppointments(five));
+        assertThrows(IllegalArgumentException.class, Person.MESSAGE_TOO_MANY_APPOINTMENTS, ()
+            -> new PersonBuilder().build().withAppointments(five));
     }
 
     @Test

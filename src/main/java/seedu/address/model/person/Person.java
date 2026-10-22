@@ -22,6 +22,8 @@ public class Person {
 
     public static final String MESSAGE_DUPLICATE_SESSION_DATE =
             "A client cannot have more than one session on the same date.";
+    public static final String MESSAGE_TOO_MANY_APPOINTMENTS =
+            "A client can have at most " + Appointment.SERIES_LENGTH + " appointments.";
 
     private final List<Session> sessions = new ArrayList<>();
 
@@ -98,8 +100,9 @@ public class Person {
         }
         this.sessions.addAll(sessions);
         Objects.requireNonNull(appointments);
-        assert appointments.size() <= Appointment.SERIES_LENGTH
-                : "A client has at most " + Appointment.SERIES_LENGTH + " appointments";
+        if (appointments.size() > Appointment.SERIES_LENGTH) {
+            throw new IllegalArgumentException(MESSAGE_TOO_MANY_APPOINTMENTS);
+        }
         this.appointments = appointments.stream().sorted().toList();
         Objects.requireNonNull(id);
         Objects.requireNonNull(name);
