@@ -13,6 +13,7 @@ import seedu.address.commons.exceptions.IllegalValueException;
 import seedu.address.commons.util.JsonUtil;
 import seedu.address.model.AddressBook;
 import seedu.address.model.person.PersonId;
+import seedu.address.model.tag.Tag;
 import seedu.address.testutil.TypicalPersons;
 
 public class JsonSerializableAddressBookTest {
@@ -24,6 +25,16 @@ public class JsonSerializableAddressBookTest {
     private static final Path DUPLICATE_ID_FILE = TEST_DATA_FOLDER.resolve("duplicateIdAddressBook.json");
     private static final Path LEGACY_PERSONS_FILE =
             TEST_DATA_FOLDER.resolve("legacyPersonsWithoutIdsAddressBook.json");
+    private static final Path GROUPS_FILE = TEST_DATA_FOLDER.resolve("groupsAddressBook.json");
+    private static final Path LEGACY_TAGS_FILE =
+            TEST_DATA_FOLDER.resolve("legacyTagsWithoutGroupsAddressBook.json");
+    private static final Path DUPLICATE_GROUP_FILE = TEST_DATA_FOLDER.resolve("duplicateGroupAddressBook.json");
+    private static final Path CLIENT_TYPE_GROUP_FILE = TEST_DATA_FOLDER.resolve("clientTypeGroupAddressBook.json");
+    private static final Path INVALID_GROUP_FILE = TEST_DATA_FOLDER.resolve("invalidGroupAddressBook.json");
+    private static final Path NULL_GROUP_FILE = TEST_DATA_FOLDER.resolve("nullGroupAddressBook.json");
+
+    private static final Tag MORNING = new Tag("morning");
+    private static final Tag REHAB = new Tag("rehab");
 
     @Test
     public void toModelType_typicalPersonsFile_success() throws Exception {
@@ -116,5 +127,61 @@ public class JsonSerializableAddressBookTest {
 
         assertEquals(original, roundTripped);
         assertEquals(TypicalPersons.GEORGE.getId().next(), roundTripped.getNextPersonId());
+    }
+
+    @Test
+    public void toModelType_groupsFile_keepsGroupsInSavedOrder() throws Exception {
+        AddressBook addressBook = JsonUtil.readJsonFile(GROUPS_FILE, JsonSerializableAddressBook.class).get()
+                .toModelType();
+        assertEquals(List.of(MORNING, REHAB), addressBook.getGroupList());
+    }
+
+    @Test
+    public void toModelType_legacyFileWithoutGroups_addsCustomTagsAsGroups() throws Exception {
+        AddressBook addressBook = JsonUtil.readJsonFile(LEGACY_TAGS_FILE, JsonSerializableAddressBook.class).get()
+                .toModelType();
+        assertEquals(List.of(MORNING), addressBook.getGroupList());
+    }
+
+    @Test
+    public void toModelType_duplicateGroups_throwsIllegalValueException() throws Exception {
+        JsonSerializableAddressBook dataFromFile = JsonUtil.readJsonFile(DUPLICATE_GROUP_FILE,
+                JsonSerializableAddressBook.class).get();
+        assertThrows(IllegalValueException.class, JsonSerializableAddressBook.MESSAGE_DUPLICATE_GROUP,
+                dataFromFile::toModelType);
+    }
+
+    @Test
+    public void toModelType_clientTypeGroup_throwsIllegalValueException() throws Exception {
+        JsonSerializableAddressBook dataFromFile = JsonUtil.readJsonFile(CLIENT_TYPE_GROUP_FILE,
+                JsonSerializableAddressBook.class).get();
+        assertThrows(IllegalValueException.class, JsonSerializableAddressBook.MESSAGE_CLIENT_TYPE_GROUP,
+                dataFromFile::toModelType);
+    }
+
+    @Test
+    public void toModelType_invalidGroup_throwsIllegalValueException() throws Exception {
+        JsonSerializableAddressBook dataFromFile = JsonUtil.readJsonFile(INVALID_GROUP_FILE,
+                JsonSerializableAddressBook.class).get();
+        assertThrows(IllegalValueException.class, Tag.MESSAGE_CONSTRAINTS, dataFromFile::toModelType);
+    }
+
+    @Test
+    public void toModelType_nullGroup_throwsIllegalValueException() throws Exception {
+        JsonSerializableAddressBook dataFromFile = JsonUtil.readJsonFile(NULL_GROUP_FILE,
+                JsonSerializableAddressBook.class).get();
+        assertThrows(IllegalValueException.class, JsonSerializableAddressBook.MESSAGE_MISSING_GROUP,
+                dataFromFile::toModelType);
+    }
+
+    @Test
+    public void constructor_fromAddressBookWithGroups_savesGroups() throws Exception {
+        AddressBook original = TypicalPersons.getTypicalAddressBook();
+        original.addGroup(REHAB);
+        original.addGroup(MORNING);
+        AddressBook roundTripped = new JsonSerializableAddressBook(original).toModelType();
+
+        assertEquals(original, roundTripped);
+        assertEquals(List.of(REHAB, MORNING), roundTripped.getGroupList());
     }
 }

@@ -32,6 +32,7 @@ import seedu.address.model.UserPrefs;
 import seedu.address.model.appointment.Appointment;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonId;
+import seedu.address.model.session.Session;
 import seedu.address.testutil.EditPersonDescriptorBuilder;
 import seedu.address.testutil.PersonBuilder;
 
@@ -196,6 +197,22 @@ public class EditCommandTest {
         Person editedAlice = model.getAddressBook().getPersonList().stream()
                 .filter(person -> person.getName().fullName.equals(VALID_NAME_BOB)).findFirst().get();
         assertEquals(ALICE.getId(), editedAlice.getId());
+    }
+
+    @Test
+    public void execute_editedPerson_preservesSessions() throws Exception {
+        Session session = new Session(LocalDate.of(2026, 10, 21), "Worked on squat form");
+        Person aliceWithSession = new PersonBuilder(ALICE).withSessions(session).build();
+        AddressBook addressBook = new AddressBook();
+        addressBook.addPerson(aliceWithSession);
+        Model modelWithSession = new ModelManager(addressBook, new UserPrefs());
+        EditCommand editCommand = new EditCommand(PersonSelector.byId(aliceWithSession.getId()),
+                new EditPersonDescriptorBuilder().withName(VALID_NAME_BOB).build());
+
+        editCommand.execute(modelWithSession);
+
+        Person editedPerson = modelWithSession.getAddressBook().getPersonList().getFirst();
+        assertEquals(List.of(session), editedPerson.getSessions());
     }
 
     @Test

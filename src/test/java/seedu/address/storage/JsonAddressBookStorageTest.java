@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -20,6 +21,7 @@ import seedu.address.commons.exceptions.DataLoadingException;
 import seedu.address.model.AddressBook;
 import seedu.address.model.ReadOnlyAddressBook;
 import seedu.address.model.person.Person;
+import seedu.address.model.session.Session;
 import seedu.address.testutil.PersonBuilder;
 
 public class JsonAddressBookStorageTest {
@@ -117,6 +119,27 @@ public class JsonAddressBookStorageTest {
         readBack = jsonAddressBookStorage.readAddressBook().get(); // file path not specified
         assertEquals(original, new AddressBook(readBack));
 
+    }
+
+    @Test
+    public void readAndSaveAddressBook_personWithSessions_preservesSessions() throws Exception {
+        Path filePath = testFolder.resolve("SessionsAddressBook.json");
+        AddressBook original = new AddressBook();
+        original.addPerson(new PersonBuilder(ALICE)
+                .withNote("Client note")
+                .withActive(false)
+                .withTags("strength")
+                .withWorkoutPlan("Squats and rest")
+                .withSessions(
+                        new Session(LocalDate.of(2026, 10, 21), "Worked on squat form"),
+                        new Session(LocalDate.of(2026, 11, 15), "Future reminder"))
+                .build());
+        JsonAddressBookStorage storage = new JsonAddressBookStorage(filePath);
+
+        storage.saveAddressBook(original, filePath);
+        ReadOnlyAddressBook readBack = storage.readAddressBook(filePath).get();
+
+        assertEquals(original, new AddressBook(readBack));
     }
 
     @Test
