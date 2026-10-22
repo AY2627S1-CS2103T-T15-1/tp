@@ -126,6 +126,8 @@
         "creating-a-group-group": "Creating a group: group",
         "adding-a-client-to-a-group-tag-group": "Adding a client to a group: tag --group",
         "removing-a-tag-from-a-client-tag-untag": "Removing a tag from a client: tag --untag",
+        "moving-a-client-to-another-group-group-move": "Moving a client to another group: group --move",
+        "deleting-a-group-tag-delete": "Deleting a group: tag --delete",
         "clearing-all-entries-clear": "Clearing all entries: clear",
         "recalling-previous-commands-up-down": "Recalling previous commands: Up / Down",
         "exiting-the-program-exit": "Exiting the program: exit",
