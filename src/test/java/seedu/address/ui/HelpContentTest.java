@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
@@ -18,14 +19,13 @@ import seedu.address.logic.parser.AddressBookParser;
 public class HelpContentTest {
 
     @Test
-    public void getCommands_currentParserCommands_coversEachCommandOnce() {
+    public void getCommands_currentParserCommands_coversEveryCommandFamily() {
         Set<String> expectedCommands = Set.of("add", "view", "edit", "delete", "list", "find", "note", "plan",
-                "active", "inactive", "tag", "clear", "help", "exit");
+                "active", "inactive", "tag", "group", "appointment", "session", "clear", "help", "exit");
         Set<String> actualCommands = new HashSet<>();
 
         for (CommandSummary summary : HelpContent.getCommands()) {
-            assertTrue(actualCommands.add(summary.getCommandWord()),
-                    "Duplicate help entry: " + summary.getCommandWord());
+            actualCommands.add(summary.getCommandWord());
         }
 
         assertEquals(expectedCommands, actualCommands);
@@ -34,13 +34,34 @@ public class HelpContentTest {
     @Test
     public void getCommands_examples_parseAsTheirAdvertisedCommands() throws Exception {
         AddressBookParser parser = new AddressBookParser();
+        Set<String> expectedTypes = Set.of("AddCommand", "ViewCommand", "EditCommand", "DeleteCommand",
+                "ListCommand", "FindCommand", "NoteCommand", "PlanCommand", "SetActiveCommand", "TagCommand",
+                "GroupCommand", "MoveGroupCommand", "AddToGroupCommand", "UntagCommand", "DeleteGroupCommand",
+                "AddAppointmentCommand", "CancelAppointmentCommand", "RescheduleAppointmentCommand",
+                "ListAppointmentsCommand", "AddSessionCommand", "EditSessionCommand", "ClearCommand",
+                "HelpCommand", "ExitCommand");
+        Set<String> actualTypes = new HashSet<>();
+        Set<String> formats = new HashSet<>();
 
         for (CommandSummary summary : HelpContent.getCommands()) {
+            assertTrue(formats.add(summary.getSyntax()), "Duplicate command format: " + summary.getSyntax());
+            if (!summary.isAvailable()) {
+                continue;
+            }
             String example = summary.getExample();
             assertEquals(summary.getCommandWord(), example.split("\\s+", 2)[0]);
             assertTrue(summary.getSyntax().startsWith(summary.getCommandWord()));
-            parser.parseCommand(example);
+            actualTypes.add(parser.parseCommand(example).getClass().getSimpleName());
         }
+        assertEquals(expectedTypes, actualTypes);
+    }
+
+    @Test
+    public void getCommands_upcomingForms_onlyListsToday() {
+        List<CommandSummary> upcoming = HelpContent.getCommands().stream()
+                .filter(summary -> !summary.isAvailable()).toList();
+        assertEquals(List.of("list --today"), upcoming.stream().map(CommandSummary::getSyntax).toList());
+        assertEquals("list --today", upcoming.getFirst().getExample());
     }
 
     @Test

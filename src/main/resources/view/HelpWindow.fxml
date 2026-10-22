@@ -47,6 +47,8 @@
                        text="Replace UPPERCASE placeholders with your values. [Brackets] mark optional parts. Choose one alternative separated by |; do not type the brackets or parentheses." />
                 <Label wrapText="true" minWidth="0" minHeight="-Infinity"
                        text="ID means the client's persistent ID, not their position in the list. Name selectors match part of a name, ignoring case. If several clients match, choose one using --id." />
+                <Label wrapText="true" minWidth="0" minHeight="-Infinity"
+                       text="Dates use YYYY-MM-DD. Appointment times use 24-hour HH:MM, for example 09:00. Entries marked coming soon are not implemented yet." />
               </VBox>
               <VBox fx:id="commandSummaries" spacing="12" minWidth="0" minHeight="-Infinity" />
               <Label fx:id="keyboardShortcuts" styleClass="help-shortcuts" wrapText="true" minWidth="0"

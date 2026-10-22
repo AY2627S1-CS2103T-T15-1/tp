@@ -41,7 +41,7 @@ blank input, modifier keys (including Down while browsing), repeated failures an
 (Mac/Linux: use `./gradlew`). The Developer Guide also provides
 [manual command-history checks](DeveloperGuide.md#recalling-commands).
 
-`HelpContentTest` checks the help catalog without starting JavaFX, including parsing every advertised example with the real command parser. `HelpWindowTest` loads the Help window's FXML and checks command rendering, wrapping and scrolling in a small window, fixed guide controls, URL copying and reopening. The clipboard test restores its previous contents afterwards. Run both classes with
+`HelpContentTest` checks the help catalog without starting JavaFX, including parsing every implemented example with the real command parser and covering each command implementation. It checks planned entries separately: `list --today` must be marked unavailable until it is implemented. `HelpWindowTest` loads the Help window's FXML and checks command rendering, the coming-soon label, wrapping and scrolling in a small window, fixed guide controls, URL copying and reopening. The clipboard test restores its previous contents afterwards. Run both classes with
 `gradlew test --tests seedu.address.ui.HelpContentTest --tests seedu.address.ui.HelpWindowTest`
 (Mac/Linux: use `./gradlew`). See the [manual help-window checks](DeveloperGuide.md#viewing-help)
 for menu and F1 entry points, keyboard navigation, offline use and preserving the current client view.

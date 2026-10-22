@@ -63,13 +63,17 @@ public class HelpWindowTest {
                 for (int i = 0; i < cards.size(); i++) {
                     CommandSummary summary = HelpContent.getCommands().get(i);
                     Parent card = (Parent) cards.get(i);
-                    assertEquals(summary.getCommandWord(), ((Label) card.lookup(".help-command-name")).getText());
+                    String title = summary.getCommandWord() + (summary.isAvailable() ? "" : " (coming soon)");
+                    assertEquals(title, ((Label) card.lookup(".help-command-name")).getText());
                     assertEquals(summary.getDescription(), ((Label) card.lookup(".help-description")).getText());
                     assertEquals("Format: " + summary.getSyntax(), ((Label) card.lookup(".help-syntax")).getText());
                     assertEquals("Example: " + summary.getExample(), ((Label) card.lookup(".help-example")).getText());
                 }
-                assertEquals(6, summaries.getChildren().stream()
+                assertEquals(8, summaries.getChildren().stream()
                         .filter(node -> node.getStyleClass().contains("help-category")).count());
+                assertEquals(27, cards.size());
+                assertEquals(1, cards.stream().filter(card -> ((Label) card.lookup(".help-command-name"))
+                        .getText().equals("list (coming soon)")).count());
             } finally {
                 stage.hide();
             }

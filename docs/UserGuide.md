@@ -86,6 +86,7 @@ You can also open it from **Help > Help** in the menu or by pressing **F1** in t
 ![Cindy Help window showing grouped command summaries, syntax, examples and the User Guide controls](images/helpMessage.png)
 
 * Commands are grouped by purpose. Each command has a short description, its format and an example you can type in the command box.
+* The reference includes groups, appointments and session records. Entries marked **coming soon**, such as `list --today`, describe planned features that are not implemented yet.
 * The syntax guide explains placeholders, optional parameters and alternatives. For example, `view (--id ID | --name NAME)` means use either `view --id 2` or `view --name james`; do not type the parentheses or `|`.
 * Resize the window or scroll down to see the remaining commands and keyboard shortcuts. Long descriptions and command formats wrap to fit the window.
 * The User Guide URL and **Copy URL** button stay at the top while you scroll. Click **Copy URL**, then paste it into your browser to read the full guide. The command summary itself is available without an internet connection.
@@ -139,6 +140,14 @@ Format: `list`
 * Clients are sorted by name, ignoring upper and lower case. For example, `alice Tan` is listed before `Bob Lim`.
 * The client list is always kept in this order, including after you `add` or `edit` a client and in the results of `find`.
 * If a previous command (such as `find`) showed only some clients, `list` shows all of them again.
+
+### Listing today's clients: `list --today` [coming soon]
+
+Planned shortcut for showing clients with appointments today.
+
+Planned format: `list --today`
+
+This option is not implemented yet. To view today's appointments with the current version, use `appointment --date YYYY-MM-DD`, replacing the date with today's date.
 
 ### Editing a client: `edit`
 
@@ -425,6 +434,30 @@ Format: `tag --delete --group GROUP`
 Examples:
 * `tag --delete --group morning` deletes the group `morning` and removes it from every client in it.
 
+### Recording a training session: `session --add`
+
+Records a session for a client on a date, optionally with a note.
+
+Format: `session --add (--id ID | --name NAME) --date YYYY-MM-DD [--note TEXT]`
+
+* Choose one client by ID or name. There can be only one session per client per date; use `session --edit` to change an existing session's note.
+* Dates must be real dates in `YYYY-MM-DD` format. Future dates are allowed.
+* Notes are optional. You can put them in double quotes, especially when they contain text that looks like a flag.
+* The client's profile shows up to four sessions, newest first. Older sessions remain saved.
+
+Example: `session --add --id 2 --date 2026-10-22 --note "Squats: 3 sets"`
+
+### Editing a training session: `session --edit`
+
+Replaces the note of an existing session for a client on a date.
+
+Format: `session --edit (--id ID | --name NAME) --date YYYY-MM-DD --note [TEXT]`
+
+* The client and session date must already exist. This command changes the note, not the date.
+* `--note` is required. Leave the text empty, or use `--note ""`, to clear the note while keeping the session.
+
+Example: `session --edit --id 2 --date 2026-10-22 --note "Improved squat depth"`
+
 ### Clearing all entries: `clear`
 
 Deletes all clients from Cindy after confirmation.
@@ -517,6 +550,7 @@ Action     | Format, Examples
 **Edit**   | `edit --id ID [--to-name NEW_NAME] [--to-phone NEW_PHONE]` (at least one change; or `--name NAME` instead of `--id ID`)<br> e.g., `edit --id 2 --to-name "James Lee"`
 **Find**   | `find [--name NAME] [--phone PHONE] [--id ID] [--group GROUP]` (at least one)<br> e.g., `find --name james`, `find --group morning`
 **List**   | `list`
+**Today (coming soon)** | `list --today` will show clients with appointments today; this option is not implemented yet
 **Plan**   | `plan --id ID --plan "TEXT"` (or `--name NAME` instead of `--id ID`)<br> e.g., `plan --id 2 --plan "Squats: 3 sets"`
 **Schedule appointments** | `appointment --add --id ID --date DATE --time TIME` (or `--name NAME` instead of `--id ID`)<br> e.g., `appointment --add --id 2 --date 2026-10-26 --time 09:00`
 **Cancel appointment** | `appointment --cancel --id ID --index INDEX` (or `--name NAME` instead of `--id ID`)<br> e.g., `appointment --cancel --id 2 --index 1`
@@ -531,6 +565,8 @@ Action     | Format, Examples
 **Move group** | `group --move --id ID --from GROUP --to GROUP` (or `--name NAME` instead of `--id ID`)<br> e.g., `group --move --id 2 --from morning --to evening`
 **Delete group** | `tag --delete --group GROUP`<br> e.g., `tag --delete --group morning`
 **Group**  | `group --name GROUP`<br> e.g., `group --name morning`
+**Add session** | `session --add (--id ID \| --name NAME) --date YYYY-MM-DD [--note TEXT]`<br> e.g., `session --add --id 2 --date 2026-10-22 --note "Squats: 3 sets"`
+**Edit session** | `session --edit (--id ID \| --name NAME) --date YYYY-MM-DD --note [TEXT]` (omit TEXT to clear the note)<br> e.g., `session --edit --id 2 --date 2026-10-22 --note "Improved squat depth"`
 **Help**   | `help`, **Help > Help** in the menu, or **F1** in the main window
 **Exit**   | `exit`
 **Recall commands** | Up / Down while the command box has focus; Enter executes the recalled command

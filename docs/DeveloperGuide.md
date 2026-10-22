@@ -175,13 +175,13 @@ This section describes some noteworthy details on how certain features are imple
 
 ### Help window
 
-`HelpContent` provides an immutable list of `CommandSummary` objects in display order. Each summary contains a category, command word, description, syntax and a complete example. The catalog is independent of JavaFX and describes commands supported by `AddressBookParser`.
+`HelpContent` provides an immutable list of `CommandSummary` objects in display order. Each summary contains a category, command word, description, syntax, a complete example and an availability flag. The catalog is independent of JavaFX. Implemented entries describe commands supported by `AddressBookParser`; planned entries such as `list --today` have `isAvailable` set to `false` and are displayed as coming soon.
 
 `HelpWindow` renders each summary as a card, adding a heading whenever the category changes. `HelpWindow.fxml` keeps the User Guide controls outside the command reference's `ScrollPane`. The window is resizable, the scroll pane fits its content to the available width, and labels wrap without shrinking below their preferred height. `HelpWindow.css` uses Cindy's existing dark colors and typography. `MainWindow` retains one help window, shared by the `help` command, Help menu and F1 shortcut.
 
-When adding or changing a command, update `HelpContent` and the User Guide's command summary together. Keep entries for each category contiguous, use a complete parsable command as the example, and add commands only when they are supported by the application parser. The short descriptions are maintained separately from command error messages so that the reference stays concise.
+When adding or changing a command, update `HelpContent` and the User Guide's command summary together. Keep entries for each category contiguous and give each distinct command form its own entry with a unique syntax. Use a complete parsable command as the example for implemented entries. Planned entries must have `isAvailable` set to `false`; change it to `true` only when the behavior is implemented, not merely when the parser ignores an unsupported option. The short descriptions are maintained separately from command error messages so that the reference stays concise.
 
-`HelpContentTest` checks command coverage, unique entries, parsable examples, category grouping and immutability. `HelpWindowTest` checks that the real FXML displays the catalog, wraps and scrolls at a small size, keeps the guide controls fixed, copies the URL and reopens without duplicating entries. See the [manual help-window checks](#viewing-help) for entry-point and keyboard checks in the running application.
+`HelpContentTest` checks command-family and parsed command-type coverage, unique formats, implemented examples, planned entries, category grouping and immutability. `HelpWindowTest` checks that the real FXML displays the catalog and coming-soon label, wraps and scrolls at a small size, keeps the guide controls fixed, copies the URL and reopens without duplicating entries. See the [manual help-window checks](#viewing-help) for entry-point and keyboard checks in the running application.
 
 ### Command history
 
@@ -692,7 +692,9 @@ Use a disposable copy of Cindy and its data for these checks. Opening help shoul
    1. Check the syntax and client-selector guidance above the command cards.<br>
       Expected: It explains placeholders, optional parts, alternatives, persistent client IDs and ambiguous names.
    1. Scroll through the reference.<br>
-      Expected: There are 14 command cards in six groups: Client details (`add`, `view`, `edit`, `delete`), Finding clients (`list`, `find`), Training information (`note`, `plan`), Client status (`active`, `inactive`), Client type (`tag`) and Application (`clear`, `help`, `exit`). Each has a description, format and example. Group, appointment and session commands are not advertised until they are implemented.
+      Expected: There are 27 command cards in eight groups: Client details, Finding clients, Training information, Client status, Client types and groups, Appointments, Session records and Application. Each has a description, format and example. The reference covers group creation and moving, tagging and untagging, group deletion, appointment scheduling/day/week/cancellation/rescheduling, and session add/edit.
+   1. Find the `list --today` card.<br>
+      Expected: Its heading says `list (coming soon)` and its description says the option is not implemented yet. Do not treat it as a working filter: the current parser ignores arguments to `list`.
    1. Scroll to the bottom.<br>
       Expected: The `exit` card and keyboard shortcuts are reachable. The User Guide URL and Copy URL button remain visible at the top. Reading examples does not execute them.
 

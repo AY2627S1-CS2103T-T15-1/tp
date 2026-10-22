@@ -64,8 +64,9 @@ public class HelpWindow extends UiPart<Stage> {
             card.getStyleClass().add("help-command-card");
             card.setMinWidth(0);
             card.setMinHeight(Region.USE_PREF_SIZE);
+            String title = summary.getCommandWord() + (summary.isAvailable() ? "" : " (coming soon)");
             card.getChildren().addAll(
-                    createLabel(summary.getCommandWord(), "help-command-name"),
+                    createLabel(title, "help-command-name"),
                     createLabel(summary.getDescription(), "help-description"),
                     createLabel("Format: " + summary.getSyntax(), "help-syntax"),
                     createLabel("Example: " + summary.getExample(), "help-example"));
