@@ -40,7 +40,7 @@ class JsonAdaptedSession {
 
         final LocalDate modelDate;
         try {
-            modelDate = LocalDate.parse(date);
+            modelDate = Session.parseDate(date);
         } catch (DateTimeParseException exception) {
             throw new IllegalValueException(Session.MESSAGE_DATE_CONSTRAINTS);
         }

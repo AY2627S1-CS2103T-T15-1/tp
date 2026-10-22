@@ -71,6 +71,22 @@ public class EditSessionCommandTest {
     }
 
     @Test
+    public void execute_multipleSessions_preservesOtherSessions() {
+        Session earlier = new Session(DATE.minusDays(1), "Earlier note");
+        Session later = new Session(DATE.plusDays(1), "Later note");
+        Person original = aliceWithSession.withSessions(List.of(earlier, ORIGINAL_SESSION, later));
+        model.setPerson(aliceWithSession, original);
+        Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
+        expectedModel.setPerson(original,
+                original.withSessions(List.of(earlier, new Session(DATE, UPDATED_NOTE), later)));
+
+        EditSessionCommand command = new EditSessionCommand(
+                PersonSelector.byId(original.getId()), DATE, UPDATED_NOTE);
+        assertCommandSuccess(command, model,
+                String.format(EditSessionCommand.MESSAGE_SUCCESS, original.getName(), DATE), expectedModel);
+    }
+
+    @Test
     public void execute_nameMatchingOnePerson_replacesNote() {
         EditSessionCommand command = new EditSessionCommand(
                 PersonSelector.byName("ALICE p"), DATE, UPDATED_NOTE);

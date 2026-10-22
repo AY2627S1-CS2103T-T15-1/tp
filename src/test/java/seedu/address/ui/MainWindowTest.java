@@ -19,6 +19,7 @@ import org.junit.jupiter.api.io.TempDir;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
@@ -63,10 +64,11 @@ public class MainWindowTest {
             StorageManager storage = new StorageManager(new JsonAddressBookStorage(dataFile),
                     new JsonUserPrefsStorage(testFolder.resolve("preferences.json")));
             ModelManager model = new ModelManager();
+            String longNote = "A long training note that should wrap and remain accessible. ".repeat(100);
             Person aliceWithSessions = new PersonBuilder(ALICE).withSessions(
                     new Session(LocalDate.of(2026, 8, 1), "This older session should stay hidden"),
                     new Session(LocalDate.of(2026, 10, 22), "Worked on squat form"),
-                    new Session(LocalDate.of(2026, 12, 31), "Future reminder"),
+                    new Session(LocalDate.of(2026, 12, 31), longNote),
                     new Session(LocalDate.of(2026, 9, 10), "Improved mobility"),
                     new Session(LocalDate.of(2026, 11, 15), "")).build();
             Person clientWithoutSessions = new PersonBuilder()
@@ -107,10 +109,21 @@ public class MainWindowTest {
                 assertEquals("#1", ((Label) details.lookup("#id")).getText());
                 VBox sessionList = (VBox) details.lookup("#sessionList");
                 assertEquals(4, sessionList.getChildren().size());
-                assertSessionRow((VBox) sessionList.getChildren().get(0), "2026-12-31", "Future reminder");
+                assertSessionRow((VBox) sessionList.getChildren().get(0), "2026-12-31", longNote);
                 assertSessionRow((VBox) sessionList.getChildren().get(1), "2026-11-15", "No note");
                 assertSessionRow((VBox) sessionList.getChildren().get(2), "2026-10-22", "Worked on squat form");
                 assertSessionRow((VBox) sessionList.getChildren().get(3), "2026-09-10", "Improved mobility");
+                stage.setWidth(500);
+                stage.setHeight(600);
+                stage.getScene().getRoot().applyCss();
+                stage.getScene().getRoot().layout();
+                ScrollPane sessionScroll = (ScrollPane) details.lookup("#sessionScrollPane");
+                assertTrue(sessionScroll.isFitToWidth());
+                assertTrue(sessionScroll.getContent().getLayoutBounds().getHeight()
+                        > sessionScroll.getViewportBounds().getHeight());
+                sessionScroll.setVvalue(sessionScroll.getVmax());
+                stage.getScene().getRoot().layout();
+                assertEquals(sessionScroll.getVmax(), sessionScroll.getVvalue());
 
                 command.setText("view --id 99");
                 command.fireEvent(new ActionEvent());
@@ -146,6 +159,7 @@ public class MainWindowTest {
     private static void assertSessionRow(VBox row, String expectedDate, String expectedNote) {
         assertEquals(expectedDate, ((Label) row.getChildren().get(0)).getText());
         assertEquals(expectedNote, ((Label) row.getChildren().get(1)).getText());
+        assertTrue(((Label) row.getChildren().get(1)).isWrapText());
     }
 
 }

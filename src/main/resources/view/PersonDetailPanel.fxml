@@ -2,17 +2,23 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox styleClass="contact-list, client-detail-card" minHeight="96" maxHeight="Infinity"
+<VBox styleClass="contact-list, client-detail-card" minHeight="0" maxHeight="Infinity"
       xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
   <StackPane fx:id="personHeader" />
-  <VBox styleClass="session-section" spacing="12" VBox.vgrow="ALWAYS">
-    <padding>
-      <Insets top="4" right="24" bottom="24" left="16" />
-    </padding>
-    <Label text="Recent sessions" styleClass="session-section-title" />
-    <VBox fx:id="sessionList" spacing="8" />
-  </VBox>
+  <ScrollPane fx:id="sessionScrollPane" styleClass="session-scroll" fitToWidth="true"
+              hbarPolicy="NEVER" minHeight="0" VBox.vgrow="ALWAYS">
+    <content>
+      <VBox styleClass="session-section" spacing="12">
+        <padding>
+          <Insets top="4" right="24" bottom="24" left="16" />
+        </padding>
+        <Label text="Recent sessions" styleClass="session-section-title" />
+        <VBox fx:id="sessionList" spacing="8" />
+      </VBox>
+    </content>
+  </ScrollPane>
 </VBox>

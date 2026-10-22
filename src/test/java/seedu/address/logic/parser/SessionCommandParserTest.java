@@ -99,6 +99,28 @@ public class SessionCommandParserTest {
     public void parse_invalidDate_failure() {
         assertParseFailure(parser, " --add --id 2 --date 21-10-2026", Session.MESSAGE_DATE_CONSTRAINTS);
         assertParseFailure(parser, " --add --id 2 --date 2026-02-30", Session.MESSAGE_DATE_CONSTRAINTS);
+        assertParseFailure(parser, " --add --id 2 --date +10000-10-21", Session.MESSAGE_DATE_CONSTRAINTS);
+        assertParseFailure(parser, " --add --id 2 --date -0001-10-21", Session.MESSAGE_DATE_CONSTRAINTS);
+        assertParseFailure(parser, " --add --id 2 --date 2026-1-01", Session.MESSAGE_DATE_CONSTRAINTS);
+    }
+
+    @Test
+    public void parse_quotedNoteContainingFlags_preservesNote() {
+        assertParseSuccess(parser,
+                " --add --id 2 --date 2026-10-21 --note \"Remember --edit and --date\"",
+                new AddSessionCommand(PersonSelector.byId(new PersonId(2)), DATE, "Remember --edit and --date"));
+    }
+
+    @Test
+    public void parse_misspelledAction_failure() {
+        assertParseFailure(parser, " --address --id 2 --date 2026-10-21",
+                SessionCommandParser.MESSAGE_ACTION_REQUIRED);
+    }
+
+    @Test
+    public void parse_validLeapDay_success() {
+        assertParseSuccess(parser, " --add --id 2 --date 2028-02-29",
+                new AddSessionCommand(PersonSelector.byId(new PersonId(2)), LocalDate.of(2028, 2, 29), ""));
     }
 
     @Test

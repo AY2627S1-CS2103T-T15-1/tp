@@ -154,6 +154,13 @@
     -fx-text-fill: white;
 }
 
+.session-scroll,
+.session-scroll > .viewport {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
 .session-row {
     -fx-background-color: #303030;
     -fx-background-radius: 12;

@@ -67,7 +67,7 @@ public class SessionCommandParser implements Parser<SessionCommand> {
 
     private static LocalDate parseDate(String date) throws ParseException {
         try {
-            return LocalDate.parse(date);
+            return Session.parseDate(date);
         } catch (DateTimeParseException exception) {
             throw new ParseException(Session.MESSAGE_DATE_CONSTRAINTS);
         }

@@ -23,6 +23,10 @@ public class JsonAdaptedSessionTest {
     public void toModelType_invalidDate_throwsIllegalValueException() {
         JsonAdaptedSession session = new JsonAdaptedSession("2026-02-30", "Note");
         assertThrows(IllegalValueException.class, Session.MESSAGE_DATE_CONSTRAINTS, session::toModelType);
+        JsonAdaptedSession extendedYear = new JsonAdaptedSession("+10000-10-21", "Note");
+        assertThrows(IllegalValueException.class, Session.MESSAGE_DATE_CONSTRAINTS, extendedYear::toModelType);
+        JsonAdaptedSession negativeYear = new JsonAdaptedSession("-0001-10-21", "Note");
+        assertThrows(IllegalValueException.class, Session.MESSAGE_DATE_CONSTRAINTS, negativeYear::toModelType);
     }
 
     @Test

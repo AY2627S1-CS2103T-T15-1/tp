@@ -1,6 +1,7 @@
 package seedu.address.model.session;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.Objects;
 
 import seedu.address.commons.util.ToStringBuilder;
@@ -32,6 +33,19 @@ public class Session {
 
     public String getNote() {
         return note;
+    }
+
+    /**
+     * Parses a valid calendar date written as exactly YYYY-MM-DD.
+     *
+     * @throws DateTimeParseException if the format or calendar date is invalid.
+     */
+    public static LocalDate parseDate(String value) {
+        Objects.requireNonNull(value);
+        if (!value.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}")) {
+            throw new DateTimeParseException(MESSAGE_DATE_CONSTRAINTS, value, 0);
+        }
+        return LocalDate.parse(value);
     }
 
     @Override
