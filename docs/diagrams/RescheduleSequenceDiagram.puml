@@ -1,0 +1,120 @@
+@startuml
+!include style.puml
+skinparam ArrowFontStyle plain
+
+box Logic LOGIC_COLOR_T1
+participant ":LogicManager" as LogicManager LOGIC_COLOR
+participant ":AddressBookParser" as AddressBookParser LOGIC_COLOR
+participant ":AppointmentCommandParser" as AppointmentCommandParser LOGIC_COLOR
+participant "<<class>>\nParserUtil" as ParserUtil LOGIC_COLOR
+participant "s:PersonSelector" as PersonSelector LOGIC_COLOR
+participant "c:RescheduleAppointmentCommand" as RescheduleCommand LOGIC_COLOR
+participant "r:CommandResult" as CommandResult LOGIC_COLOR
+end box
+
+box Model MODEL_COLOR_T1
+participant "m:Model" as Model MODEL_COLOR
+participant "p:Person" as Person MODEL_COLOR
+participant "a:Appointment" as Appointment MODEL_COLOR
+participant "u:Person" as UpdatedPerson MODEL_COLOR
+end box
+
+[-> LogicManager : execute("appointment ~--reschedule\n~--id 2 ~--index 1 ~--date 2026-10-27 ~--time 18:00")
+activate LogicManager
+
+LogicManager -> AddressBookParser : parseCommand(...)
+activate AddressBookParser
+
+create AppointmentCommandParser
+AddressBookParser -> AppointmentCommandParser
+activate AppointmentCommandParser
+
+AppointmentCommandParser --> AddressBookParser
+deactivate AppointmentCommandParser
+
+AddressBookParser -> AppointmentCommandParser : parse(...)
+activate AppointmentCommandParser
+
+AppointmentCommandParser -> ParserUtil : parsePersonSelector(...)
+activate ParserUtil
+
+create PersonSelector
+ParserUtil -> PersonSelector
+activate PersonSelector
+
+PersonSelector --> ParserUtil
+deactivate PersonSelector
+
+ParserUtil --> AppointmentCommandParser : s
+deactivate ParserUtil
+
+create RescheduleCommand
+AppointmentCommandParser -> RescheduleCommand : RescheduleAppointmentCommand(s, 1, 2026-10-27, 18:00)
+activate RescheduleCommand
+
+RescheduleCommand --> AppointmentCommandParser
+deactivate RescheduleCommand
+
+AppointmentCommandParser --> AddressBookParser : c
+deactivate AppointmentCommandParser
+'Hidden arrow to position the destroy marker below the end of the activation bar.
+AppointmentCommandParser -[hidden]-> AddressBookParser
+destroy AppointmentCommandParser
+
+AddressBookParser --> LogicManager : c
+deactivate AddressBookParser
+
+LogicManager -> RescheduleCommand : execute(m)
+activate RescheduleCommand
+
+RescheduleCommand -> PersonSelector : findMatches(...)
+activate PersonSelector
+
+PersonSelector --> RescheduleCommand : p
+deactivate PersonSelector
+
+RescheduleCommand -> RescheduleCommand : executeOn(p, m)
+activate RescheduleCommand
+
+create Appointment
+RescheduleCommand -> Appointment : Appointment(2026-10-27, 18:00)
+activate Appointment
+
+Appointment --> RescheduleCommand
+deactivate Appointment
+
+RescheduleCommand -> Person : withAppointments(...)
+activate Person
+
+create UpdatedPerson
+Person -> UpdatedPerson
+activate UpdatedPerson
+
+UpdatedPerson --> Person
+deactivate UpdatedPerson
+
+Person --> RescheduleCommand : u
+deactivate Person
+
+RescheduleCommand -> Model : setPerson(p, u)
+activate Model
+
+Model --> RescheduleCommand
+deactivate Model
+
+create CommandResult
+RescheduleCommand -> CommandResult
+activate CommandResult
+
+CommandResult --> RescheduleCommand
+deactivate CommandResult
+
+RescheduleCommand --> RescheduleCommand : r
+deactivate RescheduleCommand
+
+RescheduleCommand --> LogicManager : r
+deactivate RescheduleCommand
+
+[<--LogicManager
+deactivate LogicManager
+@enduml
