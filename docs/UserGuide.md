@@ -22,7 +22,7 @@ Cindy is a **desktop application that helps freelance gym trainers manage their 
 
 1. Copy the file to the folder you want to use as the _home folder_ for Cindy.
 
-1. Open a terminal, `cd` to the folder containing the JAR file, and run `java -jar addressbook.jar`.<br>
+1. Open a terminal, `cd` to the folder containing the JAR file, and run `java -jar cindy.jar`.<br>
    A GUI similar to the one below should appear in a few seconds. Note how the app contains some sample data.<br>
    ![Ui](images/Ui.png)
 
@@ -506,15 +506,15 @@ The **home folder** is the folder containing the Cindy JAR file. Cindy uses this
 
 The following files are stored in the home folder:
 
-* `data/addressbook.json`: your clients, inside the `data` sub-folder.
+* `data/cindy.json`: your clients, inside the `data` sub-folder.
 * `preferences.json`: your window size and position.
-* Rotating `addressbook.log` files and their lock file: application logs.
+* Rotating `cindy.log` files and their lock file: application logs.
 
 If you move the JAR to another folder, close Cindy first and move the `data` folder and `preferences.json` alongside it to retain your clients and window preferences. If the data file is missing, Cindy creates a new one with sample clients.
 
 ### Editing the data file
 
-Cindy data is saved automatically as a JSON file `[JAR file location]/data/addressbook.json`. Advanced users are welcome to update data directly by editing that data file.
+Cindy data is saved automatically as a JSON file `[JAR file location]/data/cindy.json`. Advanced users are welcome to update data directly by editing that data file.
 
 <box type="warning" seamless>
 
@@ -532,7 +532,7 @@ _Details coming soon ..._
 ## FAQ
 
 **Q**: How do I transfer my data to another computer?<br>
-**A**: Close Cindy, then copy the JAR and its `data` folder to a writable folder on the other computer, keeping them together. You can also copy `preferences.json` to retain your window preferences. If Cindy has already created a data file on the other computer, back it up before replacing it with your original `data/addressbook.json`.
+**A**: Close Cindy, then copy the JAR and its `data` folder to a writable folder on the other computer, keeping them together. You can also copy `preferences.json` to retain your window preferences. If Cindy has already created a data file on the other computer, back it up before replacing it with your original `data/cindy.json`.
 
 --------------------------------------------------------------------------------------------------------------------
 

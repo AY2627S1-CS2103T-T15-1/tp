@@ -134,7 +134,7 @@ How the parsing works:
 
 The `Model` component,
 
-* stores the address book data i.e., all `Person` objects (which are contained in a `UniquePersonList` object).
+* stores Cindy's client data i.e., all `Person` objects (which are contained in a `UniquePersonList` object).
 * stores the custom groups (e.g. `morning`, `rehab`) as a list of `Tag` objects in `AddressBook`, in the order they were created. Every custom tag of a `Person` is also one of these groups, so a client can never be in a group that does not exist. `gym` and `personal` are built-in client types, not groups.
 * stores the `Person` objects selected by the current filter, such as search results, in a separate _filtered_ list, which is kept sorted alphabetically by name (case-insensitive). It exposes this list as an unmodifiable `ObservableList<Person>` that the UI can observe and bind to, so the UI updates when the list changes.
 * stores a `UserPrefs` object that represents the user’s preferences (currently, just the GUI settings). This is exposed to the outside as a `ReadOnlyUserPrefs` object.
@@ -156,7 +156,7 @@ The `Model` component,
 <puml src="diagrams/StorageClassDiagram.puml" width="550" />
 
 The `Storage` component,
-* can save both address book data and user preference data in JSON format, and read them back into corresponding objects.
+* can save both Cindy's client data and user preference data in JSON format, and read them back into corresponding objects.
 * is implemented by `StorageManager`, which delegates the actual JSON file access to `JsonAddressBookStorage` and `JsonUserPrefsStorage` (one class per data file).
 * depends on some classes in the `Model` component (because the `Storage` component's job is to save/retrieve objects that belong to the `Model`)
 
@@ -167,7 +167,7 @@ The `Storage` component,
 * When packaged in a JAR, the home folder is the folder containing that JAR, regardless of the working directory.
 * When running compiled classes, such as through Gradle during development, the home folder is the working directory (normally the project folder).
 
-`MainApp` resolves `data/addressbook.json` and `preferences.json` against this home folder before constructing the storage objects. `LogsCenter` uses the same helper for its rotating `addressbook.log` files and lock file. It escapes percent characters in the log path because `FileHandler` interprets them as pattern markers.
+`MainApp` resolves `data/cindy.json` and `preferences.json` against this home folder before constructing the storage objects. `LogsCenter` uses the same helper for its rotating `cindy.log` files and lock file. It escapes percent characters in the log path because `FileHandler` interprets them as pattern markers.
 
 The application does not search another folder for existing data or fall back to another save location when writing fails. Moving a packaged application therefore requires moving its `data` folder and `preferences.json` alongside the JAR. These paths are anchored to the home folder; the helper does not enforce containment against symbolic links pointing outside it.
 

@@ -58,7 +58,7 @@ public class LogsCenterTest {
     @Test
     public void getLogger_logsToHomeFile_preservesExistingContentAndFiltersFineMessages() throws Exception {
         Path home = Files.createDirectories(temporaryFolder.resolve("log folder 100%"));
-        Path log = home.resolve("addressbook.log.0");
+        Path log = home.resolve("cindy.log.0");
         Files.writeString(log, "previous log content\n");
         Class<?> logs = loadLogsCenter(home);
         Logger logger = (Logger) logs.getMethod("getLogger", String.class).invoke(null, "coverage.file");
@@ -115,7 +115,7 @@ public class LogsCenterTest {
 
     @Test
     public void getLogger_logFileIsDirectory_initializesAndContinuesConsoleLogging() throws Exception {
-        Files.createDirectory(temporaryFolder.resolve("addressbook.log.0"));
+        Files.createDirectory(temporaryFolder.resolve("cindy.log.0"));
         PrintStream originalError = System.err;
         ByteArrayOutputStream console = new ByteArrayOutputStream();
         try (PrintStream capturedError = new PrintStream(console, true, StandardCharsets.UTF_8)) {
@@ -125,7 +125,7 @@ public class LogsCenterTest {
             logger.warning("console logging still works");
 
             assertTrue(console.toString(StandardCharsets.UTF_8).contains("console logging still works"));
-            assertTrue(Files.isDirectory(temporaryFolder.resolve("addressbook.log.0")));
+            assertTrue(Files.isDirectory(temporaryFolder.resolve("cindy.log.0")));
         } finally {
             System.setErr(originalError);
         }

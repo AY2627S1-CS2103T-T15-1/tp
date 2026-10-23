@@ -28,7 +28,7 @@ public class AddCommand extends Command {
             + PREFIX_PHONE_LONG + " \"+65 9123 4567\"";
 
     public static final String MESSAGE_SUCCESS = "New client added: %1$s";
-    public static final String MESSAGE_DUPLICATE_PERSON = "This client already exists in the address book.";
+    public static final String MESSAGE_DUPLICATE_PERSON = "This client already exists in Cindy.";
 
     private final Name name;
     private final Phone phone;

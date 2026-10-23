@@ -95,6 +95,7 @@ public class MainWindowTest {
             Stage stage = new Stage();
             try {
                 MainWindow window = new MainWindow(stage, logic, dataFile);
+                assertEquals("Cindy", stage.getTitle());
                 window.show();
                 window.fillInnerParts();
                 stage.getScene().getRoot().applyCss();
@@ -183,7 +184,7 @@ public class MainWindowTest {
 
                 command.setText("exit");
                 command.fireEvent(new ActionEvent());
-                assertEquals("Exiting Address Book as requested ...", feedback.getText());
+                assertEquals("Exiting Cindy as requested ...", feedback.getText());
                 assertFalse(stage.isShowing());
             } finally {
                 stage.hide();
