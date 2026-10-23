@@ -183,7 +183,7 @@ public class MainWindowTest {
 
                 command.setText("exit");
                 command.fireEvent(new ActionEvent());
-                assertEquals("Exiting Address Book as requested ...", feedback.getText());
+                assertEquals("Exiting Cindy as requested ...", feedback.getText());
                 assertFalse(stage.isShowing());
             } finally {
                 stage.hide();
