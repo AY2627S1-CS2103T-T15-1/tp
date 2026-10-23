@@ -212,6 +212,18 @@ The text-change listener resets navigation when the user edits input. During rec
 
 `CommandHistoryTest` covers the entry limit, ordering, duplicate handling, navigation boundaries, draft restoration, reset behaviour, null arguments and instance isolation. `CommandBoxTest` exercises real JavaFX controls and events for recall, Enter submission, failed commands, draft editing, blank input, modified keys and ordinary caret movement. See the [manual command-history checks](#recalling-commands) for checks in the running application.
 
+### Rescheduling an appointment
+
+`appointment --reschedule` moves one of a client's appointments to a new date and time. The sequence diagram below shows how `appointment --reschedule --id 2 --index 1 --date 2026-10-27 --time 18:00` is executed.
+
+<puml src="diagrams/RescheduleSequenceDiagram.puml" alt="Interactions for the `appointment --reschedule` Command" />
+
+Parsing works like it does for `delete` in the [Logic component](#logic-component) section, so the diagram shows it as a single `ref` frame. `AppointmentCommandParser` handles every form of the `appointment` command and picks the form from its flag (`--add`, `--cancel`, `--reschedule`, or `--date`/`--week` for listing). For `--reschedule`, it turns `--id 2` (or `--name NAME`) into a `PersonSelector` and creates a `RescheduleAppointmentCommand` with the selector, the appointment index, and the new date and time.
+
+`RescheduleAppointmentCommand` extends `AppointmentIndexCommand`, which extends `PersonTargetedCommand`, so the client is found the same way as for `delete`. In `executeOn`, the command checks that the client has an appointment at the given index, and creates a new `Appointment` at the new date and time. Because `Person` and `Appointment` are immutable, the old appointment is not changed. Instead, `Person#withAppointments` returns a new `Person` whose list has the new appointment in place of the old one, and `Model#setPerson` replaces the client. The new appointment is never cancelled, so rescheduling a cancelled appointment makes it active again.
+
+The command fails with a `CommandException` (not shown in the diagram) if the index is not valid for the client, or if another of the client's appointments is already at the new date and time.
+
 ### \[Proposed\] Undo/redo feature
 
 #### Proposed Implementation
