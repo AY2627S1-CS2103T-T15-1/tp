@@ -91,14 +91,17 @@ Here's a (partial) class diagram of the `Logic` component:
 
 <puml src="diagrams/LogicClassDiagram.puml" width="550"/>
 
-The sequence diagram below illustrates the interactions within the `Logic` component, taking `execute("delete 1")` API call as an example.
+The sequence diagram below illustrates the interactions within the `Logic` component, taking `execute("delete --id 1")` API call as an example.
 
-<puml src="diagrams/DeleteSequenceDiagram.puml" alt="Interactions Inside the Logic Component for the `delete 1` Command" />
+<puml src="diagrams/DeleteSequenceDiagram.puml" alt="Interactions Inside the Logic Component for the `delete --id 1` Command" />
 
 <box type="info" seamless>
 
 **Note:** The lifeline for `DeleteCommandParser` should end at the destroy marker (X), but due to a limitation of PlantUML, the lifeline continues till the end of diagram.
 </box>
+
+`DeleteCommand`, like the other commands that act on one client (e.g. `view`, `edit`, `note`), extends `PersonTargetedCommand`. The parser turns `--id 1` (or `--name NAME`) into a `PersonSelector`, and the command uses it to find the matching clients when executed. If exactly one client matches, the command acts on that client in `executeOn`. If several clients match, which can only happen with `--name`, no client is changed: the list is filtered to the matching clients, and the user is asked to choose one with `--id`. If no client matches, a `CommandException` is thrown (not shown in the diagram).
+
 
 
 How the `Logic` component works:
