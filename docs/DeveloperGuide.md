@@ -215,12 +215,7 @@ The text-change listener resets navigation when the user edits input. During rec
 
 <puml src="diagrams/RescheduleSequenceDiagram.puml" alt="Interactions for the `appointment --reschedule` Command" />
 
-<box type="info" seamless>
-
-**Note:** The lifeline for `AppointmentCommandParser` should end at the destroy marker (X), but due to a limitation of PlantUML, the lifeline continues till the end of diagram.
-</box>
-
-`AppointmentCommandParser` handles every form of the `appointment` command and picks the form from its flag (`--add`, `--cancel`, `--reschedule`, or `--date`/`--week` for listing). For `--reschedule`, it turns `--id 2` (or `--name NAME`) into a `PersonSelector` and creates a `RescheduleAppointmentCommand` with the selector, the appointment index, and the new date and time.
+Parsing works like it does for `delete` in the [Logic component](#logic-component) section, so the diagram shows it as a single `ref` frame. `AppointmentCommandParser` handles every form of the `appointment` command and picks the form from its flag (`--add`, `--cancel`, `--reschedule`, or `--date`/`--week` for listing). For `--reschedule`, it turns `--id 2` (or `--name NAME`) into a `PersonSelector` and creates a `RescheduleAppointmentCommand` with the selector, the appointment index, and the new date and time.
 
 `RescheduleAppointmentCommand` extends `AppointmentIndexCommand`, which extends `PersonTargetedCommand`, so the client is found the same way as for `delete`. In `executeOn`, the command checks that the client has an appointment at the given index, and creates a new `Appointment` at the new date and time. Because `Person` and `Appointment` are immutable, the old appointment is not changed. Instead, `Person#withAppointments` returns a new `Person` whose list has the new appointment in place of the old one, and `Model#setPerson` replaces the client. The new appointment is never cancelled, so rescheduling a cancelled appointment makes it active again.
 

@@ -4,11 +4,8 @@ skinparam ArrowFontStyle plain
 
 box Logic LOGIC_COLOR_T1
 participant ":LogicManager" as LogicManager LOGIC_COLOR
-participant ":AddressBookParser" as AddressBookParser LOGIC_COLOR
-participant ":AppointmentCommandParser" as AppointmentCommandParser LOGIC_COLOR
-participant "<<class>>\nParserUtil" as ParserUtil LOGIC_COLOR
-participant "s:PersonSelector" as PersonSelector LOGIC_COLOR
 participant "c:RescheduleAppointmentCommand" as RescheduleCommand LOGIC_COLOR
+participant "s:PersonSelector" as PersonSelector LOGIC_COLOR
 participant "r:CommandResult" as CommandResult LOGIC_COLOR
 end box
 
@@ -22,47 +19,10 @@ end box
 [-> LogicManager : execute("appointment ~--reschedule\n~--id 2 ~--index 1 ~--date 2026-10-27 ~--time 18:00")
 activate LogicManager
 
-LogicManager -> AddressBookParser : parseCommand(...)
-activate AddressBookParser
-
-create AppointmentCommandParser
-AddressBookParser -> AppointmentCommandParser
-activate AppointmentCommandParser
-
-AppointmentCommandParser --> AddressBookParser
-deactivate AppointmentCommandParser
-
-AddressBookParser -> AppointmentCommandParser : parse(...)
-activate AppointmentCommandParser
-
-AppointmentCommandParser -> ParserUtil : parsePersonSelector(...)
-activate ParserUtil
-
-create PersonSelector
-ParserUtil -> PersonSelector
-activate PersonSelector
-
-PersonSelector --> ParserUtil
-deactivate PersonSelector
-
-ParserUtil --> AppointmentCommandParser : s
-deactivate ParserUtil
-
-create RescheduleCommand
-AppointmentCommandParser -> RescheduleCommand : RescheduleAppointmentCommand(s, 1, 2026-10-27, 18:00)
-activate RescheduleCommand
-
-RescheduleCommand --> AppointmentCommandParser
-deactivate RescheduleCommand
-
-AppointmentCommandParser --> AddressBookParser : c
-deactivate AppointmentCommandParser
-'Hidden arrow to position the destroy marker below the end of the activation bar.
-AppointmentCommandParser -[hidden]-> AddressBookParser
-destroy AppointmentCommandParser
-
-AddressBookParser --> LogicManager : c
-deactivate AddressBookParser
+ref over LogicManager, RescheduleCommand, PersonSelector
+    parse the command into c, which holds s
+    (see the Logic component section)
+end ref
 
 LogicManager -> RescheduleCommand : execute(m)
 activate RescheduleCommand
@@ -70,8 +30,13 @@ activate RescheduleCommand
 RescheduleCommand -> PersonSelector : findMatches(...)
 activate PersonSelector
 
-PersonSelector --> RescheduleCommand : p
+PersonSelector --> RescheduleCommand : matches
 deactivate PersonSelector
+
+note right of RescheduleCommand
+    with ~--id, matches holds
+    exactly one client p
+end note
 
 RescheduleCommand -> RescheduleCommand : executeOn(p, m)
 activate RescheduleCommand
