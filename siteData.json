@@ -53,6 +53,7 @@
         "implementation": "Implementation",
         "help-window": "Help window",
         "command-history": "Command history",
+        "rescheduling-an-appointment": "Rescheduling an appointment",
         "proposed-undo-redo-feature": "[Proposed] Undo/redo feature",
         "proposed-data-archiving": "[Proposed] Data archiving",
         "documentation-logging-testing-dev-ops": "Documentation, logging, testing, dev-ops",
