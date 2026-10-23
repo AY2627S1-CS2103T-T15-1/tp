@@ -95,6 +95,7 @@ public class MainWindowTest {
             Stage stage = new Stage();
             try {
                 MainWindow window = new MainWindow(stage, logic, dataFile);
+                assertEquals("Cindy", stage.getTitle());
                 window.show();
                 window.fillInnerParts();
                 stage.getScene().getRoot().applyCss();
