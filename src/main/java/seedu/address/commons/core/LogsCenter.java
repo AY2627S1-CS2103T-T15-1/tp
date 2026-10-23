@@ -26,7 +26,7 @@ public class LogsCenter {
     private static final int MAX_FILE_COUNT = 5;
     private static final int MAX_FILE_SIZE_IN_BYTES = (int) (Math.pow(2, 20) * 5); // 5MB
     // FileHandler treats '%' as a pattern marker, so escape it in the application's folder name.
-    private static final String LOG_FILE = AppPaths.getHomeDirectory().resolve("addressbook.log")
+    private static final String LOG_FILE = AppPaths.getHomeDirectory().resolve("cindy.log")
             .toString().replace("%", "%%");
     private static final Logger logger; // logger for this class
     private static Logger baseLogger; // to be used as the parent of all other loggers created by this class.

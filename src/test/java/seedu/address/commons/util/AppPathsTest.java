@@ -69,7 +69,7 @@ public class AppPathsTest {
         // Keep a redundant path segment to exercise different spellings of the same folder on every platform.
         Path home = Files.createDirectories(temporaryFolder.resolve(".").resolve("app folder 100%"));
         Path workingDirectory = Files.createDirectories(temporaryFolder.resolve("launch folder"));
-        Path jar = home.resolve("addressbook.jar");
+        Path jar = home.resolve("cindy.jar");
         try (JarOutputStream output = new JarOutputStream(Files.newOutputStream(jar))) {
             addClass(output, "seedu/address/commons/util/AppPaths.class");
             addClass(output, "seedu/address/commons/core/LogsCenter.class");
@@ -85,7 +85,7 @@ public class AppPathsTest {
             assertEquals(0, process.exitValue(), result);
             assertTrue(Files.isSameFile(home, Path.of(result)),
                     "Expected JAR folder " + home + " but the probe reported " + result);
-            assertTrue(Files.exists(home.resolve("addressbook.log.0")), "Log must be created beside the JAR");
+            assertTrue(Files.exists(home.resolve("cindy.log.0")), "Log must be created beside the JAR");
             try (Stream<Path> files = Files.list(workingDirectory)) {
                 assertEquals(0L, files.count(), "Launching must not create files in the working directory");
             }

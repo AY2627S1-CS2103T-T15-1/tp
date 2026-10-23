@@ -34,7 +34,7 @@ public class MainAppTest {
         Path home = Path.of("").toAbsolutePath().normalize();
         Field addressBookPath = MainApp.class.getDeclaredField("ADDRESS_BOOK_FILE_PATH");
         addressBookPath.setAccessible(true);
-        assertEquals(home.resolve("data/addressbook.json"), addressBookPath.get(null));
+        assertEquals(home.resolve("data/cindy.json"), addressBookPath.get(null));
 
         Field preferencesPath = MainApp.class.getDeclaredField("USER_PREFS_FILE_PATH");
         preferencesPath.setAccessible(true);
@@ -42,12 +42,12 @@ public class MainAppTest {
 
         Field logPath = LogsCenter.class.getDeclaredField("LOG_FILE");
         logPath.setAccessible(true);
-        assertEquals(home.resolve("addressbook.log").toString().replace("%", "%%"), logPath.get(null));
+        assertEquals(home.resolve("cindy.log").toString().replace("%", "%%"), logPath.get(null));
     }
 
     @Test
     public void initModelManager_missingAddressBook_createsFileWithSampleData() throws Exception {
-        Path addressBookFilePath = temporaryFolder.resolve("data").resolve("addressbook.json");
+        Path addressBookFilePath = temporaryFolder.resolve("data").resolve("cindy.json");
         JsonAddressBookStorage addressBookStorage = new JsonAddressBookStorage(addressBookFilePath);
         StorageManager storage = new StorageManager(addressBookStorage,
                 new JsonUserPrefsStorage(temporaryFolder.resolve("preferences.json")));
@@ -62,7 +62,7 @@ public class MainAppTest {
 
     @Test
     public void initModelManager_existingAddressBook_usesSavedData() throws Exception {
-        Path addressBookFilePath = temporaryFolder.resolve("addressbook.json");
+        Path addressBookFilePath = temporaryFolder.resolve("cindy.json");
         AddressBook savedAddressBook = new AddressBookBuilder().withPerson(ALICE).build();
         JsonAddressBookStorage addressBookStorage = new JsonAddressBookStorage(addressBookFilePath);
         addressBookStorage.saveAddressBook(savedAddressBook);
@@ -76,7 +76,7 @@ public class MainAppTest {
 
     @Test
     public void initModelManager_initialSaveFails_startsWithSampleData() throws Exception {
-        Path addressBookFilePath = temporaryFolder.resolve("addressbook.json");
+        Path addressBookFilePath = temporaryFolder.resolve("cindy.json");
         JsonAddressBookStorage addressBookStorage = new JsonAddressBookStorage(addressBookFilePath) {
             @Override
             public void saveAddressBook(ReadOnlyAddressBook addressBook) throws IOException {
@@ -94,7 +94,7 @@ public class MainAppTest {
 
     @Test
     public void initModelManager_invalidAddressBook_doesNotOverwriteFile() throws Exception {
-        Path addressBookFilePath = temporaryFolder.resolve("addressbook.json");
+        Path addressBookFilePath = temporaryFolder.resolve("cindy.json");
         String invalidData = "not valid json";
         Files.writeString(addressBookFilePath, invalidData);
         StorageManager storage = new StorageManager(new JsonAddressBookStorage(addressBookFilePath),

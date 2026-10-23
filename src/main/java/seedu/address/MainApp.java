@@ -36,7 +36,7 @@ public class MainApp extends Application {
 
     private static final Logger logger = LogsCenter.getLogger(MainApp.class);
     private static final Path USER_PREFS_FILE_PATH = AppPaths.getHomeDirectory().resolve("preferences.json");
-    private static final Path ADDRESS_BOOK_FILE_PATH = AppPaths.getHomeDirectory().resolve("data/addressbook.json");
+    private static final Path ADDRESS_BOOK_FILE_PATH = AppPaths.getHomeDirectory().resolve("data/cindy.json");
 
     protected Ui ui;
     protected Logic logic;
