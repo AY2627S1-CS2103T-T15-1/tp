@@ -72,7 +72,13 @@ The **API** of this component is specified in [`Ui.java`](https://github.com/AY2
 
 <puml src="diagrams/UiClassDiagram.puml" alt="Structure of the UI Component"/>
 
-The UI consists of a `MainWindow` and its parts, such as `CommandBox`, `ResultDisplay`, `PersonListPanel`, and `StatusBarFooter`. All of these, including `MainWindow`, inherit from the abstract `UiPart` class, which captures common behavior among classes that represent visible GUI parts.
+`UiManager` implements `Ui` and creates the `MainWindow`. The main window creates a `CommandBox`, `ResultDisplay`, `PersonListPanel`, `PersonDetailPanel`, and `StatusBarFooter`. It also creates one `HelpWindow`, reused by the `help` command, Help menu and F1 shortcut. These visible components and `PersonCard` inherit from the abstract `UiPart` class, which loads their FXML layouts and provides access to their JavaFX roots.
+
+`PersonListPanel` observes the filtered client list supplied through `Logic` and creates `PersonCard` objects for its list cells. `PersonDetailPanel` also creates a `PersonCard` for the selected client's header. It displays the client's notes, workout plan and appointments when present, together with up to four session records ordered by date, newest first. When there are no sessions, it displays an empty-state message.
+
+`CommandBox` submits commands through a `CommandExecutor` callback supplied by `MainWindow`. The main window calls `Logic.execute`, displays feedback in `ResultDisplay`, and handles the returned `CommandResult`. A result containing a client switches to the detail panel; other successful commands return to the list unless they request help or exit. Failed commands display their error message and preserve the current panel.
+
+The UI also contains supporting classes that do not inherit from `UiPart`. Each `CommandBox` owns one in-memory `CommandHistory` for recalling input with the Up and Down keys. `HelpContent` holds an immutable catalog of `CommandSummary` objects, which `HelpWindow` reads to build its command cards. The diagram omits JavaFX controls, the nested command callback interface and list-cell class to keep the component relationships readable.
 
 The `UI` component uses the JavaFX UI framework. The layouts of these UI parts are defined in matching `.fxml` files in `src/main/resources/view`. For example, [`MainWindow.fxml`](https://github.com/AY2627S1-CS2103T-T15-1/tp/tree/master/src/main/resources/view/MainWindow.fxml) specifies the layout of [`MainWindow`](https://github.com/AY2627S1-CS2103T-T15-1/tp/tree/master/src/main/java/seedu/address/ui/MainWindow.java).
 
@@ -176,7 +182,7 @@ This section describes some noteworthy details on how certain features are imple
 
 ### Help window
 
-`HelpContent` provides an immutable list of `CommandSummary` objects in display order. Each summary contains a category, command word, description, syntax, a complete example and an availability flag. The catalog is independent of JavaFX. Implemented entries describe commands supported by `AddressBookParser`; planned entries such as `list --today` have `isAvailable` set to `false` and are displayed as coming soon.
+`HelpContent` provides an immutable list of `CommandSummary` objects in display order. Each summary contains a category, command word, description, syntax, a complete example and an availability flag. The catalog is independent of JavaFX. An entry with `isAvailable` set to `false` is displayed as coming soon. The `list --today` command is implemented by the parser and command layer, but its catalog entry still has this flag set to `false`, so the help window continues to label it as coming soon.
 
 `HelpWindow` renders each summary as a card, adding a heading whenever the category changes. `HelpWindow.fxml` keeps the User Guide controls outside the command reference's `ScrollPane`. The window is resizable, the scroll pane fits its content to the available width, and labels wrap without shrinking below their preferred height. `HelpWindow.css` uses Cindy's existing dark colors and typography. `MainWindow` retains one help window, shared by the `help` command, Help menu and F1 shortcut.
 
