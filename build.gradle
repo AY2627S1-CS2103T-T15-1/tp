@@ -76,7 +76,7 @@ run {
 }
 
 shadowJar {
-    archiveFileName = 'addressbook.jar'
+    archiveFileName = 'cindy.jar'
 }
 
 defaultTasks 'clean', 'test'
