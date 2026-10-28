@@ -1,5 +1,6 @@
 package seedu.address.ui;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -11,6 +12,10 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 import seedu.address.logic.parser.AddressBookParser;
+import seedu.address.model.Model;
+import seedu.address.model.ModelManager;
+import seedu.address.model.UserPrefs;
+import seedu.address.model.util.SampleDataUtil;
 
 /**
  * Checks that the help catalog describes supported commands with usable examples.
@@ -50,6 +55,28 @@ public class HelpContentTest {
             actualTypes.add(parser.parseCommand(example).getClass().getSimpleName());
         }
         assertEquals(expectedTypes, actualTypes);
+    }
+
+    @Test
+    public void getCommands_statusAndGroupExamples_executeOnFreshSampleData() {
+        AddressBookParser parser = new AddressBookParser();
+        Set<String> commandWords = Set.of("active", "inactive", "group", "tag", "find");
+
+        for (CommandSummary summary : HelpContent.getCommands()) {
+            if (!commandWords.contains(summary.getCommandWord())) {
+                continue;
+            }
+            Model model = new ModelManager(SampleDataUtil.getSampleAddressBook(), new UserPrefs());
+            assertDoesNotThrow(() -> parser.parseCommand(summary.getExample()).execute(model),
+                    "Example must work on fresh sample data: " + summary.getExample());
+            if (summary.getCommandWord().equals("find")) {
+                assertFalse(model.getFilteredPersonList().isEmpty(), "Search example must find a sample client");
+            }
+            if (summary.getCommandWord().equals("active")) {
+                assertTrue(model.getAddressBook().getPersonList().stream().allMatch(person -> person.isActive()),
+                        "Activation example must reactivate the inactive sample client");
+            }
+        }
     }
 
     @Test
