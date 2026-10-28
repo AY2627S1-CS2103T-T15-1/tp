@@ -59,14 +59,26 @@ public class AddAppointmentCommandTest {
 
     @Test
     public void execute_firstDateToday_schedules() {
-        Person updated = ALICE.withAppointments(Appointment.weeklySeries(TODAY, TIME));
-        Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
-        expectedModel.setPerson(ALICE, updated);
-        String message = String.format(AddAppointmentCommand.MESSAGE_SUCCESS, Messages.format(updated),
-                "Tue 2026-10-20 09:00");
+        assertAddSuccess(PersonSelector.byId(ALICE.getId()), ALICE, TODAY, "Tue 2026-10-20 09:00");
+    }
 
-        assertCommandSuccess(new AddAppointmentCommand(PersonSelector.byId(ALICE.getId()), TODAY, TIME, CLOCK),
-                model, new CommandResult(message, updated), expectedModel);
+    @Test
+    public void execute_firstDateAYearAhead_schedules() {
+        assertAddSuccess(PersonSelector.byId(ALICE.getId()), ALICE, LocalDate.of(2027, 10, 20),
+                "Wed 2027-10-20 09:00");
+    }
+
+    @Test
+    public void execute_firstDateMoreThanAYearAhead_throws() {
+        AddAppointmentCommand nextDay = new AddAppointmentCommand(PersonSelector.byId(ALICE.getId()),
+                LocalDate.of(2027, 10, 21), TIME, CLOCK);
+        assertCommandFailure(nextDay, model,
+                String.format(AddAppointmentCommand.MESSAGE_DATE_TOO_FAR, "2027-10-21", "2027-10-20"));
+
+        AddAppointmentCommand lastSupportedDate = new AddAppointmentCommand(PersonSelector.byId(ALICE.getId()),
+                LocalDate.of(9999, 12, 31), TIME, CLOCK);
+        assertCommandFailure(lastSupportedDate, model,
+                String.format(AddAppointmentCommand.MESSAGE_DATE_TOO_FAR, "9999-12-31", "2027-10-20"));
     }
 
     @Test
@@ -144,13 +156,21 @@ public class AddAppointmentCommandTest {
     }
 
     private void assertAddSuccess(PersonSelector selector, Person target) {
-        Person updated = target.withAppointments(Appointment.weeklySeries(DATE, TIME));
+        assertAddSuccess(selector, target, DATE, "Mon 2026-10-26 09:00");
+    }
+
+    /**
+     * Asserts that scheduling from {@code firstDate} succeeds, showing {@code firstAppointment} as the first one.
+     */
+    private void assertAddSuccess(PersonSelector selector, Person target, LocalDate firstDate,
+            String firstAppointment) {
+        Person updated = target.withAppointments(Appointment.weeklySeries(firstDate, TIME));
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
         expectedModel.setPerson(target, updated);
         String message = String.format(AddAppointmentCommand.MESSAGE_SUCCESS, Messages.format(updated),
-                "Mon 2026-10-26 09:00");
+                firstAppointment);
 
-        assertCommandSuccess(new AddAppointmentCommand(selector, DATE, TIME, CLOCK), model,
+        assertCommandSuccess(new AddAppointmentCommand(selector, firstDate, TIME, CLOCK), model,
                 new CommandResult(message, updated), expectedModel);
     }
 }

@@ -40,6 +40,7 @@ public class AddAppointmentCommand extends PersonTargetedCommand {
     public static final String MESSAGE_SUCCESS = "Scheduled 4 weekly appointments for client: %1$s\n"
             + "First appointment: %2$s";
     public static final String MESSAGE_DATE_IN_PAST = "%1$s is in the past. Choose a date from today (%2$s) onwards.";
+    public static final String MESSAGE_DATE_TOO_FAR = "%1$s is more than a year ahead. Choose a date up to %2$s.";
 
     private static final Logger logger = LogsCenter.getLogger(AddAppointmentCommand.class);
 
@@ -69,12 +70,17 @@ public class AddAppointmentCommand extends PersonTargetedCommand {
     /**
      * Checks that an appointment can be scheduled on {@code date}, given that it is {@code today}.
      *
-     * @throws CommandException if {@code date} is before {@code today}.
+     * @throws CommandException if {@code date} is before {@code today}, or more than a year after it.
      */
     static void checkSchedulableDate(LocalDate date, LocalDate today) throws CommandException {
         if (date.isBefore(today)) {
             throw new CommandException(String.format(MESSAGE_DATE_IN_PAST,
                     date.format(Appointment.DATE_FORMAT), today.format(Appointment.DATE_FORMAT)));
+        }
+        LocalDate lastDate = today.plusYears(1);
+        if (date.isAfter(lastDate)) {
+            throw new CommandException(String.format(MESSAGE_DATE_TOO_FAR,
+                    date.format(Appointment.DATE_FORMAT), lastDate.format(Appointment.DATE_FORMAT)));
         }
     }
 

@@ -197,7 +197,7 @@ Schedules 4 weekly appointments for an existing client, at the same time each we
 Format: `appointment --add --id ID --date DATE --time TIME` or `appointment --add --name NAME --date DATE --time TIME`
 
 * Chooses the client using `--id` or `--name`, as described in [the notes about the command format](#features).
-* `DATE` is the date of the first appointment, in the format `YYYY-MM-DD`, e.g. `2026-12-07`. It must be a real calendar date, and cannot be before today.
+* `DATE` is the date of the first appointment, in the format `YYYY-MM-DD`, e.g. `2026-12-07`. It must be a real calendar date, from today up to one year from today.
 * `TIME` is in the 24-hour format `HH:MM`, e.g. `09:00` or `18:30`.
 * Creates 4 appointments, one week apart, starting on `DATE`. A client has at most 4 appointments.
 * Replaces all of the client's current appointments, including cancelled ones.
@@ -237,7 +237,7 @@ Format: `appointment --reschedule --id ID --index INDEX --date DATE --time TIME`
 
 * Chooses the client using `--id` or `--name`, as described in [the notes about the command format](#features).
 * `INDEX` is the number of the appointment in the client's appointments card, as for `appointment --cancel`.
-* `DATE` and `TIME` are the new date and time, in the same formats as for `appointment --add`. The new `DATE` cannot be before today, but an appointment that has already passed can be moved to a new date.
+* `DATE` and `TIME` are the new date and time, in the same formats as for `appointment --add`. The new `DATE` must be from today up to one year from today, but an appointment that has already passed can be moved to a new date.
 * A cancelled appointment that is rescheduled becomes active again, even when it keeps its old date and time.
 * The client cannot have two appointments at the same date and time, including cancelled ones. Cancel or reschedule the other one first.
 * The appointments card is re-numbered in order of date and time, so the moved appointment may get a new number.
@@ -257,7 +257,7 @@ Format: `appointment --date DATE` or `appointment --week DATE`
 
 * `DATE` is in the format `YYYY-MM-DD`, e.g. `2026-10-22`.
 * `--date` lists the appointments on `DATE`, each as its time, the client's name and the client's ID.
-* `--week` lists the appointments from Monday to Sunday of the week containing `DATE`, each with its date as well. `DATE` can be any day of that week.
+* `--week` lists the appointments from Monday to Sunday of the week containing `DATE`, each with its date as well. `DATE` can be any day of that week. The whole week must be between `0000-01-01` and `9999-12-31`.
 * Appointments are listed in order of date and time. Cancelled appointments are still listed, marked `(Cancelled)`.
 * The client list shows only the clients with a listed appointment. Use `list` to show all clients again.
 * Give exactly one of `--date` or `--week`, with nothing else.
