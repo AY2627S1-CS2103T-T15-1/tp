@@ -6,12 +6,18 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.lang.reflect.Field;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.Test;
 
 import seedu.address.logic.parser.AddressBookParser;
+import seedu.address.logic.parser.CliSyntax;
+import seedu.address.logic.parser.Prefix;
 import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
@@ -75,6 +81,26 @@ public class HelpContentTest {
             if (summary.getCommandWord().equals("active")) {
                 assertTrue(model.getAddressBook().getPersonList().stream().allMatch(person -> person.isActive()),
                         "Activation example must reactivate the inactive sample client");
+            }
+        }
+    }
+
+    @Test
+    public void getCommands_flags_matchSharedPrefixes() throws Exception {
+        Set<String> sharedPrefixes = new HashSet<>();
+        for (Field field : CliSyntax.class.getFields()) {
+            if (field.getType().equals(Prefix.class)) {
+                sharedPrefixes.add(((Prefix) field.get(null)).getPrefix());
+            }
+        }
+        Pattern flag = Pattern.compile("--[a-z]+(?:-[a-z]+)*");
+        for (CommandSummary summary : HelpContent.getCommands()) {
+            for (String text : List.of(summary.getSyntax(), summary.getExample(), summary.getDescription())) {
+                Matcher matcher = flag.matcher(text);
+                while (matcher.find()) {
+                    assertTrue(sharedPrefixes.contains(matcher.group()),
+                            "Help uses an unrecognised flag: " + matcher.group());
+                }
             }
         }
     }

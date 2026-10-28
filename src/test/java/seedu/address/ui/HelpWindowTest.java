@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_TODAY;
 
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +28,7 @@ import javafx.scene.input.DataFormat;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import seedu.address.logic.commands.ListCommand;
 
 /**
  * Checks the real help layout, its command reference, and its existing guide controls.
@@ -73,7 +75,7 @@ public class HelpWindowTest {
                 assertEquals(27, cards.size());
                 Parent todayListCard = (Parent) cards.stream()
                         .filter(card -> ((Label) card.lookup(".help-syntax"))
-                                .getText().equals("Format: list --today"))
+                                .getText().equals("Format: " + ListCommand.COMMAND_WORD + " " + PREFIX_TODAY))
                         .findFirst().orElseThrow();
                 assertEquals("list", ((Label) todayListCard.lookup(".help-command-name")).getText());
             } finally {

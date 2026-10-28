@@ -1,6 +1,7 @@
 package seedu.address.logic.parser;
 
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONFIRM;
 
 import seedu.address.logic.commands.ClearCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
@@ -21,7 +22,7 @@ public class ClearCommandParser implements Parser<ClearCommand> {
         if (trimmedArgs.isEmpty()) {
             return new ClearCommand(false);
         }
-        if (trimmedArgs.equals("--confirm")) {
+        if (trimmedArgs.equals(PREFIX_CONFIRM.getPrefix())) {
             return new ClearCommand(true);
         }
         throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, ClearCommand.MESSAGE_USAGE));
