@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
@@ -57,11 +56,12 @@ public class HelpContentTest {
     }
 
     @Test
-    public void getCommands_upcomingForms_onlyListsToday() {
-        List<CommandSummary> upcoming = HelpContent.getCommands().stream()
-                .filter(summary -> !summary.isAvailable()).toList();
-        assertEquals(List.of("list --today"), upcoming.stream().map(CommandSummary::getSyntax).toList());
-        assertEquals("list --today", upcoming.getFirst().getExample());
+    public void getCommands_todayList_isAvailable() {
+        CommandSummary todayList = HelpContent.getCommands().stream()
+                .filter(summary -> summary.getSyntax().equals("list --today"))
+                .findFirst().orElseThrow();
+        assertTrue(todayList.isAvailable());
+        assertEquals("list --today", todayList.getExample());
     }
 
     @Test

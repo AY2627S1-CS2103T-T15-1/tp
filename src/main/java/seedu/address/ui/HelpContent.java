@@ -63,7 +63,7 @@ public final class HelpContent {
             new CommandSummary(FINDING_CLIENTS, ListCommand.COMMAND_WORD,
                     "Show clients with appointments today.",
                     ListCommand.COMMAND_WORD + " --today",
-                    "list --today", false),
+                    "list --today"),
             new CommandSummary(FINDING_CLIENTS, FindCommand.COMMAND_WORD,
                     "Find clients using at least one filter. Clients must match every supplied filter.",
                     FindCommand.COMMAND_WORD + " [--name NAME] [--phone PHONE] [--id ID] [--group GROUP]",
