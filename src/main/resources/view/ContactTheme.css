@@ -146,15 +146,15 @@
     -fx-padding: 1 8;
 }
 
-.contact-list .contact-tags .label {
+.contact-list #tags .label {
     -fx-font-family: "Inter", "Segoe UI", sans-serif;
     -fx-font-size: 11px;
     -fx-text-fill: white;
     -fx-background-color: #2d352e;
     -fx-border-color: #056200;
-    -fx-border-radius: 8;
-    -fx-background-radius: 8;
-    -fx-padding: 1 8;
+    -fx-border-radius: 999;
+    -fx-background-radius: 999;
+    -fx-padding: 2 10;
 }
 
 .client-note-heading {
