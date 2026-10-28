@@ -231,6 +231,14 @@ public class ParserUtilTest {
     }
 
     @Test
+    public void normalizeTagName_variousForms_returnsNormalizedName() {
+        assertEquals("weight loss", ParserUtil.normalizeTagName("weight loss"));
+        assertEquals("weight loss", ParserUtil.normalizeTagName("  \"Weight   Loss\"  "));
+        assertEquals("weight-loss", ParserUtil.normalizeTagName("WEIGHT-LOSS"));
+        assertEquals("", ParserUtil.normalizeTagName("\"\""));
+    }
+
+    @Test
     public void parseTags_null_throwsNullPointerException() {
         assertThrows(NullPointerException.class, () -> ParserUtil.parseTags(null));
     }

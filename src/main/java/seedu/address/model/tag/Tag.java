@@ -11,8 +11,9 @@ import java.util.Set;
  */
 public class Tag {
 
-    public static final String MESSAGE_CONSTRAINTS = "Tag names should be alphanumeric";
-    public static final String VALIDATION_REGEX = "\\p{Alnum}+";
+    public static final String MESSAGE_CONSTRAINTS = "Tag names should be words made of letters and digits, "
+            + "separated by single spaces or hyphens";
+    public static final String VALIDATION_REGEX = "\\p{Alnum}+([ -]\\p{Alnum}+)*";
 
     /** Tag for clients the trainer trains at a gym. */
     public static final Tag GYM = new Tag("gym");

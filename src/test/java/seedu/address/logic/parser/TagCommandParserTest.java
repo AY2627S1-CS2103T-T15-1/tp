@@ -66,11 +66,15 @@ public class TagCommandParserTest {
 
         assertParseSuccess(parser, " --name john --group rehab",
                 new AddToGroupCommand(PersonSelector.byName("john"), new Tag("rehab")));
+
+        // group with spaces
+        assertParseSuccess(parser, " --id 2 --group \"Weight Loss\"",
+                new AddToGroupCommand(PersonSelector.byId(new PersonId(2)), new Tag("weight loss")));
     }
 
     @Test
     public void parse_invalidGroup_failure() {
-        assertParseFailure(parser, " --id 2 --group early birds",
+        assertParseFailure(parser, " --id 2 --group weight--loss",
                 ParserUtil.withUsage(GroupCommandParser.MESSAGE_INVALID_GROUP_NAME, TagCommand.MESSAGE_USAGE));
         assertParseFailure(parser, " --id 2 --group",
                 ParserUtil.withUsage(GroupCommandParser.MESSAGE_INVALID_GROUP_NAME, TagCommand.MESSAGE_USAGE));

@@ -6,10 +6,8 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_GROUP;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_ID;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME_LONG;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE_LONG;
-import static seedu.address.logic.parser.ParserUtil.removeOptionalQuotes;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -23,8 +21,8 @@ import seedu.address.model.tag.Tag;
  */
 public class FindCommandParser implements Parser<FindCommand> {
 
-    public static final String MESSAGE_INVALID_GROUP = "Enter a group name made of letters and digits only after "
-            + PREFIX_GROUP + ".";
+    public static final String MESSAGE_INVALID_GROUP = "Enter a group name made of letters, digits, "
+            + "spaces and hyphens after " + PREFIX_GROUP + ".";
 
     private static final Prefix[] PERSON_FILTER_PREFIXES = {PREFIX_NAME_LONG, PREFIX_PHONE_LONG, PREFIX_ID};
 
@@ -69,7 +67,7 @@ public class FindCommandParser implements Parser<FindCommand> {
      * @throws ParseException if {@code group} is not a valid tag name.
      */
     private static Tag parseGroup(String group) throws ParseException {
-        String normalizedGroup = removeOptionalQuotes(group.trim()).trim().toLowerCase(Locale.ROOT);
+        String normalizedGroup = ParserUtil.normalizeTagName(group);
         if (!Tag.isValidTagName(normalizedGroup)) {
             throw new ParseException(MESSAGE_INVALID_GROUP);
         }
