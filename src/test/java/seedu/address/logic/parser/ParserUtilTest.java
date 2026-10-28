@@ -369,10 +369,25 @@ public class ParserUtilTest {
     }
 
     @Test
-    public void parseDate_impossibleDate_throws() {
-        for (String date : new String[] {"2026-02-30", "2026-13-01", "26-10-2026", "2026-1-5", ""}) {
+    public void parseDate_wrongFormat_throws() {
+        for (String date : new String[] {"26-10-2026", "2026-1-5", "2026/10/26", ""}) {
             assertThrows(ParseException.class, Appointment.MESSAGE_DATE_CONSTRAINTS, () -> ParserUtil.parseDate(date));
         }
+    }
+
+    @Test
+    public void parseDate_impossibleDate_throws() {
+        for (String date : new String[] {"2026-02-30", "2026-13-01", "2027-02-29", "2026-04-31", "2026-00-10"}) {
+            assertThrows(ParseException.class, String.format(Appointment.MESSAGE_NOT_REAL_DATE, date), () ->
+                    ParserUtil.parseDate(date));
+        }
+        assertThrows(ParseException.class, String.format(Appointment.MESSAGE_NOT_REAL_DATE, "2027-02-29"), () ->
+                ParserUtil.parseDate(WHITESPACE + "\"2027-02-29\"" + WHITESPACE));
+    }
+
+    @Test
+    public void parseDate_leapDay_returnsDate() throws Exception {
+        assertEquals(LocalDate.of(2028, 2, 29), ParserUtil.parseDate("2028-02-29"));
     }
 
     @Test
@@ -394,10 +409,24 @@ public class ParserUtilTest {
     }
 
     @Test
-    public void parseTime_singleDigitHour_throws() {
-        for (String time : new String[] {"9:00", "24:00", "09:60", "0900", ""}) {
+    public void parseTime_wrongFormat_throws() {
+        for (String time : new String[] {"9:00", "0900", "09.00", "9am", ""}) {
             assertThrows(ParseException.class, Appointment.MESSAGE_TIME_CONSTRAINTS, () -> ParserUtil.parseTime(time));
         }
+    }
+
+    @Test
+    public void parseTime_impossibleTime_throws() {
+        for (String time : new String[] {"24:00", "09:60", "25:00", "99:99"}) {
+            assertThrows(ParseException.class, String.format(Appointment.MESSAGE_NOT_REAL_TIME, time), () ->
+                    ParserUtil.parseTime(time));
+        }
+    }
+
+    @Test
+    public void parseTime_boundaries_returnsTime() throws Exception {
+        assertEquals(LocalTime.MIDNIGHT, ParserUtil.parseTime("00:00"));
+        assertEquals(LocalTime.of(23, 59), ParserUtil.parseTime("23:59"));
     }
 
     /**
