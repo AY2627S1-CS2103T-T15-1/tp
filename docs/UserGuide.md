@@ -488,10 +488,10 @@ Click the command box and press **Up** to recall your most recently submitted co
 
 Example:
 
-1. Run `list`, then run `find Alice`.
-1. Type `find Bob` without pressing Enter.
-1. Press Up to recall `find Alice`, then Up again to recall `list`.
-1. Press Down twice to return to your unfinished `find Bob` command.
+1. Run `list`, then run `find --name Alice`.
+1. Type `find --name Bob` without pressing Enter.
+1. Press Up to recall `find --name Alice`, then Up again to recall `list`.
+1. Press Down twice to return to your unfinished `find --name Bob` command.
 
 ### Exiting the program: `exit`
 

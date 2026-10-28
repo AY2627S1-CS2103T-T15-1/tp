@@ -798,15 +798,15 @@ Use a disposable copy of Cindy and its data for these checks. Opening help shoul
 1. Navigation, boundaries and draft restoration
 
    1. Prerequisite: Restart Cindy to begin with an empty history, then focus the command box.
-   1. Type `find Bob` without pressing Enter, then press Up and Down.<br>
-      Expected: The input stays `find Bob`; no command executes.
-   1. Replace the input with `list` and press Enter, then run `find Alice`.
-   1. Type `find Bob` without pressing Enter. Press Up twice, then Up once more.<br>
-      Expected: The input changes to `find Alice`, then `list`, and stays at `list`. The displayed clients and result message do not change during recall.
+   1. Type `find --name Bob` without pressing Enter, then press Up and Down.<br>
+      Expected: The input stays `find --name Bob`; no command executes.
+   1. Replace the input with `list` and press Enter, then run `find --name Alice`.
+   1. Type `find --name Bob` without pressing Enter. Press Up twice, then Up once more.<br>
+      Expected: The input changes to `find --name Alice`, then `list`, and stays at `list`. The displayed clients and result message do not change during recall.
    1. Press Down twice, then Down once more.<br>
-      Expected: The input changes to `find Alice`, then restores `find Bob`, and stays at `find Bob`.
+      Expected: The input changes to `find --name Alice`, then restores `find --name Bob`, and stays at `find --name Bob`.
    1. Press Up twice to recall `list`, then append ` edited`. Press Down.<br>
-      Expected: The input stays `list edited`, because editing ended browsing. Up recalls the newest entry, `find Alice`; Down restores `list edited`. The stored `list` entry is unchanged.
+      Expected: The input stays `list edited`, because editing ended browsing. Up recalls the newest entry, `find --name Alice`; Down restores `list edited`. The stored `list` entry is unchanged.
    1. Recall `list` and press Enter.<br>
       Expected: Only Enter executes the recalled command, the result shows the client list and the input clears. Up recalls `list`; Down restores the empty input.
 
