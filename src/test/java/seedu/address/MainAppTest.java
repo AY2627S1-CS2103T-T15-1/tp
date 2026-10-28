@@ -5,18 +5,26 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_DATE;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_TODAY;
 import static seedu.address.testutil.TypicalPersons.ALICE;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDate;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import seedu.address.commons.core.LogsCenter;
 import seedu.address.commons.exceptions.DataLoadingException;
+import seedu.address.logic.LogicManager;
+import seedu.address.logic.commands.AddAppointmentCommand;
+import seedu.address.logic.commands.CommandResult;
+import seedu.address.logic.commands.ListCommand;
 import seedu.address.model.AddressBook;
 import seedu.address.model.Model;
 import seedu.address.model.ReadOnlyAddressBook;
@@ -61,6 +69,24 @@ public class MainAppTest {
         assertEquals(SampleDataUtil.getSampleAddressBook(), model.getAddressBook());
         ReadOnlyAddressBook savedAddressBook = storage.readAddressBook().get();
         assertEquals(model.getAddressBook(), savedAddressBook);
+    }
+
+    @Test
+    public void initModelManager_freshSamples_supportTodayCommands() throws Exception {
+        Path addressBookFilePath = temporaryFolder.resolve("data/cindy.json");
+        StorageManager storage = new StorageManager(new JsonAddressBookStorage(addressBookFilePath),
+                new JsonUserPrefsStorage(temporaryFolder.resolve("preferences.json")));
+        Model model = new MainApp().initModelManager(storage, new UserPrefs());
+        LogicManager logic = new LogicManager(model, storage);
+
+        logic.execute(ListCommand.COMMAND_WORD + " " + PREFIX_TODAY);
+
+        assertEquals(List.of("Alex Yeoh"), model.getFilteredPersonList().stream()
+                .map(person -> person.getName().fullName).toList());
+        CommandResult appointments = logic.execute(AddAppointmentCommand.COMMAND_WORD + " "
+                + PREFIX_DATE + " " + LocalDate.now());
+        assertTrue(appointments.getFeedbackToUser().contains("Alex Yeoh"));
+        assertEquals(model.getAddressBook(), storage.readAddressBook().orElseThrow());
     }
 
     @Test
