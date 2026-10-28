@@ -61,7 +61,7 @@ Cindy is a **desktop application that helps freelance gym trainers manage their 
 * Long-form text, such as client notes and workout plans, must be wrapped in double quotes, even for a single word. Use `--note ""` to clear a note or `--plan ""` to clear a workout plan.
 * Inside long-form text, type `\n` for a line break or `\n\n` for a blank line. Enter the command on one line; Cindy displays the line breaks in the detail view.
 
-* Commands that act on one client (`view`, `edit`, `plan`, `appointment --add`, `appointment --cancel`, `appointment --reschedule`, `delete`, `note`, `inactive`, `active` and `tag`) choose the client with either `--id ID` or `--name NAME`, but not both. `inactive` and `active` also accept `--phone PHONE` instead:
+* Commands that act on one client (`view`, `edit`, `plan`, `appointment --add`, `appointment --cancel`, `appointment --reschedule`, `session --add`, `session --edit`, `delete`, `note`, `inactive`, `active` and `tag`) choose the client with either `--id ID` or `--name NAME`, but not both. `inactive` and `active` also accept `--phone PHONE` instead:
   * `--id ID` chooses the client with that ID. Every client's ID is shown as `#ID` on their card, e.g. `#3`.
   * `--name NAME` chooses the client whose name contains `NAME`, ignoring upper and lower case. For example, `--name john` matches `John`, `John Doe` and `Johnny Tan`.
   * If more than one client's name contains `NAME`, Cindy does not act on any of them. Instead, it lists those clients and asks you to run the command again with `--id`, using one of the IDs shown.
@@ -447,6 +447,8 @@ Format: `session --add (--id ID | --name NAME) --date YYYY-MM-DD [--note TEXT]`
 * Dates must be real dates in `YYYY-MM-DD` format. Future dates are allowed.
 * Notes are optional. You can put them in double quotes, especially when they contain text that looks like a flag.
 * The client's profile shows up to four sessions, newest first. Older sessions remain saved.
+* After a successful add, Cindy displays the updated client's profile. Adding an older session may leave it outside the four recent sessions shown.
+* This records a date and note only. To schedule meetings at a time, use `appointment --add`.
 
 Example: `session --add --id 2 --date 2026-10-22 --note "Squats: 3 sets"`
 
@@ -458,6 +460,7 @@ Format: `session --edit (--id ID | --name NAME) --date YYYY-MM-DD --note [TEXT]`
 
 * The client and session date must already exist. This command changes the note, not the date.
 * `--note` is required. Leave the text empty, or use `--note ""`, to clear the note while keeping the session.
+* After a successful edit, Cindy displays the updated client's profile. Editing an older session does not move it into the four most recent sessions.
 
 Example: `session --edit --id 2 --date 2026-10-22 --note "Improved squat depth"`
 

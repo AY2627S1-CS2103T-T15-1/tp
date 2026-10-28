@@ -230,6 +230,19 @@ Parsing works like it does for `delete` in the [Logic component](#logic-componen
 
 The command fails with a `CommandException` (not shown in the diagram) if the index is not valid for the client, or if another of the client's appointments is already at the new date and time.
 
+### Recording and editing sessions
+
+`SessionCommandParser` creates an `AddSessionCommand` or `EditSessionCommand` with a client selector, date and note.
+Both commands create an updated immutable `Person` through `withSessions` and replace the client using `Model#setPerson`.
+Adding rejects a date already recorded for that client; editing rejects a missing session date and replaces only the note.
+An empty edit note clears the note without deleting the session. Session records do not have times or overlap checks.
+
+Both commands return `CommandResult(feedback, updatedPerson)`. `MainWindow` uses this updated client to display
+the detail panel immediately, including when a session command is run from the client list. Failed commands preserve
+the current panel. An ambiguous name lists the matching clients without changing session records.
+The profile shows only the four most recent sessions; editing an older record does not change its date or visibility.
+`AddSessionCommandTest` and `EditSessionCommandTest` verify both the updated model and the client returned for display.
+
 ### \[Proposed\] Undo/redo feature
 
 #### Proposed Implementation
@@ -492,14 +505,14 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
       Use case resumes at step 5.
 
-**Use case: Schedule a training session**
+**Use case: Record a training session**
 
 **MSS**
 
-1.  Trainer requests to view a client's training schedule.
-2.  Cindy shows the client's scheduled sessions.
-3.  Trainer requests to schedule a session and provides its date, time, and details.
-4.  Cindy records the session and shows the updated schedule.
+1.  Trainer requests to view a client's profile.
+2.  Cindy shows the client's details and recent session records.
+3.  Trainer requests to add a session record using `session --add`, providing the client and date, with an optional note.
+4.  Cindy records the session and shows the client's updated profile.
 
     Use case ends.
 
@@ -511,29 +524,40 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
       Use case ends.
 
-* 2a. The client has no scheduled sessions.
+* 2a. The client has no session records.
 
     * 2a1. Cindy shows that the client has no sessions yet.
 
       Use case resumes at step 3.
 
-* 3a. Trainer leaves out the date or time of the session.
+* 3a. Trainer leaves out the session date.
 
     * 3a1. Cindy shows an error message stating which details are missing.
 
       Use case resumes at step 3.
 
-* 3b. The given date or time is invalid (e.g., in the wrong format, or a non-existent date such as 30 February).
+* 3b. The given date is invalid (e.g., in the wrong format, or a non-existent date such as 30 February).
 
     * 3b1. Cindy shows an error message describing the expected format.
 
       Use case resumes at step 3.
 
-* 3c. The new session overlaps with a session the trainer has already scheduled.
+* 3c. A session record already exists for the client on the given date.
 
-    * 3c1. Cindy shows an error message identifying the conflicting session.
+    * 3c1. Cindy shows an error message directing the trainer to use `session --edit`.
 
       Use case resumes at step 3.
+
+* 3d. Trainer requests to correct an existing session note using `session --edit`, providing the client, date and note.
+
+    * 3d1. Cindy replaces the note and shows the client's updated profile. An empty note clears the session note.
+    * 3d2. If no session exists on that date, Cindy shows an error message.
+
+      Use case ends.
+
+Session records have a date and an optional note, with at most one record per client per date.
+Scheduling uses the separate `appointment --add` command, which accepts a first date and time
+and replaces the client's current appointments with four weekly appointments. It does not check for overlaps.
 
 **Use case: Record client progress**
 
@@ -660,6 +684,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 ### Glossary
 
+* **Appointment**: A scheduled meeting with a client, identified by its date and time; managed using the `appointment` command
 * **Client**: A person who receives fitness coaching from a trainer and whose information is managed in Cindy
 * **Client ID**: A positive whole number that Cindy gives a client when they are added. It never changes, and it is never given to another client, even after the client it belonged to is deleted, unless all clients are cleared, which starts the numbering again from 1
 * **Client progress**: Changes in a client's recorded fitness metrics or exercise performance over time
@@ -670,8 +695,8 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 * **Progress entry**: A dated record of a client's fitness metrics, exercise results, or other progress observations
 * **Progress history**: A client's progress entries arranged in chronological order
 * **Trainer**: A freelance gym trainer who uses Cindy to manage clients
-* **Training schedule**: The collection of training sessions arranged for a client
-* **Training session**: A scheduled appointment between a trainer and a client, identified by its date, time, and session details
+* **Training schedule**: The collection of appointments arranged with clients
+* **Training session**: A dated session record for a client with an optional note, managed using `session --add` and `session --edit`; at most one record is stored per client per date
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -702,6 +727,21 @@ testers are expected to do more *exploratory* testing.
        Expected: The most recent window size and location are retained.
 
 1. _{ more test cases … }_
+
+### Recording and editing session notes
+
+Use a disposable copy of Cindy. Add a client named `Session Check` and use its assigned ID in place of `ID` below.
+
+1. Run `view --id ID`, then `session --add --id ID --date 2026-10-27 --note "Squats: 3 sets of 8"`.<br>
+   Expected: The client's profile stays open and Recent sessions shows the new date and note.
+1. Run `session --edit --id ID --date 2026-10-27 --note "Squats: 3 sets of 10"`.<br>
+   Expected: The profile shows the replacement note, with no extra session created.
+1. Run `list`, then `session --edit --name "Session Check" --date 2026-10-27 --note ""`.<br>
+   Expected: The client's profile opens and the dated session remains with an empty note.
+1. Try adding the same date again, then editing a date with no record.<br>
+   Expected: Each command reports an error, changes no records, and leaves the profile open.
+1. Add four records on later dates, then edit the 2026-10-27 note and reopen the profile.<br>
+   Expected: Only the four later records appear, newest first. The older record remains editable and saved after restart.
 
 ### Viewing help
 
