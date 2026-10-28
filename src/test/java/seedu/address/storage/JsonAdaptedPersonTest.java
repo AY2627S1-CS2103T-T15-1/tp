@@ -138,6 +138,13 @@ public class JsonAdaptedPersonTest {
     }
 
     @Test
+    public void toModelType_tagWithSpacesAndHyphens_returnsPerson() throws Exception {
+        JsonAdaptedPerson adapted = new JsonAdaptedPerson(VALID_ID, VALID_NAME, VALID_PHONE, "", true,
+                List.of(new JsonAdaptedTag("weight loss"), new JsonAdaptedTag("post-op")), "");
+        assertEquals(new PersonBuilder(BENSON).withTags("weight loss", "post-op").build(), adapted.toModelType());
+    }
+
+    @Test
     public void withId_personWithWorkoutPlan_preservesPlan() throws Exception {
         JsonAdaptedPerson person = new JsonAdaptedPerson(null, VALID_NAME, VALID_PHONE, "Knee injury", false,
                 List.of(new JsonAdaptedTag("gym")), "Squats: 3 sets of 12");

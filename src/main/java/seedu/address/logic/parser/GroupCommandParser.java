@@ -7,9 +7,7 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_ID;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_MOVE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME_LONG;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_TO;
-import static seedu.address.logic.parser.ParserUtil.removeOptionalQuotes;
 
-import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -26,8 +24,8 @@ import seedu.address.model.tag.Tag;
  */
 public class GroupCommandParser implements Parser<Command> {
 
-    public static final String MESSAGE_INVALID_GROUP_NAME = "Group names should be made of letters and digits only, "
-            + "with no spaces.";
+    public static final String MESSAGE_INVALID_GROUP_NAME = "Group names should be words made of letters and digits, "
+            + "separated by spaces or single hyphens, e.g. morning or weight loss.";
     public static final String MESSAGE_CLIENT_TYPE_GROUP = "gym and personal are built-in labels, not groups. "
             + "Use tag --type to label a client as a gym or personal client.";
     public static final String MESSAGE_SAME_GROUP = "The groups after " + PREFIX_FROM + " and " + PREFIX_TO
@@ -95,7 +93,7 @@ public class GroupCommandParser implements Parser<Command> {
      * @throws ParseException if {@code name} is not a valid tag name, or is a client type.
      */
     static Tag parseGroup(String name) throws ParseException {
-        String normalizedName = removeOptionalQuotes(name.trim()).trim().toLowerCase(Locale.ROOT);
+        String normalizedName = ParserUtil.normalizeTagName(name);
         if (!Tag.isValidTagName(normalizedName)) {
             throw new ParseException(MESSAGE_INVALID_GROUP_NAME);
         }

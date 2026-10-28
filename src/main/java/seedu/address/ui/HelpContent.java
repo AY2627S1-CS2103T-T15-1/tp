@@ -90,7 +90,8 @@ public final class HelpContent {
                     TagCommand.COMMAND_WORD + " " + CLIENT_SELECTOR + " --type (gym | personal)",
                     "tag --id 2 --type gym"),
             new CommandSummary(CLIENT_TYPE, GroupCommand.COMMAND_WORD,
-                    "Create a custom group. Group names use letters and digits; gym and personal are reserved.",
+                    "Create a custom group. Group names use letters, digits, spaces and hyphens; "
+                            + "gym and personal are reserved.",
                     GroupCommand.COMMAND_WORD + " --name GROUP",
                     "group --name morning"),
             new CommandSummary(CLIENT_TYPE, TagCommand.COMMAND_WORD,
