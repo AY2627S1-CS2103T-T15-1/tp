@@ -3,6 +3,8 @@ package seedu.address.logic.commands;
 import static java.util.Objects.requireNonNull;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_INDEX;
 
+import java.time.Clock;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,13 +24,23 @@ public abstract class AppointmentIndexCommand extends PersonTargetedCommand {
             "This client has %1$d appointment(s). Choose an index from 1 to %1$d.";
 
     protected final Index index;
+    private final Clock clock;
 
     /**
-     * Creates a command that acts on appointment {@code index} of the client chosen by {@code selector}.
+     * Creates a command that acts on appointment {@code index} of the client chosen by {@code selector},
+     * using the supplied clock's local date at execution time as today.
      */
-    protected AppointmentIndexCommand(PersonSelector selector, Index index) {
+    protected AppointmentIndexCommand(PersonSelector selector, Index index, Clock clock) {
         super(selector);
         this.index = requireNonNull(index);
+        this.clock = requireNonNull(clock);
+    }
+
+    /**
+     * Returns today's date, from the clock this command was created with.
+     */
+    protected LocalDate getToday() {
+        return LocalDate.now(clock);
     }
 
     /**

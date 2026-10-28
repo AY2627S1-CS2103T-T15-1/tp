@@ -8,6 +8,7 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME_LONG;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_TIME;
 import static seedu.address.model.Model.PREDICATE_SHOW_ALL_PERSONS;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.logging.Logger;
 import seedu.address.commons.core.LogsCenter;
 import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.logic.Messages;
+import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
 import seedu.address.model.appointment.Appointment;
 import seedu.address.model.person.Person;
@@ -32,29 +34,53 @@ public class AddAppointmentCommand extends PersonTargetedCommand {
             + "Parameters: " + PREFIX_ID + " ID or " + PREFIX_NAME_LONG + " NAME, then " + PREFIX_DATE + " DATE "
             + PREFIX_TIME + " TIME\n"
             + "DATE is YYYY-MM-DD and TIME is HH:MM (24-hour).\n"
-            + "Example: " + COMMAND_WORD + " " + PREFIX_ADD + " " + PREFIX_ID + " 2 " + PREFIX_DATE + " 2026-10-26 "
+            + "Example: " + COMMAND_WORD + " " + PREFIX_ADD + " " + PREFIX_ID + " 2 " + PREFIX_DATE + " 2026-12-07 "
             + PREFIX_TIME + " 09:00";
 
     public static final String MESSAGE_SUCCESS = "Scheduled 4 weekly appointments for client: %1$s\n"
             + "First appointment: %2$s";
+    public static final String MESSAGE_DATE_IN_PAST = "%1$s is in the past. Choose a date from today (%2$s) onwards.";
 
     private static final Logger logger = LogsCenter.getLogger(AddAppointmentCommand.class);
 
     private final LocalDate firstDate;
     private final LocalTime time;
+    private final Clock clock;
 
     /**
      * Creates a command that gives the chosen client weekly appointments at {@code time},
      * starting on {@code firstDate}. All arguments must not be null.
      */
     public AddAppointmentCommand(PersonSelector selector, LocalDate firstDate, LocalTime time) {
+        this(selector, firstDate, time, Clock.systemDefaultZone());
+    }
+
+    /**
+     * Creates a command like {@link #AddAppointmentCommand(PersonSelector, LocalDate, LocalTime)},
+     * using the supplied clock's local date at execution time as today.
+     */
+    public AddAppointmentCommand(PersonSelector selector, LocalDate firstDate, LocalTime time, Clock clock) {
         super(selector);
         this.firstDate = requireNonNull(firstDate);
         this.time = requireNonNull(time);
+        this.clock = requireNonNull(clock);
+    }
+
+    /**
+     * Checks that an appointment can be scheduled on {@code date}, given that it is {@code today}.
+     *
+     * @throws CommandException if {@code date} is before {@code today}.
+     */
+    static void checkSchedulableDate(LocalDate date, LocalDate today) throws CommandException {
+        if (date.isBefore(today)) {
+            throw new CommandException(String.format(MESSAGE_DATE_IN_PAST,
+                    date.format(Appointment.DATE_FORMAT), today.format(Appointment.DATE_FORMAT)));
+        }
     }
 
     @Override
-    protected CommandResult executeOn(Person target, Model model) {
+    protected CommandResult executeOn(Person target, Model model) throws CommandException {
+        checkSchedulableDate(firstDate, LocalDate.now(clock));
         List<Appointment> series = Appointment.weeklySeries(firstDate, time);
         assert series.size() == Appointment.SERIES_LENGTH : "A weekly series has a fixed number of appointments";
         Person updated = target.withAppointments(series);

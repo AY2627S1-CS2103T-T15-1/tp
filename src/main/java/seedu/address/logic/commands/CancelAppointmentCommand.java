@@ -6,6 +6,7 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_INDEX;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME_LONG;
 import static seedu.address.model.Model.PREDICATE_SHOW_ALL_PERSONS;
 
+import java.time.Clock;
 import java.util.logging.Logger;
 
 import seedu.address.commons.core.LogsCenter;
@@ -31,6 +32,8 @@ public class CancelAppointmentCommand extends AppointmentIndexCommand {
 
     public static final String MESSAGE_SUCCESS = "Cancelled appointment %1$d (%2$s) for client: %3$s";
     public static final String MESSAGE_ALREADY_CANCELLED = "Appointment %1$d is already cancelled.";
+    public static final String MESSAGE_ALREADY_PASSED =
+            "Appointment %1$d (%2$s) has already passed, so it cannot be cancelled.";
 
     private static final Logger logger = LogsCenter.getLogger(CancelAppointmentCommand.class);
 
@@ -39,7 +42,15 @@ public class CancelAppointmentCommand extends AppointmentIndexCommand {
      * Both arguments must not be null.
      */
     public CancelAppointmentCommand(PersonSelector selector, Index index) {
-        super(selector, index);
+        this(selector, index, Clock.systemDefaultZone());
+    }
+
+    /**
+     * Creates a command like {@link #CancelAppointmentCommand(PersonSelector, Index)},
+     * using the supplied clock's local date at execution time as today.
+     */
+    public CancelAppointmentCommand(PersonSelector selector, Index index, Clock clock) {
+        super(selector, index, clock);
     }
 
     @Override
@@ -47,6 +58,10 @@ public class CancelAppointmentCommand extends AppointmentIndexCommand {
         Appointment appointment = getTargetAppointment(target);
         if (appointment.isCancelled()) {
             throw new CommandException(String.format(MESSAGE_ALREADY_CANCELLED, index.getOneBased()));
+        }
+        if (appointment.getDate().isBefore(getToday())) {
+            throw new CommandException(String.format(MESSAGE_ALREADY_PASSED, index.getOneBased(),
+                    appointment.getDisplayText()));
         }
         Person updated = withTargetAppointmentReplaced(target, appointment.cancel());
         model.setPerson(target, updated);
