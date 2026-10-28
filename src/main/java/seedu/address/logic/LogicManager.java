@@ -48,6 +48,19 @@ public class LogicManager implements Logic {
         Command command = addressBookParser.parseCommand(commandText);
         commandResult = command.execute(model);
 
+        // Commands that cannot change the data skip saving, so they still work if the data file cannot be written.
+        if (!command.isReadOnly()) {
+            saveAddressBook();
+        }
+        return commandResult;
+    }
+
+    /**
+     * Saves the address book data to storage.
+     *
+     * @throws CommandException if the data cannot be written.
+     */
+    private void saveAddressBook() throws CommandException {
         try {
             storage.saveAddressBook(model.getAddressBook());
         } catch (AccessDeniedException e) {
@@ -55,8 +68,6 @@ public class LogicManager implements Logic {
         } catch (IOException ioe) {
             throw new CommandException(String.format(FILE_OPS_ERROR_FORMAT, ioe.getMessage()), ioe);
         }
-
-        return commandResult;
     }
 
     @Override

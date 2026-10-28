@@ -76,6 +76,14 @@ public class ListCommand extends Command {
     }
 
     /**
+     * Returns true, as listing only changes which clients are displayed.
+     */
+    @Override
+    public boolean isReadOnly() {
+        return true;
+    }
+
+    /**
      * Shows only clients with a non-cancelled appointment today, ordered by their earliest appointment time today,
      * and reports each client's appointment times today.
      */

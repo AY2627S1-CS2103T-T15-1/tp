@@ -139,6 +139,14 @@ public class LogicManagerTest {
     }
 
     @Test
+    public void execute_listCommandsWhenSaveFails_stillSucceed() throws Exception {
+        useStorageThatThrows(DUMMY_AD_EXCEPTION);
+        assertEquals(ListCommand.MESSAGE_NO_CLIENTS, logic.execute(ListCommand.COMMAND_WORD).getFeedbackToUser());
+        assertEquals(ListCommand.MESSAGE_NO_CLIENTS_TODAY,
+                logic.execute(ListCommand.COMMAND_WORD + " --today").getFeedbackToUser());
+    }
+
+    @Test
     public void getFilteredPersonList_modifyList_throwsUnsupportedOperationException() {
         assertThrows(UnsupportedOperationException.class, () -> logic.getFilteredPersonList().remove(0));
     }
@@ -203,6 +211,20 @@ public class LogicManagerTest {
      * @param expectedMessage the message expected inside exception thrown by the Logic component
      */
     private void assertCommandFailureForExceptionFromStorage(IOException e, String expectedMessage) {
+        useStorageThatThrows(e);
+
+        // Triggers the saveAddressBook method by executing an add command
+        String addCommand = PersonUtil.getAddCommand(AMY);
+        Person expectedPerson = new PersonBuilder(AMY).withId(1).build();
+        ModelManager expectedModel = new ModelManager();
+        expectedModel.addPerson(expectedPerson);
+        assertCommandFailure(addCommand, CommandException.class, expectedMessage, expectedModel);
+    }
+
+    /**
+     * Replaces {@code logic} with one whose Storage component throws {@code e} whenever it saves the address book.
+     */
+    private void useStorageThatThrows(IOException e) {
         Path prefPath = temporaryFolder.resolve("ExceptionUserPrefs.json");
 
         // Inject LogicManager with a JsonAddressBookStorage that throws the IOException e when saving
@@ -218,12 +240,5 @@ public class LogicManagerTest {
         StorageManager storage = new StorageManager(addressBookStorage, userPrefsStorage);
 
         logic = new LogicManager(model, storage);
-
-        // Triggers the saveAddressBook method by executing an add command
-        String addCommand = PersonUtil.getAddCommand(AMY);
-        Person expectedPerson = new PersonBuilder(AMY).withId(1).build();
-        ModelManager expectedModel = new ModelManager();
-        expectedModel.addPerson(expectedPerson);
-        assertCommandFailure(addCommand, CommandException.class, expectedMessage, expectedModel);
     }
 }

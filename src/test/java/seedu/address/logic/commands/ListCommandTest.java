@@ -1,7 +1,9 @@
 package seedu.address.logic.commands;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandSuccess;
 import static seedu.address.logic.commands.CommandTestUtil.showPersonAtIndex;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
@@ -228,6 +230,15 @@ public class ListCommandTest {
 
         command.execute(todayModel);
         assertEquals(List.of(carl), todayModel.getFilteredPersonList());
+    }
+
+    @Test
+    public void isReadOnly_listCommands_returnsTrue() {
+        assertTrue(new ListCommand().isReadOnly());
+        assertTrue(ListCommand.forToday(TODAY_CLOCK).isReadOnly());
+
+        // other commands are not read-only unless they say so
+        assertFalse(new ExitCommand().isReadOnly());
     }
 
     @Test
