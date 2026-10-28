@@ -61,7 +61,7 @@
 .command-feedback #resultDisplay {
     -fx-font-family: "Inter", "Segoe UI", sans-serif;
     -fx-font-size: 16px;
-    -fx-font-weight: bold;
+    -fx-font-weight: normal;
     -fx-text-fill: white;
     -fx-padding: 0 14;
 }
