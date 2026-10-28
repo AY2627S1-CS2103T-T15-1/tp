@@ -35,6 +35,12 @@ public class GroupCommandParser implements Parser<Command> {
             + "Use tag --type to label a client as a gym or personal client.";
     public static final String MESSAGE_SAME_GROUP = "The groups after " + PREFIX_FROM + " and " + PREFIX_TO
             + " must be different.";
+    public static final String MESSAGE_MISSING_FROM = "Missing " + PREFIX_FROM
+            + " GROUP: give the group to move the client out of.";
+    public static final String MESSAGE_MISSING_TO = "Missing " + PREFIX_TO
+            + " GROUP: give the group to move the client into.";
+    public static final String MESSAGE_MISSING_FROM_AND_TO = "Missing " + PREFIX_FROM + " GROUP and " + PREFIX_TO
+            + " GROUP: give the group to move the client out of and the group to move them into.";
 
     /**
      * Parses the given {@code String} of arguments in the context of the group command
@@ -102,13 +108,14 @@ public class GroupCommandParser implements Parser<Command> {
     private static MoveGroupCommand parseMove(ArgumentMultimap argMultimap) throws ParseException {
         PersonSelector selector = ParserUtil.parsePersonSelector(argMultimap, GroupCommand.MESSAGE_USAGE,
                 PREFIX_ID, PREFIX_NAME_LONG);
-        Optional<String> fromValue = argMultimap.getValue(PREFIX_FROM);
-        Optional<String> toValue = argMultimap.getValue(PREFIX_TO);
-        if (!argMultimap.getValue(PREFIX_MOVE).get().isEmpty() || fromValue.isEmpty() || toValue.isEmpty()) {
+        if (!argMultimap.getValue(PREFIX_MOVE).get().isEmpty()) {
             throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, GroupCommand.MESSAGE_USAGE));
         }
+        Optional<String> fromValue = argMultimap.getValue(PREFIX_FROM);
+        Optional<String> toValue = argMultimap.getValue(PREFIX_TO);
 
         try {
+            requireBothGroups(fromValue.isPresent(), toValue.isPresent());
             argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_MOVE, PREFIX_FROM, PREFIX_TO);
             Tag from = parseGroup(fromValue.get());
             Tag to = parseGroup(toValue.get());
@@ -118,6 +125,23 @@ public class GroupCommandParser implements Parser<Command> {
             return new MoveGroupCommand(selector, from, to);
         } catch (ParseException pe) {
             throw new ParseException(ParserUtil.withUsage(pe.getMessage(), GroupCommand.MESSAGE_USAGE), pe);
+        }
+    }
+
+    /**
+     * Checks that both {@code --from} and {@code --to} were given to a move.
+     *
+     * @throws ParseException naming whichever of them is missing.
+     */
+    private static void requireBothGroups(boolean hasFrom, boolean hasTo) throws ParseException {
+        if (!hasFrom && !hasTo) {
+            throw new ParseException(MESSAGE_MISSING_FROM_AND_TO);
+        }
+        if (!hasFrom) {
+            throw new ParseException(MESSAGE_MISSING_FROM);
+        }
+        if (!hasTo) {
+            throw new ParseException(MESSAGE_MISSING_TO);
         }
     }
 

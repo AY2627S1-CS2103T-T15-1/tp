@@ -100,8 +100,12 @@ public class GroupCommandParserTest {
 
     @Test
     public void parse_moveMissingParts_failure() {
-        assertParseFailure(parser, " --move --id 2 --from morning", INVALID_FORMAT);
-        assertParseFailure(parser, " --move --id 2 --to evening", INVALID_FORMAT);
+        assertParseFailure(parser, " --move --id 2 --from morning",
+                ParserUtil.withUsage(GroupCommandParser.MESSAGE_MISSING_TO, GroupCommand.MESSAGE_USAGE));
+        assertParseFailure(parser, " --move --id 2 --to evening",
+                ParserUtil.withUsage(GroupCommandParser.MESSAGE_MISSING_FROM, GroupCommand.MESSAGE_USAGE));
+        assertParseFailure(parser, " --move --id 2",
+                ParserUtil.withUsage(GroupCommandParser.MESSAGE_MISSING_FROM_AND_TO, GroupCommand.MESSAGE_USAGE));
         assertParseFailure(parser, " --move --from morning --to evening", INVALID_FORMAT);
         assertParseFailure(parser, " --move now --id 2 --from morning --to evening", INVALID_FORMAT);
     }
