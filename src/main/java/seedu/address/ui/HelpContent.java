@@ -105,10 +105,10 @@ public final class HelpContent {
                     "Move a client between existing custom groups. The client must be in the source group.",
                     GroupCommand.COMMAND_WORD + " --move " + CLIENT_SELECTOR + " --from GROUP --to GROUP",
                     "group --move --id 2 --from morning --to evening"),
-            new CommandSummary(CLIENT_TYPE, TagCommand.COMMAND_WORD,
+            new CommandSummary(CLIENT_TYPE, GroupCommand.COMMAND_WORD,
                     "Delete a custom group and remove it from every client. gym and personal cannot be deleted.",
-                    TagCommand.COMMAND_WORD + " --delete --group GROUP",
-                    "tag --delete --group morning"),
+                    GroupCommand.COMMAND_WORD + " --delete --name GROUP",
+                    "group --delete --name morning"),
             new CommandSummary(APPOINTMENTS, AddAppointmentCommand.COMMAND_WORD,
                     "Replace a client's appointments with four weekly appointments, starting on the given date.",
                     AddAppointmentCommand.COMMAND_WORD + " --add " + CLIENT_SELECTOR

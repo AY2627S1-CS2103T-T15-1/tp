@@ -2,6 +2,7 @@ package seedu.address.logic.parser;
 
 import static java.util.Objects.requireNonNull;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_DELETE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_FROM;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_ID;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_MOVE;
@@ -14,6 +15,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import seedu.address.logic.commands.Command;
+import seedu.address.logic.commands.DeleteGroupCommand;
 import seedu.address.logic.commands.GroupCommand;
 import seedu.address.logic.commands.MoveGroupCommand;
 import seedu.address.logic.commands.PersonSelector;
@@ -21,8 +23,8 @@ import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.tag.Tag;
 
 /**
- * Parses input arguments and creates a new GroupCommand object, or a MoveGroupCommand object
- * if {@code --move} is given.
+ * Parses input arguments and creates a new GroupCommand object, a MoveGroupCommand object
+ * if {@code --move} is given, or a DeleteGroupCommand object if {@code --delete} is given.
  */
 public class GroupCommandParser implements Parser<Command> {
 
@@ -41,7 +43,10 @@ public class GroupCommandParser implements Parser<Command> {
     public Command parse(String args) throws ParseException {
         requireNonNull(args);
         ArgumentMultimap argMultimap = ArgumentTokenizer.tokenize(args, PREFIX_NAME_LONG, PREFIX_MOVE, PREFIX_ID,
-                PREFIX_FROM, PREFIX_TO);
+                PREFIX_FROM, PREFIX_TO, PREFIX_DELETE);
+        if (argMultimap.getValue(PREFIX_DELETE).isPresent()) {
+            return parseDelete(argMultimap);
+        }
         if (argMultimap.getValue(PREFIX_MOVE).isPresent()) {
             return parseMove(argMultimap);
         }
@@ -84,6 +89,30 @@ public class GroupCommandParser implements Parser<Command> {
                 throw new ParseException(MESSAGE_SAME_GROUP);
             }
             return new MoveGroupCommand(selector, from, to);
+        } catch (ParseException pe) {
+            throw new ParseException(ParserUtil.withUsage(pe.getMessage(), GroupCommand.MESSAGE_USAGE), pe);
+        }
+    }
+
+    /**
+     * Parses {@code argMultimap}, which contains {@code --delete}, into a DeleteGroupCommand.
+     * Only {@code --delete} with no value and one {@code --name} may be given.
+     *
+     * @throws ParseException if other arguments are given, or the group is invalid.
+     */
+    private static DeleteGroupCommand parseDelete(ArgumentMultimap argMultimap) throws ParseException {
+        Optional<String> nameValue = argMultimap.getValue(PREFIX_NAME_LONG);
+        boolean hasOtherArguments = !argMultimap.getPreamble().isEmpty()
+                || !argMultimap.getValue(PREFIX_DELETE).get().isEmpty()
+                || Stream.of(PREFIX_MOVE, PREFIX_ID, PREFIX_FROM, PREFIX_TO)
+                        .anyMatch(prefix -> argMultimap.getValue(prefix).isPresent());
+        if (hasOtherArguments || nameValue.isEmpty()) {
+            throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, GroupCommand.MESSAGE_USAGE));
+        }
+
+        try {
+            argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_DELETE, PREFIX_NAME_LONG);
+            return new DeleteGroupCommand(parseGroup(nameValue.get()));
         } catch (ParseException pe) {
             throw new ParseException(ParserUtil.withUsage(pe.getMessage(), GroupCommand.MESSAGE_USAGE), pe);
         }

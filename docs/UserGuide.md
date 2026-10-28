@@ -423,19 +423,20 @@ Format: `group --move --id ID --from GROUP --to GROUP` or `group --move --name N
 Examples:
 * `group --move --id 2 --from morning --to evening` moves the client with ID 2 from `morning` to `evening`.
 
-### Deleting a group: `tag --delete`
+### Deleting a group: `group --delete`
 
 Deletes a group, and removes it from every client in it.
 
-Format: `tag --delete --group GROUP`
+Format: `group --delete --name GROUP`
 
 * The group must exist. `GROUP` ignores upper and lower case.
+* `tag --delete --group GROUP` also deletes a group, and works the same way.
 * The clients themselves are kept; only the group is removed from them.
 * `gym` and `personal` are built-in labels and cannot be deleted.
 * This cannot be undone, so you will have to create the group and add the clients to it again.
 
 Examples:
-* `tag --delete --group morning` deletes the group `morning` and removes it from every client in it.
+* `group --delete --name morning` deletes the group `morning` and removes it from every client in it.
 
 ### Recording a training session: `session --add`
 
@@ -565,7 +566,7 @@ Action     | Format, Examples
 **Add to group** | `tag --id ID --group GROUP` (or `--name NAME` instead of `--id ID`)<br> e.g., `tag --id 2 --group morning`
 **Untag**  | `tag --id ID --untag TAG` (or `--name NAME` instead of `--id ID`)<br> e.g., `tag --id 2 --untag morning`
 **Move group** | `group --move --id ID --from GROUP --to GROUP` (or `--name NAME` instead of `--id ID`)<br> e.g., `group --move --id 2 --from morning --to evening`
-**Delete group** | `tag --delete --group GROUP`<br> e.g., `tag --delete --group morning`
+**Delete group** | `group --delete --name GROUP`<br> e.g., `group --delete --name morning`
 **Group**  | `group --name GROUP`<br> e.g., `group --name morning`
 **Add session** | `session --add (--id ID \| --name NAME) --date YYYY-MM-DD [--note TEXT]`<br> e.g., `session --add --id 2 --date 2026-10-22 --note "Squats: 3 sets"`
 **Edit session** | `session --edit (--id ID \| --name NAME) --date YYYY-MM-DD --note [TEXT]` (omit TEXT to clear the note)<br> e.g., `session --edit --id 2 --date 2026-10-22 --note "Improved squat depth"`

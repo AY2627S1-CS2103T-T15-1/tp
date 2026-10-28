@@ -1,6 +1,7 @@
 package seedu.address.logic.parser;
 
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_DELETE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME_LONG;
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseFailure;
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseSuccess;
@@ -8,6 +9,7 @@ import static seedu.address.logic.parser.CommandParserTestUtil.assertParseSucces
 import org.junit.jupiter.api.Test;
 
 import seedu.address.logic.Messages;
+import seedu.address.logic.commands.DeleteGroupCommand;
 import seedu.address.logic.commands.GroupCommand;
 import seedu.address.logic.commands.MoveGroupCommand;
 import seedu.address.logic.commands.PersonSelector;
@@ -95,5 +97,44 @@ public class GroupCommandParserTest {
                 ParserUtil.withUsage(GroupCommandParser.MESSAGE_CLIENT_TYPE_GROUP, GroupCommand.MESSAGE_USAGE));
         assertParseFailure(parser, " --move --id 2 --from morning --to early birds",
                 ParserUtil.withUsage(GroupCommandParser.MESSAGE_INVALID_GROUP_NAME, GroupCommand.MESSAGE_USAGE));
+    }
+
+    @Test
+    public void parse_delete_returnsDeleteGroupCommand() {
+        DeleteGroupCommand expectedCommand = new DeleteGroupCommand(new Tag("morning"));
+        assertParseSuccess(parser, " --delete --name morning", expectedCommand);
+
+        // flags in any order, and name ignores upper and lower case, and may be in quotes
+        assertParseSuccess(parser, " --name Morning --delete", expectedCommand);
+        assertParseSuccess(parser, " --delete --name \"MORNING\"", expectedCommand);
+    }
+
+    @Test
+    public void parse_deleteInvalidFormat_failure() {
+        assertParseFailure(parser, " --delete", INVALID_FORMAT);
+        assertParseFailure(parser, " --delete morning", INVALID_FORMAT);
+        assertParseFailure(parser, " --delete now --name morning", INVALID_FORMAT);
+        assertParseFailure(parser, " extra --delete --name morning", INVALID_FORMAT);
+        assertParseFailure(parser, " --delete --name morning --id 2", INVALID_FORMAT);
+        assertParseFailure(parser, " --delete --move --name morning", INVALID_FORMAT);
+        assertParseFailure(parser, " --delete --name morning --from rehab --to evening", INVALID_FORMAT);
+    }
+
+    @Test
+    public void parse_deleteInvalidGroup_failure() {
+        assertParseFailure(parser, " --delete --name",
+                ParserUtil.withUsage(GroupCommandParser.MESSAGE_INVALID_GROUP_NAME, GroupCommand.MESSAGE_USAGE));
+        assertParseFailure(parser, " --delete --name early birds",
+                ParserUtil.withUsage(GroupCommandParser.MESSAGE_INVALID_GROUP_NAME, GroupCommand.MESSAGE_USAGE));
+        assertParseFailure(parser, " --delete --name gym",
+                ParserUtil.withUsage(GroupCommandParser.MESSAGE_CLIENT_TYPE_GROUP, GroupCommand.MESSAGE_USAGE));
+    }
+
+    @Test
+    public void parse_deleteRepeatedPrefix_failure() {
+        assertParseFailure(parser, " --delete --name morning --name rehab", ParserUtil.withUsage(
+                Messages.getErrorMessageForDuplicatePrefixes(PREFIX_NAME_LONG), GroupCommand.MESSAGE_USAGE));
+        assertParseFailure(parser, " --delete --delete --name morning", ParserUtil.withUsage(
+                Messages.getErrorMessageForDuplicatePrefixes(PREFIX_DELETE), GroupCommand.MESSAGE_USAGE));
     }
 }
