@@ -701,6 +701,11 @@ testers are expected to do more *exploratory* testing.
    1. Relaunch the app by double-clicking the JAR file.<br>
        Expected: The most recent window size and location are retained.
 
+1. Opening Cindy twice
+
+   1. With Cindy open, double-click the JAR file again.<br>
+      Expected: An error says Cindy is already open. Closing the error closes the second copy. The first window keeps working, and its clients are unchanged after it is closed and reopened.
+
 1. _{ more test cases … }_
 
 ### Viewing help
