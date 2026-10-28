@@ -36,7 +36,7 @@ Cindy is a **desktop application that helps freelance gym trainers manage their 
 
    * `delete --id 3` : Deletes the client with ID 3. Each client's ID is shown as `#ID` on their card.
 
-   * `clear` : Shows a confirmation prompt. Run `clear --confirm` to delete all clients.
+   * `clear` : Shows a confirmation prompt. Run `clear --confirm` to delete all clients and groups.
 
    * `exit` : Exits the app.
 
@@ -102,7 +102,7 @@ New clients start without a workout plan; you can set one later using `plan`.
 
 Format: `add --name "NAME" --phone "PHONE_NUMBER"`
 
-Cindy gives every new client a unique ID number, shown in the message after the client is added (e.g. `New client added: John Doe (ID: 7); Phone: +6591234567`). A client keeps the same ID for as long as they are in Cindy, and an ID is never given to another client, even after the client it belonged to is deleted. The only exception is `clear --confirm`: it deletes all clients and starts the numbering again, so the next client added after `clear --confirm` gets ID 1.
+Cindy gives every new client a unique ID number, shown in the message after the client is added (e.g. `New client added: John Doe (ID: 7); Phone: +6591234567`). A client keeps the same ID for as long as they are in Cindy, and an ID is never given to another client, even after the client it belonged to is deleted. The only exception is `clear --confirm`: it deletes all clients and groups and starts the numbering again, so the next client added after `clear --confirm` gets ID 1.
 
 Name requirements:
 
@@ -463,15 +463,15 @@ Example: `session --edit --id 2 --date 2026-10-22 --note "Improved squat depth"`
 
 ### Clearing all entries: `clear`
 
-Deletes all clients from Cindy after confirmation.
+Deletes all clients and custom groups from Cindy after confirmation.
 
 Format: `clear` or `clear --confirm`
 
-* `clear` displays a prompt asking you to run `clear --confirm`. It leaves all clients and the next client ID unchanged.
-* `clear --confirm` immediately deletes all saved clients. You can run it directly without first running `clear`.
+* `clear` displays a prompt asking you to run `clear --confirm`. It leaves all clients, groups and the next client ID unchanged.
+* `clear --confirm` immediately deletes all saved clients and custom groups, including groups with no clients. You can run it directly without first running `clear`. Recreate any custom groups you need afterwards with `group --name GROUP`; the built-in client types `gym` and `personal` remain available.
 * Clearing cannot be undone.
 * Client IDs start again from 1 after `clear --confirm`, even if there are already no clients, so the next client you add gets ID 1. IDs you noted down before clearing no longer refer to the same clients.
-* Only the exact flag `--confirm` is accepted. Unknown arguments, extra text, or repeated flags (e.g. `clear --confirm --confirm`) produce an error and leave your clients unchanged.
+* Only the exact flag `--confirm` is accepted. Unknown arguments, extra text, or repeated flags (e.g. `clear --confirm --confirm`) produce an error and leave your clients and groups unchanged.
 
 ### Recalling previous commands: Up / Down
 
@@ -548,7 +548,7 @@ _Details coming soon ..._
 Action     | Format, Examples
 -----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 **Add**    | `add --name "NAME" --phone "PHONE_NUMBER"` <br> e.g., `add --name "James Ho" --phone "+65 9123 4567"`
-**Clear**  | `clear` to show the prompt; `clear --confirm` to delete all clients and reset IDs
+**Clear**  | `clear` to show the prompt; `clear --confirm` to delete all clients and groups and reset IDs
 **Delete** | `delete --id ID` or `delete --name NAME`<br> e.g., `delete --id 3`
 **Edit**   | `edit --id ID [--to-name NEW_NAME] [--to-phone NEW_PHONE]` (at least one change; or `--name NAME` instead of `--id ID`)<br> e.g., `edit --id 2 --to-name "James Lee"`
 **Find**   | `find [--name NAME] [--phone PHONE] [--id ID] [--group GROUP]` (at least one)<br> e.g., `find --name james`, `find --group morning`
