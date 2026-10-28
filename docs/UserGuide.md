@@ -102,7 +102,7 @@ New clients start without a workout plan; you can set one later using `plan`.
 
 Format: `add --name "NAME" --phone "PHONE_NUMBER"`
 
-Cindy gives every new client a unique ID number, shown in the message after the client is added (e.g. `New client added: John Doe (ID: 7); Phone: +6591234567`). A client keeps the same ID for as long as they are in Cindy, and an ID is never given to another client, even after the client it belonged to is deleted. The only exception is `clear --confirm`: it deletes all clients and starts the numbering again, so the next client added after `clear --confirm` gets ID 1.
+Cindy gives every new client a unique ID number, shown in the message after the client is added (e.g. `New client added: John Doe (ID: 7); Phone: +6591234567`). A client keeps the same ID for as long as they are in Cindy, and an ID is never given to another client, even after the client it belonged to is deleted. The only exception is `clear --confirm`: it deletes all clients and starts the numbering again, so the next client added after `clear --confirm` gets ID 1. IDs go up to 2147483646; once every ID up to that has been used, `add` shows an error until you run `clear --confirm`.
 
 Name requirements:
 
