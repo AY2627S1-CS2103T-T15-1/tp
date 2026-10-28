@@ -21,7 +21,9 @@ import org.junit.jupiter.api.Test;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.input.Clipboard;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Region;
 import seedu.address.model.appointment.Appointment;
@@ -149,6 +151,33 @@ public class PersonDetailPanelTest {
             assertTrue(label.isWrapText());
             assertTrue(label.getWidth() <= scroll.getViewportBounds().getWidth());
             assertTrue(label.getHeight() > scroll.getViewportBounds().getHeight());
+        });
+    }
+
+    @Test
+    public void copyNote_noteWithLineBreak_copiesNoteAsTyped() throws Exception {
+        runOnFxThread(() -> {
+            PersonDetailPanel panel = new PersonDetailPanel();
+            panel.showPerson(new PersonBuilder(ALICE).withNote("Knee injury\nAvoid lunges").build());
+
+            Label note = (Label) ((ScrollPane) panel.getRoot()).getContent().lookup("#note");
+            MenuItem copyNoteItem = note.getContextMenu().getItems().get(0);
+            assertEquals(PersonDetailPanel.COPY_NOTE_TEXT, copyNoteItem.getText());
+
+            copyNoteItem.fire();
+            assertEquals("Knee injury\\nAvoid lunges", Clipboard.getSystemClipboard().getString());
+        });
+    }
+
+    @Test
+    public void copyNote_afterSwitchingClient_copiesNoteOfClientShown() throws Exception {
+        runOnFxThread(() -> {
+            PersonDetailPanel panel = new PersonDetailPanel();
+            panel.showPerson(new PersonBuilder(ALICE).withNote("Alice's note").build());
+            panel.showPerson(new PersonBuilder(BENSON).withNote("Benson's note").build());
+
+            panel.copyNote();
+            assertEquals("Benson's note", Clipboard.getSystemClipboard().getString());
         });
     }
 

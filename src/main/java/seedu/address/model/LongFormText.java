@@ -26,6 +26,13 @@ public final class LongFormText {
         return value.isBlank();
     }
 
+    /**
+     * Returns the text as the user would type it in a command, with each line break written as {@code \n}.
+     */
+    public String toTypedText() {
+        return value.replace("\n", "\\n");
+    }
+
     @Override
     public String toString() {
         return value;

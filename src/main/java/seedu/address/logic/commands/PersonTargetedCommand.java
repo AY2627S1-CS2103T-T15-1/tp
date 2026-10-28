@@ -83,6 +83,6 @@ public abstract class PersonTargetedCommand extends Command {
      * Formats long-form text as a quoted single-line argument for a retry command.
      */
     protected static String quoteLongFormText(LongFormText text) {
-        return quote(text.value.replace("\n", "\\n"));
+        return quote(text.toTypedText());
     }
 }

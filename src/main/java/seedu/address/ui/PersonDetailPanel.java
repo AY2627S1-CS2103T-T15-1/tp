@@ -8,7 +8,12 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.Tooltip;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -22,10 +27,13 @@ import seedu.address.model.session.Session;
  */
 public class PersonDetailPanel extends UiPart<Region> {
 
+    static final String COPY_NOTE_TEXT = "Copy note";
+
     private static final String FXML = "PersonDetailPanel.fxml";
     private static final int MAX_DISPLAYED_SESSIONS = 4;
     private static final String NO_NOTE_TEXT = "No note";
     private static final String NO_SESSIONS_TEXT = "No sessions recorded";
+    private static final String COPY_NOTE_HINT = "Right-click to copy the note";
 
     @FXML
     private VBox sessionList;
@@ -51,11 +59,28 @@ public class PersonDetailPanel extends UiPart<Region> {
     @FXML
     private Label note;
 
+    /** The note of the client shown, which "Copy note" copies. */
+    private LongFormText shownNote = new LongFormText("");
+
     /**
      * Creates an empty {@code PersonDetailPanel}.
      */
     public PersonDetailPanel() {
         super(FXML);
+        MenuItem copyNoteItem = new MenuItem(COPY_NOTE_TEXT);
+        copyNoteItem.setOnAction(event -> copyNote());
+        note.setContextMenu(new ContextMenu(copyNoteItem));
+        note.setTooltip(new Tooltip(COPY_NOTE_HINT));
+    }
+
+    /**
+     * Copies the note of the client shown to the clipboard, as it would be typed in a {@code note} command,
+     * so that it can be pasted into a new {@code note} command and changed.
+     */
+    void copyNote() {
+        ClipboardContent content = new ClipboardContent();
+        content.putString(shownNote.toTypedText());
+        Clipboard.getSystemClipboard().setContent(content);
     }
 
     /**
@@ -65,8 +90,9 @@ public class PersonDetailPanel extends UiPart<Region> {
         requireNonNull(person);
         personHeader.getChildren().setAll(new PersonCard(person).getRoot());
         showSessions(person);
-        boolean hasNote = !person.getNote().isBlank();
-        note.setText(person.getNote().value);
+        shownNote = person.getNote();
+        boolean hasNote = !shownNote.isBlank();
+        note.setText(shownNote.value);
         noteSection.setVisible(hasNote);
         noteSection.setManaged(hasNote);
         LongFormText plan = person.getWorkoutPlan();
