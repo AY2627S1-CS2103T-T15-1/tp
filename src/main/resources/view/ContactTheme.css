@@ -231,6 +231,13 @@
     -fx-border-width: 0;
 }
 
+.client-detail-scroll .label,
+.client-detail-scroll #cardPane.inactive-contact .contact-name,
+.client-detail-scroll #cardPane.inactive-contact .contact-phone {
+    -fx-text-fill: white;
+    -fx-opacity: 1;
+}
+
 .contact-list .workout-plan-text {
     -fx-font-size: 14px;
 }
