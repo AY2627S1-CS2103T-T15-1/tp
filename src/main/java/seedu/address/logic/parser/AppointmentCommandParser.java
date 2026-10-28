@@ -25,6 +25,7 @@ import seedu.address.logic.commands.ListAppointmentsCommand;
 import seedu.address.logic.commands.PersonSelector;
 import seedu.address.logic.commands.RescheduleAppointmentCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
+import seedu.address.model.appointment.Appointment;
 
 /**
  * Parses the arguments of the {@code appointment} command, choosing the form of the command from its flag.
@@ -99,7 +100,14 @@ public class AppointmentCommandParser implements Parser<Command> {
             argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_DATE, PREFIX_WEEK);
             Prefix given = hasDate ? PREFIX_DATE : PREFIX_WEEK;
             LocalDate date = ParserUtil.parseDate(argMultimap.getValue(given).get());
-            return hasDate ? ListAppointmentsCommand.forDay(date) : ListAppointmentsCommand.forWeek(date);
+            if (hasDate) {
+                return ListAppointmentsCommand.forDay(date);
+            }
+            if (!ListAppointmentsCommand.isSupportedWeek(date)) {
+                throw new ParseException(String.format(ListAppointmentsCommand.MESSAGE_WEEK_NOT_SUPPORTED,
+                        date.format(Appointment.DATE_FORMAT)));
+            }
+            return ListAppointmentsCommand.forWeek(date);
         } catch (ParseException pe) {
             throw new ParseException(ParserUtil.withUsage(pe.getMessage(), usage), pe);
         }

@@ -71,6 +71,23 @@ public class RescheduleAppointmentCommandTest {
     }
 
     @Test
+    public void execute_newDateMoreThanAYearAhead_throws() {
+        giveSeries(ALICE, SERIES);
+        assertCommandFailure(reschedule(1, LocalDate.of(2027, 10, 21), NEW_TIME), model,
+                String.format(AddAppointmentCommand.MESSAGE_DATE_TOO_FAR, "2027-10-21", "2027-10-20"));
+    }
+
+    @Test
+    public void execute_newDateAYearAhead_moves() {
+        Person withSeries = giveSeries(ALICE, SERIES);
+        LocalDate lastDate = LocalDate.of(2027, 10, 20);
+
+        Person updated = executeAndGetClient(reschedule(1, lastDate, NEW_TIME), withSeries);
+
+        assertEquals(new Appointment(lastDate, NEW_TIME), updated.getAppointments().get(3));
+    }
+
+    @Test
     public void execute_newDateToday_moves() {
         Person withSeries = giveSeries(ALICE, SERIES);
 

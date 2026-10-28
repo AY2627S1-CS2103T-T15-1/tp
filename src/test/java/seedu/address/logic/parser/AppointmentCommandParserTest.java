@@ -133,6 +133,17 @@ public class AppointmentCommandParserTest {
     }
 
     @Test
+    public void parse_weekAtEdgeOfSupportedDates() {
+        String usage = ListAppointmentsCommand.MESSAGE_USAGE;
+        assertParseFailure(parser, " --week 9999-12-31", ParserUtil.withUsage(
+                String.format(ListAppointmentsCommand.MESSAGE_WEEK_NOT_SUPPORTED, "9999-12-31"), usage));
+        assertParseFailure(parser, " --week 0000-01-01", ParserUtil.withUsage(
+                String.format(ListAppointmentsCommand.MESSAGE_WEEK_NOT_SUPPORTED, "0000-01-01"), usage));
+        assertParseSuccess(parser, " --week 9999-12-26", ListAppointmentsCommand.forWeek(LocalDate.of(9999, 12, 26)));
+        assertParseSuccess(parser, " --date 9999-12-31", ListAppointmentsCommand.forDay(LocalDate.of(9999, 12, 31)));
+    }
+
+    @Test
     public void parse_dateAndWeek_failure() {
         assertParseFailure(parser, " --date 2026-10-26 --week 2026-10-26", INVALID_LIST_FORMAT);
     }

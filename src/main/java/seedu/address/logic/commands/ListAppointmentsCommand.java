@@ -32,6 +32,8 @@ public class ListAppointmentsCommand extends Command {
     public static final String MESSAGE_WEEK_HEADER = "Appointments from %1$s to %2$s:";
     public static final String MESSAGE_NO_DAY = "No appointments on %1$s.";
     public static final String MESSAGE_NO_WEEK = "No appointments from %1$s to %2$s.";
+    public static final String MESSAGE_WEEK_NOT_SUPPORTED =
+            "The week of %1$s goes past the dates Cindy supports, 0000-01-01 to 9999-12-31.";
 
     private static final Logger logger = LogsCenter.getLogger(ListAppointmentsCommand.class);
 
@@ -59,8 +61,22 @@ public class ListAppointmentsCommand extends Command {
      */
     public static ListAppointmentsCommand forWeek(LocalDate anyDayInWeek) {
         requireNonNull(anyDayInWeek);
-        LocalDate monday = anyDayInWeek.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate monday = getMonday(anyDayInWeek);
         return new ListAppointmentsCommand(monday, monday.plusDays(6), true);
+    }
+
+    /**
+     * Returns true if every day of the Monday to Sunday week containing {@code anyDayInWeek} has a year
+     * from 0000 to 9999, so that the week can be shown in the format YYYY-MM-DD.
+     */
+    public static boolean isSupportedWeek(LocalDate anyDayInWeek) {
+        requireNonNull(anyDayInWeek);
+        LocalDate monday = getMonday(anyDayInWeek);
+        return monday.getYear() >= 0 && monday.plusDays(6).getYear() <= 9999;
+    }
+
+    private static LocalDate getMonday(LocalDate anyDayInWeek) {
+        return anyDayInWeek.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
     }
 
     @Override
