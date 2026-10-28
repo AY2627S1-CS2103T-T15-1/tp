@@ -34,7 +34,7 @@
     -fx-border-radius: 48;
     -fx-padding: 12 20;
     -fx-pref-height: 48;
-    -fx-font-family: "Inter", "Segoe UI", sans-serif;
+    -fx-font-family: "Cascadia Mono", "Consolas", "DejaVu Sans Mono", monospace;
     -fx-font-size: 16px;
     -fx-text-fill: white;
     -fx-prompt-text-fill: #a1a1a1;
