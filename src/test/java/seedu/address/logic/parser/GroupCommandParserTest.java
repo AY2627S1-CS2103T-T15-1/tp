@@ -2,6 +2,7 @@ package seedu.address.logic.parser;
 
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_DELETE;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_LIST;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME_LONG;
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseFailure;
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseSuccess;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.DeleteGroupCommand;
 import seedu.address.logic.commands.GroupCommand;
+import seedu.address.logic.commands.ListGroupsCommand;
 import seedu.address.logic.commands.MoveGroupCommand;
 import seedu.address.logic.commands.PersonSelector;
 import seedu.address.model.person.PersonId;
@@ -133,6 +135,7 @@ public class GroupCommandParserTest {
         assertParseFailure(parser, " --delete --name morning --id 2", INVALID_FORMAT);
         assertParseFailure(parser, " --delete --move --name morning", INVALID_FORMAT);
         assertParseFailure(parser, " --delete --name morning --from rehab --to evening", INVALID_FORMAT);
+        assertParseFailure(parser, " --delete --list --name morning", INVALID_FORMAT);
     }
 
     @Test
@@ -151,5 +154,21 @@ public class GroupCommandParserTest {
                 Messages.getErrorMessageForDuplicatePrefixes(PREFIX_NAME_LONG), GroupCommand.MESSAGE_USAGE));
         assertParseFailure(parser, " --delete --delete --name morning", ParserUtil.withUsage(
                 Messages.getErrorMessageForDuplicatePrefixes(PREFIX_DELETE), GroupCommand.MESSAGE_USAGE));
+    }
+
+    @Test
+    public void parse_list_returnsListGroupsCommand() {
+        assertParseSuccess(parser, " --list", new ListGroupsCommand());
+        assertParseSuccess(parser, "   --list   ", new ListGroupsCommand());
+    }
+
+    @Test
+    public void parse_listWithOtherArguments_failure() {
+        assertParseFailure(parser, " --list all", INVALID_FORMAT);
+        assertParseFailure(parser, " extra --list", INVALID_FORMAT);
+        assertParseFailure(parser, " --list --name morning", INVALID_FORMAT);
+        assertParseFailure(parser, " --list --move --id 2 --from morning --to evening", INVALID_FORMAT);
+        assertParseFailure(parser, " --list --list", ParserUtil.withUsage(
+                Messages.getErrorMessageForDuplicatePrefixes(PREFIX_LIST), GroupCommand.MESSAGE_USAGE));
     }
 }

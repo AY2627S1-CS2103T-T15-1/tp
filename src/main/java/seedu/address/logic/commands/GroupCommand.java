@@ -4,6 +4,7 @@ import static java.util.Objects.requireNonNull;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_DELETE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_FROM;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_ID;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_LIST;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_MOVE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME_LONG;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_TO;
@@ -25,16 +26,17 @@ public class GroupCommand extends Command {
 
     public static final String MESSAGE_USAGE = COMMAND_WORD + ": Creates a group of clients, such as morning or "
             + "rehab, moves a client, chosen by ID or by part of their name, from one group to another, "
-            + "or deletes a group. "
+            + "deletes a group, or lists every group. "
             + "Group names are made of letters and digits, with spaces or hyphens between words, "
             + "and ignore upper and lower case. "
             + "gym and personal are built-in labels, so they cannot be groups.\n"
             + "Parameters: " + PREFIX_NAME_LONG + " GROUP, or " + PREFIX_MOVE + " " + PREFIX_ID + " ID (or "
             + PREFIX_NAME_LONG + " NAME) " + PREFIX_FROM + " GROUP " + PREFIX_TO + " GROUP, or "
-            + PREFIX_DELETE + " " + PREFIX_NAME_LONG + " GROUP\n"
+            + PREFIX_DELETE + " " + PREFIX_NAME_LONG + " GROUP, or " + PREFIX_LIST + "\n"
             + "Examples: " + COMMAND_WORD + " " + PREFIX_NAME_LONG + " morning, "
             + COMMAND_WORD + " " + PREFIX_MOVE + " " + PREFIX_ID + " 1 " + PREFIX_FROM + " morning " + PREFIX_TO
-            + " evening, " + COMMAND_WORD + " " + PREFIX_DELETE + " " + PREFIX_NAME_LONG + " morning";
+            + " evening, " + COMMAND_WORD + " " + PREFIX_DELETE + " " + PREFIX_NAME_LONG + " morning, "
+            + COMMAND_WORD + " " + PREFIX_LIST;
 
     public static final String MESSAGE_SUCCESS = "Created group: %1$s";
     public static final String MESSAGE_DUPLICATE_GROUP = "The group %1$s already exists.";

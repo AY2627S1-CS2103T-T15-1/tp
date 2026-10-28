@@ -373,12 +373,25 @@ Format: `group --name GROUP`
 * `GROUP` ignores upper and lower case, so `group --name Morning` creates the group `morning`.
 * Each group can only be created once.
 * `gym` and `personal` are built-in labels, not groups. Use [`tag --type`](#labelling-a-client-as-a-gym-or-personal-client-tag) to label a client as a gym or personal client.
-* A group is kept even when no client is in it.
+* A group is kept even when no client is in it. Use [`group --list`](#listing-all-groups-group---list) to see every group.
 
 Examples:
 * `group --name morning` creates the group `morning`.
 * `group --name Rehab` creates the group `rehab`.
 * `group --name "Weight Loss"` creates the group `weight loss`. Quotes are optional.
+
+### Listing all groups: `group --list`
+
+Shows the names of all your groups, including groups with no clients in them yet.
+
+Format: `group --list`
+
+* Groups are listed in alphabetical order.
+* `gym` and `personal` are built-in labels, not groups, so they are not listed. Use `find --group gym` to see your gym clients.
+* To see the clients in a group, use [`find --group GROUP`](#finding-clients-find).
+
+Example:
+* `group --list` shows `Groups (2): morning, rehab` after you create the groups `morning` and `rehab`.
 
 ### Adding a client to a group: `tag --group`
 
@@ -569,6 +582,7 @@ Action     | Format, Examples
 **Move group** | `group --move --id ID --from GROUP --to GROUP` (or `--name NAME` instead of `--id ID`)<br> e.g., `group --move --id 2 --from morning --to evening`
 **Delete group** | `group --delete --name GROUP`<br> e.g., `group --delete --name morning`
 **Group**  | `group --name GROUP`<br> e.g., `group --name morning`
+**List groups** | `group --list`
 **Add session** | `session --add (--id ID \| --name NAME) --date YYYY-MM-DD [--note TEXT]`<br> e.g., `session --add --id 2 --date 2026-10-22 --note "Squats: 3 sets"`
 **Edit session** | `session --edit (--id ID \| --name NAME) --date YYYY-MM-DD --note [TEXT]` (omit TEXT to clear the note)<br> e.g., `session --edit --id 2 --date 2026-10-22 --note "Improved squat depth"`
 **Help**   | `help`, **Help > Help** in the menu, or **F1** in the main window
