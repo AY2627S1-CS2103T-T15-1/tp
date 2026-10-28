@@ -99,6 +99,7 @@ You can also open it from **Help > Help** in the menu or by pressing **F1** in t
 
 Adds a client using their name and mandatory phone number.
 New clients start without a workout plan; you can set one later using `plan`.
+Only `--name` and `--phone` are accepted. Add notes, client types and groups afterwards with the `note` and `tag` commands.
 
 Format: `add --name "NAME" --phone "PHONE_NUMBER"`
 
@@ -121,6 +122,7 @@ Phone requirements:
 Duplicate handling:
 
 * A client is considered a duplicate only when both their normalized name and phone number match an existing client.
+* Eight-digit phone numbers are treated as Singapore numbers when comparing clients: `81234567` and `+65 8123 4567` match. The country code remains as entered for display. Other country codes are distinct.
 * Clients with the same name but different phone numbers can be added.
 * A phone number can be shared by different clients, but the application displays a warning when it is reused.
 
@@ -128,6 +130,10 @@ Invalid values produce these messages:
 
 * Name: `Invalid name: enter 1–100 characters using letters, spaces, apostrophes, hyphens or periods.`
 * Phone: `Invalid phone: enter 7–15 digits, with an optional leading +.`
+* Unsupported parameter: `Unknown parameter for add: --note.` For example, `add --name "Amy Tan" --phone 91234567 --note "Knee injury"` is rejected; no client is added.
+* Extra text after a phone number: `Unexpected text after --phone: morning.` For example, `add --name "Amy Tan" --phone 91234567 morning` is rejected. Text after a closing quote is also rejected.
+
+Unsupported parameters and extra text errors include the `add` command format. Text inside a quoted value is treated as part of that value and must meet its name or phone requirements.
 
 Examples:
 * `add --name "John Doe" --phone "+65 9123 4567"`

@@ -230,6 +230,23 @@ Parsing works like it does for `delete` in the [Logic component](#logic-componen
 
 The command fails with a `CommandException` (not shown in the diagram) if the index is not valid for the client, or if another of the client's appointments is already at the new date and time.
 
+### Adding clients and detecting duplicate phone numbers
+
+`AddCommandParser` accepts only `--name` and `--phone`. It identifies unsupported long flags using the
+quote-aware `ArgumentTokenizer` before validating field values, so `--note` after a valid phone is reported
+as an unknown parameter. Text after a closing quote, or text after a valid unquoted phone, receives an
+unexpected-text error with usage guidance. Quoted content remains subject to the field's normal validation.
+
+`Phone` removes formatting separators for storage. Its equality and hash code use a comparison key that adds
+`+65` to eight-digit local numbers; `81234567` and `+6581234567` therefore compare equally while retaining
+their original country-code choice in `value`. Other country codes and number lengths remain distinct.
+`Person#isSamePerson` uses normalized name and phone equality to reject duplicate clients; `AddressBook#hasPersonWithPhone`
+uses the same phone equality for warnings when different clients share a number. These rules also apply when editing clients.
+Phone keyword searches still match digits in the stored value; they do not use the equality comparison key.
+
+`AddCommandParserTest` covers unsupported flags and trailing text. `PhoneTest` and `AddCommandIntegrationTest`
+cover equality, hash codes, duplicate rejection and shared-phone warnings for both input orders.
+
 ### \[Proposed\] Undo/redo feature
 
 #### Proposed Implementation
@@ -492,14 +509,16 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
       Use case resumes at step 5.
 
-**Use case: Schedule a training session**
+**Use case: Record a training session**
 
 **MSS**
 
-1.  Trainer requests to view a client's training schedule.
-2.  Cindy shows the client's scheduled sessions.
-3.  Trainer requests to schedule a session and provides its date, time, and details.
-4.  Cindy records the session and shows the updated schedule.
+1.  Trainer requests to view a client's profile.
+2.  Cindy shows the client's details and recent session records.
+3.  Trainer requests to add a session record using `session --add`, providing the client and date, with an optional note.
+4.  Cindy records the session.
+5.  Trainer requests to view the client's profile again.
+6.  Cindy shows the updated session records.
 
     Use case ends.
 
@@ -511,29 +530,40 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
       Use case ends.
 
-* 2a. The client has no scheduled sessions.
+* 2a. The client has no session records.
 
     * 2a1. Cindy shows that the client has no sessions yet.
 
       Use case resumes at step 3.
 
-* 3a. Trainer leaves out the date or time of the session.
+* 3a. Trainer leaves out the session date.
 
     * 3a1. Cindy shows an error message stating which details are missing.
 
       Use case resumes at step 3.
 
-* 3b. The given date or time is invalid (e.g., in the wrong format, or a non-existent date such as 30 February).
+* 3b. The given date is invalid (e.g., in the wrong format, or a non-existent date such as 30 February).
 
     * 3b1. Cindy shows an error message describing the expected format.
 
       Use case resumes at step 3.
 
-* 3c. The new session overlaps with a session the trainer has already scheduled.
+* 3c. A session record already exists for the client on the given date.
 
-    * 3c1. Cindy shows an error message identifying the conflicting session.
+    * 3c1. Cindy shows an error message directing the trainer to use `session --edit`.
 
       Use case resumes at step 3.
+
+* 3d. Trainer requests to correct an existing session note using `session --edit`, providing the client, date and note.
+
+    * 3d1. Cindy replaces the note. An empty note clears the session note; the trainer can view the profile again to check it.
+    * 3d2. If no session exists on that date, Cindy shows an error message.
+
+      Use case ends.
+
+Session records have a date and an optional note, with at most one record per client per date.
+Scheduling uses the separate `appointment --add` command, which accepts a first date and time
+and replaces the client's current appointments with four weekly appointments. It does not check for overlaps.
 
 **Use case: Record client progress**
 
@@ -660,6 +690,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 ### Glossary
 
+* **Appointment**: A scheduled meeting with a client, identified by its date and time; managed using the `appointment` command
 * **Client**: A person who receives fitness coaching from a trainer and whose information is managed in Cindy
 * **Client ID**: A positive whole number that Cindy gives a client when they are added. It never changes, and it is never given to another client, even after the client it belonged to is deleted, unless all clients are cleared, which starts the numbering again from 1
 * **Client progress**: Changes in a client's recorded fitness metrics or exercise performance over time
@@ -670,8 +701,8 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 * **Progress entry**: A dated record of a client's fitness metrics, exercise results, or other progress observations
 * **Progress history**: A client's progress entries arranged in chronological order
 * **Trainer**: A freelance gym trainer who uses Cindy to manage clients
-* **Training schedule**: The collection of training sessions arranged for a client
-* **Training session**: A scheduled appointment between a trainer and a client, identified by its date, time, and session details
+* **Training schedule**: The collection of appointments arranged with clients
+* **Training session**: A dated session record for a client with an optional note, managed using `session --add` and `session --edit`; at most one record is stored per client per date
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -702,6 +733,23 @@ testers are expected to do more *exploratory* testing.
        Expected: The most recent window size and location are retained.
 
 1. _{ more test cases … }_
+
+### Adding clients and checking duplicates
+
+Use a disposable copy of Cindy with no clients named `Add Check` or `Shared Phone Check`.
+
+1. Run `add --name "Add Check" --phone 81234567`.<br>
+   Expected: A new client with an assigned ID and phone `81234567` is added.
+1. Run `add --name "Add Check" --phone "+65 8123 4567"`.<br>
+   Expected: A duplicate-client error; no new client or ID is added.
+1. Run `add --name "Shared Phone Check" --phone "+65 8123 4567"`.<br>
+   Expected: The client is added with a shared-phone warning; the stored phone is `+6581234567`.
+1. Repeat with fresh client names, entering the `+65` form first and the local form second.<br>
+   Expected: The same-name client is rejected and the different-name client receives the warning.
+1. Run `add --name "Extra Check" --phone 91234567 --note "Knee injury"`.<br>
+   Expected: `Unknown parameter for add: --note.` with usage guidance; no client is added.
+1. Run `add --name "Extra Check" --phone 91234567 morning`, then repeat with the phone in quotes.<br>
+   Expected: `Unexpected text after --phone: morning.` with usage guidance; no client is added.
 
 ### Viewing help
 
