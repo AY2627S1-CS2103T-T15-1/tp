@@ -72,7 +72,7 @@ public class HelpWindowTest {
                 assertEquals(8, summaries.getChildren().stream()
                         .filter(node -> node.getStyleClass().contains("help-category")).count());
                 assertEquals(27, cards.size());
-                assertEquals(1, cards.stream().filter(card -> ((Label) card.lookup(".help-command-name"))
+                assertEquals(0, cards.stream().filter(card -> ((Label) card.lookup(".help-command-name"))
                         .getText().equals("list (coming soon)")).count());
             } finally {
                 stage.hide();

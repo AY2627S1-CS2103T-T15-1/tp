@@ -240,7 +240,8 @@ public class MainWindowTest {
 
                 submitCommand(command, "list --today");
                 assertEquals("", command.getText());
-                assertEquals("Listed 1 client with appointments today", feedback.getText());
+                assertEquals("Listed 1 client with appointments today:\n12:00 Alice Pauline (ID: 1)",
+                        feedback.getText());
                 assertTrue(list.isVisible());
                 assertTrue(list.isManaged());
                 assertFalse(details.isVisible());

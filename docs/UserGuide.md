@@ -30,7 +30,7 @@ Cindy is a **desktop application that helps freelance gym trainers manage their 
    Some example commands you can try:
 
    * `list` : Lists all clients in alphabetical order by name.
-   * `list --today` : Lists clients with a non-cancelled appointment today, using the same client list layout.
+   * `list --today` : Lists clients with a non-cancelled appointment today, with their appointment times, earliest first.
 
    * `add --name "John Doe" --phone "+65 9123 4567"` : Adds a client named `John Doe` with an international phone number.
 
@@ -140,16 +140,23 @@ Shows all your clients, sorted alphabetically by name, together with the total n
 Format: `list [--today]`
 
 * Clients are sorted by name, ignoring upper and lower case. For example, `alice Tan` is listed before `Bob Lim`.
-* The client list is always kept in this order, including after you `add` or `edit` a client and in the results of `find`.
+* The client list is kept in this order, including after you `add` or `edit` a client and in the results of `find`. The only exception is `list --today`, described below.
 * If a previous command (such as `find`) showed only some clients, `list` shows all of them again.
-* `list --today` shows only clients with at least one non-cancelled appointment today. It checks all clients, replacing any previous filter, and uses the same cards and layout as the full list.
+* `list --today` shows only clients with at least one non-cancelled appointment today. It checks all clients, replacing any previous filter.
+* With `list --today`, clients are sorted by their earliest appointment time today, so your first client is at the top. Clients with the same time are sorted by name.
 * Today is the computer's local calendar date when the command runs. Appointments earlier today still count. Run `list --today` again to refresh the date after midnight.
 * Cancelled appointments do not count. A client with both cancelled and non-cancelled appointments today is included, and each client appears only once. Clients marked inactive are also included if they have a non-cancelled appointment today.
-* The feedback reports the number of matching clients, or `No clients have appointments today.` if none match.
+* The feedback reports the number of matching clients and each client's appointment times today, earliest first, or `No clients have appointments today.` if none match. A client with more than one appointment today has all their times shown, e.g. `07:00, 18:00 Alex Tanner (ID: 1)`.
+* Any command that shows clients again, such as `list` or `find`, goes back to sorting by name.
 * Run `list` to restore the full client list. Unknown flags, repeated flags and extra arguments (for example, `list --today tomorrow`) show usage feedback without changing the displayed list.
 
 Examples:
-* `list --today` shows today's clients in alphabetical order by name.
+* `list --today` shows today's clients, earliest appointment first, with feedback such as:
+  ```
+  Listed 2 clients with appointments today:
+  06:00 Chris Ong (ID: 4)
+  23:00 Alex Tanner (ID: 1)
+  ```
 * `list` shows all clients again.
 
 ### Editing a client: `edit`
@@ -552,7 +559,7 @@ Action     | Format, Examples
 **Delete** | `delete --id ID` or `delete --name NAME`<br> e.g., `delete --id 3`
 **Edit**   | `edit --id ID [--to-name NEW_NAME] [--to-phone NEW_PHONE]` (at least one change; or `--name NAME` instead of `--id ID`)<br> e.g., `edit --id 2 --to-name "James Lee"`
 **Find**   | `find [--name NAME] [--phone PHONE] [--id ID] [--group GROUP]` (at least one)<br> e.g., `find --name james`, `find --group morning`
-**List**   | `list` for all clients; `list --today` for clients with a non-cancelled appointment today
+**List**   | `list` for all clients; `list --today` for clients with a non-cancelled appointment today, earliest first
 **Plan**   | `plan --id ID --plan "TEXT"` (or `--name NAME` instead of `--id ID`)<br> e.g., `plan --id 2 --plan "Squats: 3 sets"`
 **Schedule appointments** | `appointment --add --id ID --date DATE --time TIME` (or `--name NAME` instead of `--id ID`)<br> e.g., `appointment --add --id 2 --date 2026-10-26 --time 09:00`
 **Cancel appointment** | `appointment --cancel --id ID --index INDEX` (or `--name NAME` instead of `--id ID`)<br> e.g., `appointment --cancel --id 2 --index 1`

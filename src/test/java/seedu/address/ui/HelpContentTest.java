@@ -57,11 +57,10 @@ public class HelpContentTest {
     }
 
     @Test
-    public void getCommands_upcomingForms_onlyListsToday() {
+    public void getCommands_everyCommand_isAvailable() {
         List<CommandSummary> upcoming = HelpContent.getCommands().stream()
                 .filter(summary -> !summary.isAvailable()).toList();
-        assertEquals(List.of("list --today"), upcoming.stream().map(CommandSummary::getSyntax).toList());
-        assertEquals("list --today", upcoming.getFirst().getExample());
+        assertEquals(List.of(), upcoming);
     }
 
     @Test

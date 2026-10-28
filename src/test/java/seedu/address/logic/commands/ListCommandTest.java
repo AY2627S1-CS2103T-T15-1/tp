@@ -100,12 +100,13 @@ public class ListCommandTest {
         CommandResult result = ListCommand.forToday(TODAY_CLOCK).execute(todayModel);
 
         assertEquals(List.of(today), todayModel.getFilteredPersonList());
-        assertEquals(new CommandResult("Listed 1 client with appointments today"), result);
+        assertEquals(new CommandResult("Listed 1 client with appointments today:\n"
+                + scheduleLine("00:00, 23:59", today)), result);
         assertEquals(originalClients, todayModel.getAddressBook().getPersonList());
     }
 
     @Test
-    public void execute_today_replacesPreviousFilterAndKeepsAlphabeticalOrder() {
+    public void execute_today_replacesPreviousFilterAndSortsByEarliestTimeToday() {
         Person alice = new PersonBuilder(ALICE).withActive(false).withAppointments(
                 new Appointment(TODAY, LocalTime.NOON, true),
                 new Appointment(TODAY, LocalTime.of(18, 0))).build();
@@ -116,8 +117,43 @@ public class ListCommandTest {
 
         CommandResult result = ListCommand.forToday(TODAY_CLOCK).execute(todayModel);
 
+        assertEquals(List.of(benson, alice), todayModel.getFilteredPersonList());
+        assertEquals(new CommandResult("Listed 2 clients with appointments today:\n"
+                + scheduleLine("09:00", benson) + "\n" + scheduleLine("18:00", alice)), result);
+    }
+
+    @Test
+    public void execute_today_sortsByEarliestTimeIgnoringOtherDays() {
+        Person alice = new PersonBuilder(ALICE).withAppointments(
+                new Appointment(TODAY.minusDays(1), LocalTime.of(6, 0)),
+                new Appointment(TODAY, LocalTime.of(23, 0))).build();
+        Person benson = new PersonBuilder(BENSON).withAppointments(
+                new Appointment(TODAY, LocalTime.of(19, 0)),
+                new Appointment(TODAY, LocalTime.of(7, 0))).build();
+        Person carl = new PersonBuilder(CARL).withAppointments(
+                new Appointment(TODAY, LocalTime.of(7, 0))).build();
+        Model todayModel = modelWithPersons(alice, carl, benson);
+
+        CommandResult result = ListCommand.forToday(TODAY_CLOCK).execute(todayModel);
+
+        // benson and carl both start at 07:00, so they are sorted by name
+        assertEquals(List.of(benson, carl, alice), todayModel.getFilteredPersonList());
+        assertEquals(new CommandResult("Listed 3 clients with appointments today:\n"
+                + scheduleLine("07:00, 19:00", benson) + "\n" + scheduleLine("07:00", carl) + "\n"
+                + scheduleLine("23:00", alice)), result);
+    }
+
+    @Test
+    public void execute_allAfterToday_restoresAlphabeticalOrder() {
+        Person alice = new PersonBuilder(ALICE).withAppointments(new Appointment(TODAY, LocalTime.of(20, 0))).build();
+        Person benson = new PersonBuilder(BENSON).withAppointments(new Appointment(TODAY, LocalTime.of(8, 0))).build();
+        Model todayModel = modelWithPersons(alice, benson);
+        ListCommand.forToday(TODAY_CLOCK).execute(todayModel);
+        assertEquals(List.of(benson, alice), todayModel.getFilteredPersonList());
+
+        new ListCommand().execute(todayModel);
+
         assertEquals(List.of(alice, benson), todayModel.getFilteredPersonList());
-        assertEquals(new CommandResult("Listed 2 clients with appointments today"), result);
     }
 
     @Test
@@ -203,6 +239,10 @@ public class ListCommandTest {
     public void execute_nullModel_throwsNullPointerException() {
         assertThrows(NullPointerException.class, () -> new ListCommand().execute(null));
         assertThrows(NullPointerException.class, () -> ListCommand.forToday(TODAY_CLOCK).execute(null));
+    }
+
+    private static String scheduleLine(String times, Person person) {
+        return times + " " + person.getName() + " (ID: " + person.getId() + ")";
     }
 
     private Model modelWithPersons(Person... persons) {
