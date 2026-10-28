@@ -36,7 +36,8 @@ public class HelpContentTest {
         AddressBookParser parser = new AddressBookParser();
         Set<String> expectedTypes = Set.of("AddCommand", "ViewCommand", "EditCommand", "DeleteCommand",
                 "ListCommand", "FindCommand", "NoteCommand", "PlanCommand", "SetActiveCommand", "TagCommand",
-                "GroupCommand", "MoveGroupCommand", "AddToGroupCommand", "UntagCommand", "DeleteGroupCommand",
+                "GroupCommand", "MoveGroupCommand", "ListGroupsCommand", "AddToGroupCommand", "UntagCommand",
+                "DeleteGroupCommand",
                 "AddAppointmentCommand", "CancelAppointmentCommand", "RescheduleAppointmentCommand",
                 "ListAppointmentsCommand", "AddSessionCommand", "EditSessionCommand", "ClearCommand",
                 "HelpCommand", "ExitCommand");

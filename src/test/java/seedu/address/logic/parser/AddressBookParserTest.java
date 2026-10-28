@@ -27,6 +27,7 @@ import seedu.address.logic.commands.FindCommand;
 import seedu.address.logic.commands.GroupCommand;
 import seedu.address.logic.commands.HelpCommand;
 import seedu.address.logic.commands.ListCommand;
+import seedu.address.logic.commands.ListGroupsCommand;
 import seedu.address.logic.commands.MoveGroupCommand;
 import seedu.address.logic.commands.NoteCommand;
 import seedu.address.logic.commands.PersonSelector;
@@ -158,6 +159,7 @@ public class AddressBookParserTest {
         assertEquals(new MoveGroupCommand(PersonSelector.byId(new PersonId(1)), new Tag("morning"),
                 new Tag("evening")),
                 parser.parseCommand(GroupCommand.COMMAND_WORD + " --move --id 1 --from morning --to evening"));
+        assertEquals(new ListGroupsCommand(), parser.parseCommand(GroupCommand.COMMAND_WORD + " --list"));
     }
 
     @Test

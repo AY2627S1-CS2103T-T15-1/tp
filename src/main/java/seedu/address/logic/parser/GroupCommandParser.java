@@ -4,6 +4,7 @@ import static java.util.Objects.requireNonNull;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_FROM;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_ID;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_LIST;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_MOVE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME_LONG;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_TO;
@@ -15,14 +16,15 @@ import java.util.stream.Stream;
 
 import seedu.address.logic.commands.Command;
 import seedu.address.logic.commands.GroupCommand;
+import seedu.address.logic.commands.ListGroupsCommand;
 import seedu.address.logic.commands.MoveGroupCommand;
 import seedu.address.logic.commands.PersonSelector;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.tag.Tag;
 
 /**
- * Parses input arguments and creates a new GroupCommand object, or a MoveGroupCommand object
- * if {@code --move} is given.
+ * Parses input arguments and creates a new GroupCommand object, a MoveGroupCommand object
+ * if {@code --move} is given, or a ListGroupsCommand object if {@code --list} is given.
  */
 public class GroupCommandParser implements Parser<Command> {
 
@@ -41,7 +43,10 @@ public class GroupCommandParser implements Parser<Command> {
     public Command parse(String args) throws ParseException {
         requireNonNull(args);
         ArgumentMultimap argMultimap = ArgumentTokenizer.tokenize(args, PREFIX_NAME_LONG, PREFIX_MOVE, PREFIX_ID,
-                PREFIX_FROM, PREFIX_TO);
+                PREFIX_FROM, PREFIX_TO, PREFIX_LIST);
+        if (argMultimap.getValue(PREFIX_LIST).isPresent()) {
+            return parseList(argMultimap);
+        }
         if (argMultimap.getValue(PREFIX_MOVE).isPresent()) {
             return parseMove(argMultimap);
         }
@@ -59,6 +64,29 @@ public class GroupCommandParser implements Parser<Command> {
         } catch (ParseException pe) {
             throw new ParseException(ParserUtil.withUsage(pe.getMessage(), GroupCommand.MESSAGE_USAGE), pe);
         }
+    }
+
+    /**
+     * Parses {@code argMultimap}, which contains {@code --list}, into a ListGroupsCommand.
+     * Only {@code --list} with no value may be given.
+     *
+     * @throws ParseException if anything other than {@code --list} is given.
+     */
+    private static ListGroupsCommand parseList(ArgumentMultimap argMultimap) throws ParseException {
+        boolean hasOtherArguments = !argMultimap.getPreamble().isEmpty()
+                || !argMultimap.getValue(PREFIX_LIST).get().isEmpty()
+                || Stream.of(PREFIX_NAME_LONG, PREFIX_MOVE, PREFIX_ID, PREFIX_FROM, PREFIX_TO)
+                        .anyMatch(prefix -> argMultimap.getValue(prefix).isPresent());
+        if (hasOtherArguments) {
+            throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, GroupCommand.MESSAGE_USAGE));
+        }
+
+        try {
+            argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_LIST);
+        } catch (ParseException pe) {
+            throw new ParseException(ParserUtil.withUsage(pe.getMessage(), GroupCommand.MESSAGE_USAGE), pe);
+        }
+        return new ListGroupsCommand();
     }
 
     /**
