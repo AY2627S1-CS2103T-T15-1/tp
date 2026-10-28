@@ -11,8 +11,11 @@ import static seedu.address.testutil.TypicalPersons.ALICE;
 import static seedu.address.testutil.TypicalPersons.BENSON;
 import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +35,9 @@ import seedu.address.model.person.Person;
  */
 public class RescheduleAppointmentCommandTest {
 
+    /** Today is Tue 2026-10-20 in these tests. */
+    private static final Clock CLOCK = Clock.fixed(Instant.parse("2026-10-20T04:00:00Z"), ZoneOffset.UTC);
+    private static final LocalDate TODAY = LocalDate.of(2026, 10, 20);
     private static final List<Appointment> SERIES =
             Appointment.weeklySeries(LocalDate.of(2026, 10, 26), LocalTime.of(9, 0));
     private static final LocalDate NEW_DATE = LocalDate.of(2026, 11, 10);
@@ -51,6 +57,36 @@ public class RescheduleAppointmentCommandTest {
                 new RescheduleAppointmentCommand(selector, index, null, NEW_TIME));
         assertThrows(NullPointerException.class, () ->
                 new RescheduleAppointmentCommand(selector, index, NEW_DATE, null));
+        assertThrows(NullPointerException.class, () ->
+                new RescheduleAppointmentCommand(selector, index, NEW_DATE, NEW_TIME, null));
+    }
+
+    @Test
+    public void execute_newDateBeforeToday_throws() {
+        giveSeries(ALICE, SERIES);
+        assertCommandFailure(reschedule(1, TODAY.minusDays(1), NEW_TIME), model,
+                String.format(AddAppointmentCommand.MESSAGE_DATE_IN_PAST, "2026-10-19", "2026-10-20"));
+        assertCommandFailure(reschedule(1, LocalDate.of(2020, 1, 1), NEW_TIME), model,
+                String.format(AddAppointmentCommand.MESSAGE_DATE_IN_PAST, "2020-01-01", "2026-10-20"));
+    }
+
+    @Test
+    public void execute_newDateToday_moves() {
+        Person withSeries = giveSeries(ALICE, SERIES);
+
+        Person updated = executeAndGetClient(reschedule(1, TODAY, NEW_TIME), withSeries);
+
+        assertEquals(new Appointment(TODAY, NEW_TIME), updated.getAppointments().get(0));
+    }
+
+    @Test
+    public void execute_appointmentBeforeToday_movesToFuture() {
+        List<Appointment> fromLastWeek = Appointment.weeklySeries(LocalDate.of(2026, 10, 13), LocalTime.of(9, 0));
+        Person withSeries = giveSeries(ALICE, fromLastWeek);
+
+        Person updated = executeAndGetClient(reschedule(1, NEW_DATE, NEW_TIME), withSeries);
+
+        assertEquals(new Appointment(NEW_DATE, NEW_TIME), updated.getAppointments().get(3));
     }
 
     @Test
@@ -160,7 +196,7 @@ public class RescheduleAppointmentCommandTest {
 
     private RescheduleAppointmentCommand reschedule(int oneBasedIndex, LocalDate date, LocalTime time) {
         return new RescheduleAppointmentCommand(PersonSelector.byId(ALICE.getId()), Index.fromOneBased(oneBasedIndex),
-                date, time);
+                date, time, CLOCK);
     }
 
     private Person giveSeries(Person person, List<Appointment> appointments) {

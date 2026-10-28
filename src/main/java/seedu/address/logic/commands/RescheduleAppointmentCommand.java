@@ -9,6 +9,7 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_RESCHEDULE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_TIME;
 import static seedu.address.model.Model.PREDICATE_SHOW_ALL_PERSONS;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -34,7 +35,7 @@ public class RescheduleAppointmentCommand extends AppointmentIndexCommand {
             + "Parameters: " + PREFIX_ID + " ID or " + PREFIX_NAME_LONG + " NAME, then " + PREFIX_INDEX + " INDEX "
             + PREFIX_DATE + " DATE " + PREFIX_TIME + " TIME\n"
             + "Example: " + AddAppointmentCommand.COMMAND_WORD + " " + PREFIX_RESCHEDULE + " " + PREFIX_ID + " 2 "
-            + PREFIX_INDEX + " 1 " + PREFIX_DATE + " 2026-10-27 " + PREFIX_TIME + " 18:00";
+            + PREFIX_INDEX + " 1 " + PREFIX_DATE + " 2026-12-08 " + PREFIX_TIME + " 18:00";
 
     public static final String MESSAGE_SUCCESS = "Rescheduled appointment %1$d for client: %2$s\nNew time: %3$s";
     public static final String MESSAGE_CLASH = "This client already has an appointment on %1$s.";
@@ -49,7 +50,16 @@ public class RescheduleAppointmentCommand extends AppointmentIndexCommand {
      * to {@code date} at {@code time}. No argument may be null.
      */
     public RescheduleAppointmentCommand(PersonSelector selector, Index index, LocalDate date, LocalTime time) {
-        super(selector, index);
+        this(selector, index, date, time, Clock.systemDefaultZone());
+    }
+
+    /**
+     * Creates a command like {@link #RescheduleAppointmentCommand(PersonSelector, Index, LocalDate, LocalTime)},
+     * using the supplied clock's local date at execution time as today.
+     */
+    public RescheduleAppointmentCommand(PersonSelector selector, Index index, LocalDate date, LocalTime time,
+            Clock clock) {
+        super(selector, index, clock);
         this.date = requireNonNull(date);
         this.time = requireNonNull(time);
     }
@@ -57,6 +67,7 @@ public class RescheduleAppointmentCommand extends AppointmentIndexCommand {
     @Override
     protected CommandResult executeOn(Person target, Model model) throws CommandException {
         getTargetAppointment(target); // checks that the index is valid for this client
+        AddAppointmentCommand.checkSchedulableDate(date, getToday());
         Appointment moved = new Appointment(date, time);
         if (clashesWithOtherAppointment(target.getAppointments(), moved)) {
             throw new CommandException(String.format(MESSAGE_CLASH, moved.getDisplayText()));
