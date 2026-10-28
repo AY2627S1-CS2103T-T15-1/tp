@@ -44,24 +44,12 @@ public class HelpContentTest {
 
         for (CommandSummary summary : HelpContent.getCommands()) {
             assertTrue(formats.add(summary.getSyntax()), "Duplicate command format: " + summary.getSyntax());
-            if (!summary.isAvailable()) {
-                continue;
-            }
             String example = summary.getExample();
             assertEquals(summary.getCommandWord(), example.split("\\s+", 2)[0]);
             assertTrue(summary.getSyntax().startsWith(summary.getCommandWord()));
             actualTypes.add(parser.parseCommand(example).getClass().getSimpleName());
         }
         assertEquals(expectedTypes, actualTypes);
-    }
-
-    @Test
-    public void getCommands_todayList_isAvailable() {
-        CommandSummary todayList = HelpContent.getCommands().stream()
-                .filter(summary -> summary.getSyntax().equals("list --today"))
-                .findFirst().orElseThrow();
-        assertTrue(todayList.isAvailable());
-        assertEquals("list --today", todayList.getExample());
     }
 
     @Test

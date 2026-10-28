@@ -21,7 +21,6 @@ import seedu.address.logic.commands.ViewCommand;
 
 /**
  * Provides the command reference for the help window, independently of JavaFX controls.
- * Mark planned commands as unavailable until the application parser implements them.
  */
 public final class HelpContent {
     private static final String CLIENT_DETAILS = "Client details";
