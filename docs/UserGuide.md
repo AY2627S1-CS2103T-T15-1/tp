@@ -239,7 +239,7 @@ Format: `appointment --reschedule --id ID --index INDEX --date DATE --time TIME`
 * `INDEX` is the number of the appointment in the client's appointments card, as for `appointment --cancel`.
 * `DATE` and `TIME` are the new date and time, in the same formats as for `appointment --add`. The new `DATE` must be from today up to one year from today, but an appointment that has already passed can be moved to a new date.
 * A cancelled appointment that is rescheduled becomes active again, even when it keeps its old date and time.
-* The client cannot have two appointments at the same date and time, including cancelled ones. Cancel or reschedule the other one first.
+* The client cannot have two appointments at the same date and time, including cancelled ones, because a cancelled appointment keeps its date and time. To use that date and time, first reschedule the other appointment to a different date or time. This makes it active again if it was cancelled, so cancel it again if needed.
 * The appointments card is re-numbered in order of date and time, so the moved appointment may get a new number.
 * Exactly one selector, one `--index`, one `--date` and one `--time` must be provided. Repeated flags are rejected, and nothing may follow `--reschedule` itself.
 * After rescheduling, the client's detail view opens.
