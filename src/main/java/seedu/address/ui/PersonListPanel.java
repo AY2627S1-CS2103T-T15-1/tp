@@ -43,6 +43,12 @@ public class PersonListPanel extends UiPart<Region> {
         }
 
         @Override
+        protected double computePrefHeight(double width) {
+            // The virtual list must reserve at least the card's minimum height.
+            return Math.max(super.computePrefHeight(width), super.computeMinHeight(width));
+        }
+
+        @Override
         protected void updateItem(Person person, boolean empty) {
             super.updateItem(person, empty);
             pseudoClassStateChanged(PseudoClass.getPseudoClass("first-contact"), !empty && getIndex() == 0);

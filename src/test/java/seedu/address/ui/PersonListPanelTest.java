@@ -9,6 +9,7 @@ import static seedu.address.testutil.TypicalPersons.ALICE;
 import static seedu.address.testutil.TypicalPersons.BENSON;
 import static seedu.address.testutil.TypicalPersons.CARL;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.FutureTask;
@@ -31,6 +32,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.layout.Region;
 import seedu.address.model.person.Person;
+import seedu.address.model.util.SampleDataUtil;
 import seedu.address.testutil.PersonBuilder;
 
 public class PersonListPanelTest {
@@ -51,6 +53,45 @@ public class PersonListPanelTest {
             Platform.runLater(initialize);
         }
         assertTrue(started.await(10, TimeUnit.SECONDS), "JavaFX startup timed out");
+    }
+
+    @Test
+    public void layout_bottomOfList_keepsAdjacentCardsSeparate() throws Exception {
+        runOnFxThread(() -> {
+            for (int width : new int[] {410, 686}) {
+                PersonListPanel panel = new PersonListPanel(
+                        FXCollections.observableArrayList(SampleDataUtil.getSamplePersons()));
+                Region root = panel.getRoot();
+                Scene scene = new Scene(root, width, 300);
+                for (String stylesheet : List.of("DarkTheme.css", "Extensions.css", "ContactTheme.css")) {
+                    scene.getStylesheets().add(
+                            PersonListPanel.class.getResource("/view/" + stylesheet).toExternalForm());
+                }
+                ListView<Person> view = getListView(panel);
+                for (int height : new int[] {200, 300, 420, 500}) {
+                    root.resize(width, height);
+                    root.applyCss();
+                    root.layout();
+                    view.scrollTo(view.getItems().size() - 1);
+                    root.applyCss();
+                    root.layout();
+                    List<ListCell<?>> cells = view.lookupAll(".list-cell").stream()
+                            .<ListCell<?>>map(node -> (ListCell<?>) node)
+                            .filter(cell -> !cell.isEmpty())
+                            .sorted(Comparator.comparingInt(ListCell::getIndex)).toList();
+                    assertTrue(cells.stream().anyMatch(cell -> cell.getIndex() == view.getItems().size() - 1));
+                    for (int i = 1; i < cells.size(); i++) {
+                        Node previous = cells.get(i - 1).getGraphic();
+                        Node current = cells.get(i).getGraphic();
+                        Bounds previousBounds = previous.localToScene(previous.getBoundsInLocal());
+                        Bounds currentBounds = current.localToScene(current.getBoundsInLocal());
+                        assertTrue(previousBounds.getMaxY() <= currentBounds.getMinY() + 1,
+                                "Cards " + cells.get(i - 1).getIndex() + " and " + cells.get(i).getIndex()
+                                        + " overlap at " + width + "x" + height);
+                    }
+                }
+            }
+        });
     }
 
     @Test
