@@ -1,17 +1,27 @@
 package seedu.address.ui;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.Test;
 
 import seedu.address.logic.parser.AddressBookParser;
+import seedu.address.logic.parser.CliSyntax;
+import seedu.address.logic.parser.Prefix;
+import seedu.address.model.Model;
+import seedu.address.model.ModelManager;
+import seedu.address.model.UserPrefs;
+import seedu.address.model.util.SampleDataUtil;
 
 /**
  * Checks that the help catalog describes supported commands with usable examples.
@@ -46,9 +56,6 @@ public class HelpContentTest {
 
         for (CommandSummary summary : HelpContent.getCommands()) {
             assertTrue(formats.add(summary.getSyntax()), "Duplicate command format: " + summary.getSyntax());
-            if (!summary.isAvailable()) {
-                continue;
-            }
             String example = summary.getExample();
             assertEquals(summary.getCommandWord(), example.split("\\s+", 2)[0]);
             assertTrue(summary.getSyntax().startsWith(summary.getCommandWord()));
@@ -58,11 +65,45 @@ public class HelpContentTest {
     }
 
     @Test
-    public void getCommands_upcomingForms_onlyListsToday() {
-        List<CommandSummary> upcoming = HelpContent.getCommands().stream()
-                .filter(summary -> !summary.isAvailable()).toList();
-        assertEquals(List.of("list --today"), upcoming.stream().map(CommandSummary::getSyntax).toList());
-        assertEquals("list --today", upcoming.getFirst().getExample());
+    public void getCommands_statusAndGroupExamples_executeOnFreshSampleData() {
+        AddressBookParser parser = new AddressBookParser();
+        Set<String> commandWords = Set.of("active", "inactive", "group", "tag", "find");
+
+        for (CommandSummary summary : HelpContent.getCommands()) {
+            if (!commandWords.contains(summary.getCommandWord())) {
+                continue;
+            }
+            Model model = new ModelManager(SampleDataUtil.getSampleAddressBook(), new UserPrefs());
+            assertDoesNotThrow(() -> parser.parseCommand(summary.getExample()).execute(model),
+                    "Example must work on fresh sample data: " + summary.getExample());
+            if (summary.getCommandWord().equals("find")) {
+                assertFalse(model.getFilteredPersonList().isEmpty(), "Search example must find a sample client");
+            }
+            if (summary.getCommandWord().equals("active")) {
+                assertTrue(model.getAddressBook().getPersonList().stream().allMatch(person -> person.isActive()),
+                        "Activation example must reactivate the inactive sample client");
+            }
+        }
+    }
+
+    @Test
+    public void getCommands_flags_matchSharedPrefixes() throws Exception {
+        Set<String> sharedPrefixes = new HashSet<>();
+        for (Field field : CliSyntax.class.getFields()) {
+            if (field.getType().equals(Prefix.class)) {
+                sharedPrefixes.add(((Prefix) field.get(null)).getPrefix());
+            }
+        }
+        Pattern flag = Pattern.compile("--[a-z]+(?:-[a-z]+)*");
+        for (CommandSummary summary : HelpContent.getCommands()) {
+            for (String text : List.of(summary.getSyntax(), summary.getExample(), summary.getDescription())) {
+                Matcher matcher = flag.matcher(text);
+                while (matcher.find()) {
+                    assertTrue(sharedPrefixes.contains(matcher.group()),
+                            "Help uses an unrecognised flag: " + matcher.group());
+                }
+            }
+        }
     }
 
     @Test
