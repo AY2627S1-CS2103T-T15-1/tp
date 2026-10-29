@@ -219,14 +219,17 @@ public class ParserUtil {
      * Parses {@code date} in the format YYYY-MM-DD into a {@code LocalDate}.
      * Leading and trailing whitespaces and optional surrounding quotes will be removed.
      *
-     * @throws ParseException if the given {@code date} is not a real date in that format.
+     * @throws ParseException if the given {@code date} is not in that format, or is not a real date.
      */
     public static LocalDate parseDate(String date) throws ParseException {
         requireNonNull(date);
         String trimmedDate = removeOptionalQuotes(date.trim()).trim();
         // Only four-digit years are accepted, so a weekly series cannot run past the largest supported date.
-        if (!trimmedDate.matches("\\d{4}-\\d{2}-\\d{2}") || !Appointment.isValidDate(trimmedDate)) {
+        if (!trimmedDate.matches("\\d{4}-\\d{2}-\\d{2}")) {
             throw new ParseException(Appointment.MESSAGE_DATE_CONSTRAINTS);
+        }
+        if (!Appointment.isValidDate(trimmedDate)) {
+            throw new ParseException(String.format(Appointment.MESSAGE_NOT_REAL_DATE, trimmedDate));
         }
         return LocalDate.parse(trimmedDate, Appointment.DATE_FORMAT);
     }
@@ -235,13 +238,16 @@ public class ParserUtil {
      * Parses {@code time} in the 24-hour format HH:MM into a {@code LocalTime}.
      * Leading and trailing whitespaces and optional surrounding quotes will be removed.
      *
-     * @throws ParseException if the given {@code time} is not a time in that format.
+     * @throws ParseException if the given {@code time} is not in that format, or is not a real time.
      */
     public static LocalTime parseTime(String time) throws ParseException {
         requireNonNull(time);
         String trimmedTime = removeOptionalQuotes(time.trim()).trim();
-        if (!Appointment.isValidTime(trimmedTime)) {
+        if (!trimmedTime.matches("\\d{2}:\\d{2}")) {
             throw new ParseException(Appointment.MESSAGE_TIME_CONSTRAINTS);
+        }
+        if (!Appointment.isValidTime(trimmedTime)) {
+            throw new ParseException(String.format(Appointment.MESSAGE_NOT_REAL_TIME, trimmedTime));
         }
         return LocalTime.parse(trimmedTime, Appointment.TIME_FORMAT);
     }

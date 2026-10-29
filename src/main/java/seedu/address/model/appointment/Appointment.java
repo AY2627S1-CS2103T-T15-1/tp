@@ -25,6 +25,8 @@ public final class Appointment implements Comparable<Appointment> {
 
     public static final String MESSAGE_DATE_CONSTRAINTS = "Dates should be in the format YYYY-MM-DD, e.g. 2026-10-22.";
     public static final String MESSAGE_TIME_CONSTRAINTS = "Times should be in the 24-hour format HH:MM, e.g. 09:30.";
+    public static final String MESSAGE_NOT_REAL_DATE = "%1$s is not a real date.";
+    public static final String MESSAGE_NOT_REAL_TIME = "%1$s is not a real time. Use 00:00 to 23:59.";
 
     public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("uuuu-MM-dd")
             .withResolverStyle(ResolverStyle.STRICT);

@@ -52,6 +52,19 @@ public class ListAppointmentsCommandTest {
     }
 
     @Test
+    public void isSupportedWeek() {
+        assertTrue(ListAppointmentsCommand.isSupportedWeek(MONDAY));
+        // The first and last weeks with every day from 0000-01-01 to 9999-12-31
+        assertTrue(ListAppointmentsCommand.isSupportedWeek(LocalDate.of(0, 1, 3)));
+        assertTrue(ListAppointmentsCommand.isSupportedWeek(LocalDate.of(9999, 12, 26)));
+        // Weeks that start in year -1 or end in year 10000
+        assertFalse(ListAppointmentsCommand.isSupportedWeek(LocalDate.of(0, 1, 2)));
+        assertFalse(ListAppointmentsCommand.isSupportedWeek(LocalDate.of(9999, 12, 27)));
+        assertFalse(ListAppointmentsCommand.isSupportedWeek(LocalDate.of(9999, 12, 31)));
+        assertThrows(NullPointerException.class, () -> ListAppointmentsCommand.isSupportedWeek(null));
+    }
+
+    @Test
     public void execute_day_listsInTimeOrderAndFiltersClients() {
         give(ALICE, new Appointment(MONDAY, LocalTime.of(10, 0)), new Appointment(SUNDAY, LocalTime.of(10, 0)));
         give(BENSON, new Appointment(MONDAY, LocalTime.of(9, 0)));

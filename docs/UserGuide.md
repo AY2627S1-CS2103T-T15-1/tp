@@ -197,7 +197,7 @@ Schedules 4 weekly appointments for an existing client, at the same time each we
 Format: `appointment --add --id ID --date DATE --time TIME` or `appointment --add --name NAME --date DATE --time TIME`
 
 * Chooses the client using `--id` or `--name`, as described in [the notes about the command format](#features).
-* `DATE` is the date of the first appointment, in the format `YYYY-MM-DD`, e.g. `2026-10-26`. It must be a real calendar date.
+* `DATE` is the date of the first appointment, in the format `YYYY-MM-DD`, e.g. `2026-12-07`. It must be a real calendar date, from today up to one year from today.
 * `TIME` is in the 24-hour format `HH:MM`, e.g. `09:00` or `18:30`.
 * Creates 4 appointments, one week apart, starting on `DATE`. A client has at most 4 appointments.
 * Replaces all of the client's current appointments, including cancelled ones.
@@ -207,7 +207,7 @@ Format: `appointment --add --id ID --date DATE --time TIME` or `appointment --ad
 
 Examples:
 
-* `appointment --add --id 2 --date 2026-10-26 --time 09:00` schedules client #2 for 09:00 on 26 Oct, 2 Nov, 9 Nov and 16 Nov 2026.
+* `appointment --add --id 2 --date 2026-12-07 --time 09:00` schedules client #2 for 09:00 on 7 Dec, 14 Dec, 21 Dec and 28 Dec 2026.
 * `appointment --add --name Alex --date 2026-12-28 --time 18:30` schedules the only client whose name contains `Alex`, continuing into January 2027. If several clients match, Cindy lists them and asks you to retry with `--id`, keeping your `--date` and `--time`; no appointments are changed.
 
 ### Cancelling an appointment: `appointment --cancel`
@@ -218,8 +218,9 @@ Format: `appointment --cancel --id ID --index INDEX` or `appointment --cancel --
 
 * Chooses the client using `--id` or `--name`, as described in [the notes about the command format](#features).
 * `INDEX` is the number of the appointment in the client's appointments card, e.g. `1` for the earliest. It must be a positive whole number no larger than the client's number of appointments.
-* The cancelled appointment keeps its place in the card, shown as e.g. `2. Mon 2026-11-02 09:00 (Cancelled)`. The other appointments are not changed.
+* The cancelled appointment keeps its place in the card, shown as e.g. `2. Mon 2026-12-14 09:00 (Cancelled)`. The other appointments are not changed.
 * An appointment that is already cancelled cannot be cancelled again.
+* An appointment dated before today has already passed, so it cannot be cancelled.
 * Exactly one selector and one `--index` must be provided. Repeated flags are rejected, and nothing may follow `--cancel` itself.
 * After cancelling, the client's detail view opens.
 
@@ -236,17 +237,17 @@ Format: `appointment --reschedule --id ID --index INDEX --date DATE --time TIME`
 
 * Chooses the client using `--id` or `--name`, as described in [the notes about the command format](#features).
 * `INDEX` is the number of the appointment in the client's appointments card, as for `appointment --cancel`.
-* `DATE` and `TIME` are the new date and time, in the same formats as for `appointment --add`.
+* `DATE` and `TIME` are the new date and time, in the same formats as for `appointment --add`. The new `DATE` must be from today up to one year from today, but an appointment that has already passed can be moved to a new date.
 * A cancelled appointment that is rescheduled becomes active again, even when it keeps its old date and time.
-* The client cannot have two appointments at the same date and time, including cancelled ones. Cancel or reschedule the other one first.
+* The client cannot have two appointments at the same date and time, including cancelled ones, because a cancelled appointment keeps its date and time. To use that date and time, first reschedule the other appointment to a different date or time. This makes it active again if it was cancelled, so cancel it again if needed.
 * The appointments card is re-numbered in order of date and time, so the moved appointment may get a new number.
 * Exactly one selector, one `--index`, one `--date` and one `--time` must be provided. Repeated flags are rejected, and nothing may follow `--reschedule` itself.
 * After rescheduling, the client's detail view opens.
 
 Examples:
 
-* `appointment --reschedule --id 2 --index 1 --date 2026-10-27 --time 18:00` moves the earliest appointment of client #2 to 18:00 on Tuesday 27 Oct 2026.
-* `appointment --reschedule --id 2 --index 2 --date 2026-11-02 --time 09:00` makes appointment 2 of client #2 active again, if it was cancelled and is already at that time.
+* `appointment --reschedule --id 2 --index 1 --date 2026-12-08 --time 18:00` moves the earliest appointment of client #2 to 18:00 on Tuesday 8 Dec 2026.
+* `appointment --reschedule --id 2 --index 2 --date 2026-12-14 --time 09:00` makes appointment 2 of client #2 active again, if it was cancelled and is already at that time.
 
 ### Viewing appointments: `appointment --date`, `appointment --week`
 
@@ -256,7 +257,7 @@ Format: `appointment --date DATE` or `appointment --week DATE`
 
 * `DATE` is in the format `YYYY-MM-DD`, e.g. `2026-10-22`.
 * `--date` lists the appointments on `DATE`, each as its time, the client's name and the client's ID.
-* `--week` lists the appointments from Monday to Sunday of the week containing `DATE`, each with its date as well. `DATE` can be any day of that week.
+* `--week` lists the appointments from Monday to Sunday of the week containing `DATE`, each with its date as well. `DATE` can be any day of that week. The whole week must be between `0000-01-01` and `9999-12-31`.
 * Appointments are listed in order of date and time. Cancelled appointments are still listed, marked `(Cancelled)`.
 * The client list shows only the clients with a listed appointment. Use `list` to show all clients again.
 * Give exactly one of `--date` or `--week`, with nothing else.
@@ -573,9 +574,9 @@ Action     | Format, Examples
 **Find**   | `find [--name NAME] [--phone PHONE] [--id ID] [--group GROUP]...` (at least one)<br> e.g., `find --name james`, `find --group morning --group gym`
 **List**   | `list` for all clients; `list --today` for clients with a non-cancelled appointment today
 **Plan**   | `plan --id ID --plan "TEXT"` (or `--name NAME` instead of `--id ID`)<br> e.g., `plan --id 2 --plan "Squats: 3 sets"`
-**Schedule appointments** | `appointment --add --id ID --date DATE --time TIME` (or `--name NAME` instead of `--id ID`)<br> e.g., `appointment --add --id 2 --date 2026-10-26 --time 09:00`
+**Schedule appointments** | `appointment --add --id ID --date DATE --time TIME` (or `--name NAME` instead of `--id ID`)<br> e.g., `appointment --add --id 2 --date 2026-12-07 --time 09:00`
 **Cancel appointment** | `appointment --cancel --id ID --index INDEX` (or `--name NAME` instead of `--id ID`)<br> e.g., `appointment --cancel --id 2 --index 1`
-**Reschedule appointment** | `appointment --reschedule --id ID --index INDEX --date DATE --time TIME` (or `--name NAME` instead of `--id ID`)<br> e.g., `appointment --reschedule --id 2 --index 1 --date 2026-10-27 --time 18:00`
+**Reschedule appointment** | `appointment --reschedule --id ID --index INDEX --date DATE --time TIME` (or `--name NAME` instead of `--id ID`)<br> e.g., `appointment --reschedule --id 2 --index 1 --date 2026-12-08 --time 18:00`
 **View appointments** | `appointment --date DATE` or `appointment --week DATE`<br> e.g., `appointment --week 2026-10-22`
 **View**   | `view --id ID` or `view --name NAME`<br> e.g., `view --id 2`
 **Note**   | `note --id ID --note "TEXT"` (or `--name NAME` instead of `--id ID`)<br> e.g., `note --id 3 --note "Knee injury"`

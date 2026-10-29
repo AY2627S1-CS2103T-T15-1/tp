@@ -10,8 +10,11 @@ import static seedu.address.testutil.TypicalPersons.ALICE;
 import static seedu.address.testutil.TypicalPersons.BENSON;
 import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +35,8 @@ import seedu.address.model.person.PersonId;
  */
 public class CancelAppointmentCommandTest {
 
+    /** Today is Tue 2026-10-20 in these tests. */
+    private static final Clock CLOCK = Clock.fixed(Instant.parse("2026-10-20T04:00:00Z"), ZoneOffset.UTC);
     private static final List<Appointment> SERIES =
             Appointment.weeklySeries(LocalDate.of(2026, 10, 26), LocalTime.of(9, 0));
 
@@ -42,6 +47,32 @@ public class CancelAppointmentCommandTest {
         assertThrows(NullPointerException.class, () -> new CancelAppointmentCommand(null, Index.fromOneBased(1)));
         assertThrows(NullPointerException.class, () ->
                 new CancelAppointmentCommand(PersonSelector.byId(ALICE.getId()), null));
+        assertThrows(NullPointerException.class, () ->
+                new CancelAppointmentCommand(PersonSelector.byId(ALICE.getId()), Index.fromOneBased(1), null));
+    }
+
+    @Test
+    public void execute_appointmentBeforeToday_throws() {
+        List<Appointment> fromLastWeek = Appointment.weeklySeries(LocalDate.of(2026, 10, 13), LocalTime.of(9, 0));
+        model.setPerson(ALICE, ALICE.withAppointments(fromLastWeek));
+
+        assertCommandFailure(cancel(1), model,
+                String.format(CancelAppointmentCommand.MESSAGE_ALREADY_PASSED, 1, "Tue 2026-10-13 09:00"));
+    }
+
+    @Test
+    public void execute_appointmentToday_cancels() {
+        List<Appointment> fromToday = Appointment.weeklySeries(LocalDate.of(2026, 10, 20), LocalTime.of(9, 0));
+        model.setPerson(ALICE, ALICE.withAppointments(fromToday));
+        List<Appointment> expectedAppointments = new ArrayList<>(fromToday);
+        expectedAppointments.set(0, fromToday.get(0).cancel());
+        Person updated = ALICE.withAppointments(expectedAppointments);
+        Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
+        expectedModel.setPerson(ALICE.withAppointments(fromToday), updated);
+        String message = String.format(CancelAppointmentCommand.MESSAGE_SUCCESS, 1, "Tue 2026-10-20 09:00",
+                Messages.format(updated));
+
+        assertCommandSuccess(cancel(1), model, new CommandResult(message, updated), expectedModel);
     }
 
     @Test
@@ -55,8 +86,7 @@ public class CancelAppointmentCommandTest {
         String message = String.format(CancelAppointmentCommand.MESSAGE_SUCCESS, 2, "Mon 2026-11-02 09:00",
                 Messages.format(updated));
 
-        assertCommandSuccess(new CancelAppointmentCommand(PersonSelector.byId(ALICE.getId()), Index.fromOneBased(2)),
-                model, new CommandResult(message, updated), expectedModel);
+        assertCommandSuccess(cancel(2), model, new CommandResult(message, updated), expectedModel);
     }
 
     @Test
@@ -66,21 +96,18 @@ public class CancelAppointmentCommandTest {
         appointments.set(0, SERIES.get(0).cancel());
         model.setPerson(withSeries, withSeries.withAppointments(appointments));
 
-        assertCommandFailure(new CancelAppointmentCommand(PersonSelector.byId(ALICE.getId()), Index.fromOneBased(1)),
-                model, String.format(CancelAppointmentCommand.MESSAGE_ALREADY_CANCELLED, 1));
+        assertCommandFailure(cancel(1), model, String.format(CancelAppointmentCommand.MESSAGE_ALREADY_CANCELLED, 1));
     }
 
     @Test
     public void execute_indexTooLarge_throws() {
         giveSeries(ALICE);
-        assertCommandFailure(new CancelAppointmentCommand(PersonSelector.byId(ALICE.getId()), Index.fromOneBased(5)),
-                model, "This client has 4 appointment(s). Choose an index from 1 to 4.");
+        assertCommandFailure(cancel(5), model, "This client has 4 appointment(s). Choose an index from 1 to 4.");
     }
 
     @Test
     public void execute_noAppointments_throws() {
-        assertCommandFailure(new CancelAppointmentCommand(PersonSelector.byId(ALICE.getId()), Index.fromOneBased(1)),
-                model, AppointmentIndexCommand.MESSAGE_NO_APPOINTMENTS);
+        assertCommandFailure(cancel(1), model, AppointmentIndexCommand.MESSAGE_NO_APPOINTMENTS);
     }
 
     @Test
@@ -122,6 +149,11 @@ public class CancelAppointmentCommandTest {
         String expected = CancelAppointmentCommand.class.getCanonicalName() + "{selector=" + selector
                 + ", index=" + index + "}";
         assertEquals(expected, new CancelAppointmentCommand(selector, index).toString());
+    }
+
+    private CancelAppointmentCommand cancel(int oneBasedIndex) {
+        return new CancelAppointmentCommand(PersonSelector.byId(ALICE.getId()), Index.fromOneBased(oneBasedIndex),
+                CLOCK);
     }
 
     private Person giveSeries(Person person) {

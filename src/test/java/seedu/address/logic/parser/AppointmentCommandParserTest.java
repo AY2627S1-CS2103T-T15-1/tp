@@ -82,6 +82,8 @@ public class AppointmentCommandParserTest {
     @Test
     public void parse_addInvalidDate_failure() {
         assertParseFailure(parser, " --add --id 2 --date 2026-02-30 --time 09:00",
+                ParserUtil.withUsage(String.format(Appointment.MESSAGE_NOT_REAL_DATE, "2026-02-30"), ADD_USAGE));
+        assertParseFailure(parser, " --add --id 2 --date 30-02-2026 --time 09:00",
                 ParserUtil.withUsage(Appointment.MESSAGE_DATE_CONSTRAINTS, ADD_USAGE));
     }
 
@@ -95,6 +97,8 @@ public class AppointmentCommandParserTest {
     public void parse_addInvalidTime_failure() {
         assertParseFailure(parser, " --add --id 2 --date 2026-10-26 --time 9:00",
                 ParserUtil.withUsage(Appointment.MESSAGE_TIME_CONSTRAINTS, ADD_USAGE));
+        assertParseFailure(parser, " --add --id 2 --date 2026-10-26 --time 24:00",
+                ParserUtil.withUsage(String.format(Appointment.MESSAGE_NOT_REAL_TIME, "24:00"), ADD_USAGE));
     }
 
     @Test
@@ -129,6 +133,17 @@ public class AppointmentCommandParserTest {
     }
 
     @Test
+    public void parse_weekAtEdgeOfSupportedDates() {
+        String usage = ListAppointmentsCommand.MESSAGE_USAGE;
+        assertParseFailure(parser, " --week 9999-12-31", ParserUtil.withUsage(
+                String.format(ListAppointmentsCommand.MESSAGE_WEEK_NOT_SUPPORTED, "9999-12-31"), usage));
+        assertParseFailure(parser, " --week 0000-01-01", ParserUtil.withUsage(
+                String.format(ListAppointmentsCommand.MESSAGE_WEEK_NOT_SUPPORTED, "0000-01-01"), usage));
+        assertParseSuccess(parser, " --week 9999-12-26", ListAppointmentsCommand.forWeek(LocalDate.of(9999, 12, 26)));
+        assertParseSuccess(parser, " --date 9999-12-31", ListAppointmentsCommand.forDay(LocalDate.of(9999, 12, 31)));
+    }
+
+    @Test
     public void parse_dateAndWeek_failure() {
         assertParseFailure(parser, " --date 2026-10-26 --week 2026-10-26", INVALID_LIST_FORMAT);
     }
@@ -143,8 +158,8 @@ public class AppointmentCommandParserTest {
 
     @Test
     public void parse_invalidWeekDate_failure() {
-        assertParseFailure(parser, " --week 2026-13-01",
-                ParserUtil.withUsage(Appointment.MESSAGE_DATE_CONSTRAINTS, ListAppointmentsCommand.MESSAGE_USAGE));
+        assertParseFailure(parser, " --week 2026-13-01", ParserUtil.withUsage(
+                String.format(Appointment.MESSAGE_NOT_REAL_DATE, "2026-13-01"), ListAppointmentsCommand.MESSAGE_USAGE));
         assertParseFailure(parser, " --date 22-10-2026",
                 ParserUtil.withUsage(Appointment.MESSAGE_DATE_CONSTRAINTS, ListAppointmentsCommand.MESSAGE_USAGE));
     }
@@ -229,8 +244,10 @@ public class AppointmentCommandParserTest {
         assertParseFailure(parser, " --reschedule --id 2 --index 0 --date 2026-10-27 --time 18:00",
                 ParserUtil.withUsage(ParserUtil.MESSAGE_INVALID_INDEX, RESCHEDULE_USAGE));
         assertParseFailure(parser, " --reschedule --id 2 --index 1 --date 2026-02-30 --time 18:00",
-                ParserUtil.withUsage(Appointment.MESSAGE_DATE_CONSTRAINTS, RESCHEDULE_USAGE));
+                ParserUtil.withUsage(String.format(Appointment.MESSAGE_NOT_REAL_DATE, "2026-02-30"), RESCHEDULE_USAGE));
         assertParseFailure(parser, " --reschedule --id 2 --index 1 --date 2026-10-27 --time 25:00",
+                ParserUtil.withUsage(String.format(Appointment.MESSAGE_NOT_REAL_TIME, "25:00"), RESCHEDULE_USAGE));
+        assertParseFailure(parser, " --reschedule --id 2 --index 1 --date 2026-10-27 --time 6pm",
                 ParserUtil.withUsage(Appointment.MESSAGE_TIME_CONSTRAINTS, RESCHEDULE_USAGE));
     }
 

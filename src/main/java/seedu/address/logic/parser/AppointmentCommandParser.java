@@ -12,6 +12,7 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_RESCHEDULE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_TIME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_WEEK;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.stream.Stream;
@@ -24,6 +25,7 @@ import seedu.address.logic.commands.ListAppointmentsCommand;
 import seedu.address.logic.commands.PersonSelector;
 import seedu.address.logic.commands.RescheduleAppointmentCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
+import seedu.address.model.appointment.Appointment;
 
 /**
  * Parses the arguments of the {@code appointment} command, choosing the form of the command from its flag.
@@ -40,6 +42,22 @@ public class AppointmentCommandParser implements Parser<Command> {
         PREFIX_ADD, PREFIX_CANCEL, PREFIX_RESCHEDULE,
         PREFIX_ID, PREFIX_NAME_LONG, PREFIX_INDEX, PREFIX_DATE, PREFIX_TIME, PREFIX_WEEK
     };
+
+    private final Clock clock;
+
+    /**
+     * Creates a parser using the computer's local time zone.
+     */
+    public AppointmentCommandParser() {
+        this(Clock.systemDefaultZone());
+    }
+
+    /**
+     * Creates a parser using the supplied clock to resolve today at command execution time.
+     */
+    AppointmentCommandParser(Clock clock) {
+        this.clock = requireNonNull(clock);
+    }
 
     /**
      * Parses {@code args} into the form of the {@code appointment} command given by its flag.
@@ -82,7 +100,14 @@ public class AppointmentCommandParser implements Parser<Command> {
             argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_DATE, PREFIX_WEEK);
             Prefix given = hasDate ? PREFIX_DATE : PREFIX_WEEK;
             LocalDate date = ParserUtil.parseDate(argMultimap.getValue(given).get());
-            return hasDate ? ListAppointmentsCommand.forDay(date) : ListAppointmentsCommand.forWeek(date);
+            if (hasDate) {
+                return ListAppointmentsCommand.forDay(date);
+            }
+            if (!ListAppointmentsCommand.isSupportedWeek(date)) {
+                throw new ParseException(String.format(ListAppointmentsCommand.MESSAGE_WEEK_NOT_SUPPORTED,
+                        date.format(Appointment.DATE_FORMAT)));
+            }
+            return ListAppointmentsCommand.forWeek(date);
         } catch (ParseException pe) {
             throw new ParseException(ParserUtil.withUsage(pe.getMessage(), usage), pe);
         }
@@ -99,7 +124,7 @@ public class AppointmentCommandParser implements Parser<Command> {
     /**
      * Parses the arguments of {@code appointment --add}.
      */
-    private static AddAppointmentCommand parseAdd(ArgumentMultimap argMultimap) throws ParseException {
+    private AddAppointmentCommand parseAdd(ArgumentMultimap argMultimap) throws ParseException {
         String usage = AddAppointmentCommand.MESSAGE_USAGE;
         PersonSelector selector = ParserUtil.parsePersonSelector(argMultimap, usage, PREFIX_ID, PREFIX_NAME_LONG);
         if (hasValueAfter(argMultimap, PREFIX_ADD) || argMultimap.getValue(PREFIX_DATE).isEmpty()
@@ -111,7 +136,7 @@ public class AppointmentCommandParser implements Parser<Command> {
             argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_ADD, PREFIX_DATE, PREFIX_TIME);
             LocalDate firstDate = ParserUtil.parseDate(argMultimap.getValue(PREFIX_DATE).get());
             LocalTime time = ParserUtil.parseTime(argMultimap.getValue(PREFIX_TIME).get());
-            return new AddAppointmentCommand(selector, firstDate, time);
+            return new AddAppointmentCommand(selector, firstDate, time, clock);
         } catch (ParseException pe) {
             throw new ParseException(ParserUtil.withUsage(pe.getMessage(), usage), pe);
         }
@@ -120,7 +145,7 @@ public class AppointmentCommandParser implements Parser<Command> {
     /**
      * Parses the arguments of {@code appointment --cancel}.
      */
-    private static CancelAppointmentCommand parseCancel(ArgumentMultimap argMultimap) throws ParseException {
+    private CancelAppointmentCommand parseCancel(ArgumentMultimap argMultimap) throws ParseException {
         String usage = CancelAppointmentCommand.MESSAGE_USAGE;
         PersonSelector selector = ParserUtil.parsePersonSelector(argMultimap, usage, PREFIX_ID, PREFIX_NAME_LONG);
         if (hasValueAfter(argMultimap, PREFIX_CANCEL) || argMultimap.getValue(PREFIX_INDEX).isEmpty()
@@ -129,7 +154,7 @@ public class AppointmentCommandParser implements Parser<Command> {
         }
         try {
             argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_CANCEL, PREFIX_INDEX);
-            return new CancelAppointmentCommand(selector, parseAppointmentIndex(argMultimap));
+            return new CancelAppointmentCommand(selector, parseAppointmentIndex(argMultimap), clock);
         } catch (ParseException pe) {
             throw new ParseException(ParserUtil.withUsage(pe.getMessage(), usage), pe);
         }
@@ -138,7 +163,7 @@ public class AppointmentCommandParser implements Parser<Command> {
     /**
      * Parses the arguments of {@code appointment --reschedule}.
      */
-    private static RescheduleAppointmentCommand parseReschedule(ArgumentMultimap argMultimap) throws ParseException {
+    private RescheduleAppointmentCommand parseReschedule(ArgumentMultimap argMultimap) throws ParseException {
         String usage = RescheduleAppointmentCommand.MESSAGE_USAGE;
         PersonSelector selector = ParserUtil.parsePersonSelector(argMultimap, usage, PREFIX_ID, PREFIX_NAME_LONG);
         boolean isMissingArgument = argMultimap.getValue(PREFIX_INDEX).isEmpty()
@@ -152,7 +177,7 @@ public class AppointmentCommandParser implements Parser<Command> {
             Index index = parseAppointmentIndex(argMultimap);
             LocalDate date = ParserUtil.parseDate(argMultimap.getValue(PREFIX_DATE).get());
             LocalTime time = ParserUtil.parseTime(argMultimap.getValue(PREFIX_TIME).get());
-            return new RescheduleAppointmentCommand(selector, index, date, time);
+            return new RescheduleAppointmentCommand(selector, index, date, time, clock);
         } catch (ParseException pe) {
             throw new ParseException(ParserUtil.withUsage(pe.getMessage(), usage), pe);
         }
