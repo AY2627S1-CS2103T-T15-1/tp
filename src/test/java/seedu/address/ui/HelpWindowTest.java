@@ -72,7 +72,7 @@ public class HelpWindowTest {
                 }
                 assertEquals(8, summaries.getChildren().stream()
                         .filter(node -> node.getStyleClass().contains("help-category")).count());
-                assertEquals(27, cards.size());
+                assertEquals(28, cards.size());
                 Parent todayListCard = (Parent) cards.stream()
                         .filter(card -> ((Label) card.lookup(".help-syntax"))
                                 .getText().equals("Format: " + ListCommand.COMMAND_WORD + " " + PREFIX_TODAY))

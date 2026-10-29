@@ -2,6 +2,7 @@ package seedu.address.logic.commands;
 
 import static java.util.Objects.requireNonNull;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_UNTAG;
+import static seedu.address.model.Model.PREDICATE_SHOW_ALL_PERSONS;
 
 import java.util.Set;
 import java.util.logging.Logger;
@@ -48,6 +49,8 @@ public class UntagCommand extends PersonTargetedCommand {
 
         Person editedPerson = target.withTags(updatedTags);
         model.setPerson(target, editedPerson);
+        // Show every client again, so a client who left a filtered group does not seem to vanish.
+        model.updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS);
         logger.info("Removed tag " + tag.tagName + " from client " + target.getId());
         return new CommandResult(String.format(MESSAGE_REMOVED, tag.tagName, Messages.format(editedPerson)));
     }

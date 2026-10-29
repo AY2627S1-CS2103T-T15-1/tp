@@ -1,0 +1,7 @@
+{
+  "persons": [
+    {"id": 1, "name": "Alice Pauline", "phone": "94351253", "tags": ["Morning", "Gym"]}
+  ],
+  "nextPersonId": 2,
+  "groups": ["Morning", "EVENING"]
+}

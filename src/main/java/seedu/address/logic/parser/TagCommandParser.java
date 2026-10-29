@@ -8,10 +8,8 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_ID;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME_LONG;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_TYPE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_UNTAG;
-import static seedu.address.logic.parser.ParserUtil.removeOptionalQuotes;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Stream;
 
 import seedu.address.logic.commands.AddToGroupCommand;
@@ -34,8 +32,8 @@ public class TagCommandParser implements Parser<Command> {
             + PREFIX_TYPE + " gym or " + PREFIX_TYPE + " personal.";
     public static final String MESSAGE_CONFLICTING_ACTIONS = "Give only one of " + PREFIX_TYPE + ", "
             + PREFIX_GROUP + " and " + PREFIX_UNTAG + ".";
-    public static final String MESSAGE_INVALID_UNTAG = "Enter a tag name made of letters and digits only after "
-            + PREFIX_UNTAG + ".";
+    public static final String MESSAGE_INVALID_UNTAG = "Enter a tag name made of letters, digits, "
+            + "spaces and hyphens, at most " + Tag.MAX_LENGTH + " characters long, after " + PREFIX_UNTAG + ".";
 
     private static final Prefix[] ACTION_PREFIXES = {PREFIX_TYPE, PREFIX_GROUP, PREFIX_UNTAG};
 
@@ -110,7 +108,7 @@ public class TagCommandParser implements Parser<Command> {
      * @throws ParseException if {@code type} is not one of the client types.
      */
     private static Tag parseClientType(String type) throws ParseException {
-        String normalizedType = removeOptionalQuotes(type.trim()).trim().toLowerCase(Locale.ROOT);
+        String normalizedType = ParserUtil.normalizeTagName(type);
         return Tag.CLIENT_TYPES.stream()
                 .filter(clientType -> clientType.tagName.equals(normalizedType))
                 .findFirst()
@@ -123,7 +121,7 @@ public class TagCommandParser implements Parser<Command> {
      * @throws ParseException if {@code tag} is not a valid tag name.
      */
     private static Tag parseTag(String tag) throws ParseException {
-        String normalizedTag = removeOptionalQuotes(tag.trim()).trim().toLowerCase(Locale.ROOT);
+        String normalizedTag = ParserUtil.normalizeTagName(tag);
         if (!Tag.isValidTagName(normalizedTag)) {
             throw new ParseException(MESSAGE_INVALID_UNTAG);
         }

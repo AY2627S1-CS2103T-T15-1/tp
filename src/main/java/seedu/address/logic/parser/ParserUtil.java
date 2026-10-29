@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -191,6 +192,16 @@ public class ParserUtil {
             return names.get(0);
         }
         return String.join(", ", names.subList(0, names.size() - 1)) + " or " + names.get(names.size() - 1);
+    }
+
+    /**
+     * Returns {@code name} as a tag name: without the double quotes around it, trimmed, with each run of
+     * whitespace inside it replaced by a single space, and in lower case.
+     * The result is not checked to be a valid tag name.
+     */
+    public static String normalizeTagName(String name) {
+        requireNonNull(name);
+        return removeOptionalQuotes(name.trim()).trim().replaceAll("\\s+", " ").toLowerCase(Locale.ROOT);
     }
 
     /**

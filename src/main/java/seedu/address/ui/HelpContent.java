@@ -10,6 +10,7 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_FROM;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GROUP;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_ID;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_INDEX;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_LIST;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_MOVE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME_LONG;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NOTE;
@@ -117,7 +118,8 @@ public final class HelpContent {
                     TagCommand.COMMAND_WORD + " " + CLIENT_SELECTOR + " " + PREFIX_TYPE + " (gym | personal)",
                     "tag " + PREFIX_ID + " 2 " + PREFIX_TYPE + " gym"),
             new CommandSummary(CLIENT_TYPE, GroupCommand.COMMAND_WORD,
-                    "Create a custom group. Group names use letters and digits; gym and personal are reserved.",
+                    "Create a custom group. Group names use letters, digits, spaces and hyphens; "
+                            + "gym and personal are reserved.",
                     GroupCommand.COMMAND_WORD + " " + PREFIX_NAME_LONG + " GROUP",
                     "group " + PREFIX_NAME_LONG + " rehab"),
             new CommandSummary(CLIENT_TYPE, TagCommand.COMMAND_WORD,
@@ -135,10 +137,14 @@ public final class HelpContent {
                             + " GROUP " + PREFIX_TO + " GROUP",
                     "group " + PREFIX_MOVE + " " + PREFIX_ID + " 1 " + PREFIX_FROM + " morning "
                             + PREFIX_TO + " evening"),
-            new CommandSummary(CLIENT_TYPE, TagCommand.COMMAND_WORD,
+            new CommandSummary(CLIENT_TYPE, GroupCommand.COMMAND_WORD,
+                    "List every custom group, including groups with no clients yet.",
+                    GroupCommand.COMMAND_WORD + " " + PREFIX_LIST,
+                    "group " + PREFIX_LIST),
+            new CommandSummary(CLIENT_TYPE, GroupCommand.COMMAND_WORD,
                     "Delete a custom group and remove it from every client. gym and personal cannot be deleted.",
-                    TagCommand.COMMAND_WORD + " " + PREFIX_DELETE + " " + PREFIX_GROUP + " GROUP",
-                    "tag " + PREFIX_DELETE + " " + PREFIX_GROUP + " morning"),
+                    GroupCommand.COMMAND_WORD + " " + PREFIX_DELETE + " " + PREFIX_NAME_LONG + " GROUP",
+                    "group " + PREFIX_DELETE + " " + PREFIX_NAME_LONG + " morning"),
             new CommandSummary(APPOINTMENTS, AddAppointmentCommand.COMMAND_WORD,
                     "Replace a client's appointments with four weekly appointments, starting on the given date.",
                     AddAppointmentCommand.COMMAND_WORD + " " + PREFIX_ADD + " " + CLIENT_SELECTOR

@@ -61,6 +61,10 @@ public class FindCommandParserTest {
 
         // client types can be used as groups
         assertParseSuccess(parser, " --group GYM", new FindCommand(List.of(), List.of(Tag.GYM)));
+
+        // group with spaces
+        assertParseSuccess(parser, " --group \"Weight Loss\"",
+                new FindCommand(List.of(), List.of(new Tag("weight loss"))));
     }
 
     @Test
@@ -74,7 +78,7 @@ public class FindCommandParserTest {
         String expectedMessage =
                 ParserUtil.withUsage(FindCommandParser.MESSAGE_INVALID_GROUP, FindCommand.MESSAGE_USAGE);
         assertParseFailure(parser, " --group", expectedMessage);
-        assertParseFailure(parser, " --group early birds", expectedMessage);
+        assertParseFailure(parser, " --group weight--loss", expectedMessage);
         assertParseFailure(parser, " --group rehab!", expectedMessage);
     }
 

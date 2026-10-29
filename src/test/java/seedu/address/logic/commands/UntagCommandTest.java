@@ -1,5 +1,6 @@
 package seedu.address.logic.commands;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -9,6 +10,7 @@ import static seedu.address.testutil.TypicalPersons.ALICE;
 import static seedu.address.testutil.TypicalPersons.BENSON;
 import static seedu.address.testutil.TypicalPersons.DANIEL;
 import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
+import static seedu.address.testutil.TypicalPersons.getTypicalPersons;
 
 import java.util.List;
 
@@ -48,6 +50,17 @@ public class UntagCommandTest {
         assertCommandSuccess(command, model, expectedMessage, expectedModel);
         // the group itself is kept
         assertTrue(model.hasGroup(MORNING));
+    }
+
+    @Test
+    public void execute_afterFindingGroup_showsAllClients() {
+        Person morningAlice = new PersonBuilder(ALICE).withTags("morning").build();
+        model.setPerson(ALICE, morningAlice);
+        model.updateFilteredPersonList(person -> person.getTags().contains(MORNING));
+
+        assertDoesNotThrow(() -> new UntagCommand(PersonSelector.byId(ALICE.getId()), MORNING).execute(model));
+
+        assertEquals(getTypicalPersons().size(), model.getFilteredPersonList().size());
     }
 
     @Test

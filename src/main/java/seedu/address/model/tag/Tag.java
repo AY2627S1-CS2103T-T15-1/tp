@@ -11,8 +11,11 @@ import java.util.Set;
  */
 public class Tag {
 
-    public static final String MESSAGE_CONSTRAINTS = "Tag names should be alphanumeric";
-    public static final String VALIDATION_REGEX = "\\p{Alnum}+";
+    /** The longest tag name allowed, checked before matching so long input cannot overflow the regex. */
+    public static final int MAX_LENGTH = 50;
+    public static final String MESSAGE_CONSTRAINTS = "Tag names should be words made of letters and digits, "
+            + "separated by single spaces or hyphens, and at most " + MAX_LENGTH + " characters long";
+    public static final String VALIDATION_REGEX = "\\p{Alnum}+([ -]\\p{Alnum}+)*";
 
     /** Tag for clients the trainer trains at a gym. */
     public static final Tag GYM = new Tag("gym");
@@ -38,7 +41,7 @@ public class Tag {
      * Returns true if a given string is a valid tag name.
      */
     public static boolean isValidTagName(String test) {
-        return test.matches(VALIDATION_REGEX);
+        return test.length() <= MAX_LENGTH && test.matches(VALIDATION_REGEX);
     }
 
     @Override

@@ -1,5 +1,7 @@
 package seedu.address.model.tag;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.Assert.assertThrows;
 
 import org.junit.jupiter.api.Test;
@@ -21,6 +23,28 @@ public class TagTest {
     public void isValidTagName() {
         // null tag name
         assertThrows(NullPointerException.class, () -> Tag.isValidTagName(null));
+
+        // invalid tag names
+        assertFalse(Tag.isValidTagName("")); // empty string
+        assertFalse(Tag.isValidTagName(" ")); // spaces only
+        assertFalse(Tag.isValidTagName("rehab!")); // non-alphanumeric character
+        assertFalse(Tag.isValidTagName(" weight loss")); // leading space
+        assertFalse(Tag.isValidTagName("weight loss ")); // trailing space
+        assertFalse(Tag.isValidTagName("weight  loss")); // more than one space between words
+        assertFalse(Tag.isValidTagName("weight--loss")); // more than one hyphen between words
+        assertFalse(Tag.isValidTagName("-loss")); // leading hyphen
+        assertFalse(Tag.isValidTagName("weight-")); // trailing hyphen
+        assertFalse(Tag.isValidTagName("weight - loss")); // hyphen with spaces around it
+        assertFalse(Tag.isValidTagName("a".repeat(Tag.MAX_LENGTH + 1))); // too long
+        assertFalse(Tag.isValidTagName("a ".repeat(9999) + "a")); // very long, must not overflow the stack
+
+        // valid tag names
+        assertTrue(Tag.isValidTagName("morning")); // letters only
+        assertTrue(Tag.isValidTagName("batch2")); // letters and digits
+        assertTrue(Tag.isValidTagName("weight loss")); // words separated by a space
+        assertTrue(Tag.isValidTagName("weight-loss")); // words separated by a hyphen
+        assertTrue(Tag.isValidTagName("post-op knee rehab 2")); // spaces and hyphens
+        assertTrue(Tag.isValidTagName("a".repeat(Tag.MAX_LENGTH))); // longest allowed
     }
 
 }

@@ -4,6 +4,7 @@ import static java.util.Objects.requireNonNull;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_FROM;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_MOVE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_TO;
+import static seedu.address.model.Model.PREDICATE_SHOW_ALL_PERSONS;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -60,6 +61,8 @@ public class MoveGroupCommand extends PersonTargetedCommand {
         updatedTags.add(to);
         Person editedPerson = target.withTags(updatedTags);
         model.setPerson(target, editedPerson);
+        // Show every client again, so a client who left a filtered group does not seem to vanish.
+        model.updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS);
         logger.info("Moved client " + target.getId() + " from group " + from.tagName + " to " + to.tagName);
         return new CommandResult(String.format(MESSAGE_MOVED, from.tagName, to.tagName,
                 Messages.format(editedPerson)));

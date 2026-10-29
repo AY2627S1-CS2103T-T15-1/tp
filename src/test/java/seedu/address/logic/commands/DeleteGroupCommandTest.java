@@ -1,5 +1,6 @@
 package seedu.address.logic.commands;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -9,6 +10,7 @@ import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalPersons.ALICE;
 import static seedu.address.testutil.TypicalPersons.BENSON;
 import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
+import static seedu.address.testutil.TypicalPersons.getTypicalPersons;
 
 import java.util.List;
 
@@ -52,7 +54,7 @@ public class DeleteGroupCommandTest {
         expectedModel.setAddressBook(expectedAddressBook);
 
         assertCommandSuccess(new DeleteGroupCommand(MORNING), model,
-                String.format(DeleteGroupCommand.MESSAGE_DELETED, "morning", 2), expectedModel);
+                String.format(DeleteGroupCommand.MESSAGE_DELETED, "morning", "2 clients"), expectedModel);
         assertFalse(model.hasGroup(MORNING));
         assertTrue(model.hasGroup(REHAB));
     }
@@ -63,7 +65,27 @@ public class DeleteGroupCommandTest {
         Model expectedModel = new ModelManager(getTypicalAddressBook(), new UserPrefs());
 
         assertCommandSuccess(new DeleteGroupCommand(MORNING), model,
-                String.format(DeleteGroupCommand.MESSAGE_DELETED, "morning", 0), expectedModel);
+                String.format(DeleteGroupCommand.MESSAGE_DELETED, "morning", "no clients"), expectedModel);
+    }
+
+    @Test
+    public void execute_afterFindingGroup_showsAllClients() {
+        Person morningAlice = new PersonBuilder(ALICE).withTags("morning").build();
+        model.setPerson(ALICE, morningAlice);
+        model.updateFilteredPersonList(person -> person.getTags().contains(MORNING));
+
+        CommandResult result = assertDoesNotThrow(() -> new DeleteGroupCommand(MORNING).execute(model));
+
+        assertEquals(String.format(DeleteGroupCommand.MESSAGE_DELETED, "morning", "1 client"),
+                result.getFeedbackToUser());
+        assertEquals(getTypicalPersons().size(), model.getFilteredPersonList().size());
+    }
+
+    @Test
+    public void describeClientCount() {
+        assertEquals("no clients", DeleteGroupCommand.describeClientCount(0));
+        assertEquals("1 client", DeleteGroupCommand.describeClientCount(1));
+        assertEquals("3 clients", DeleteGroupCommand.describeClientCount(3));
     }
 
     @Test

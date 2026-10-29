@@ -1,5 +1,7 @@
 package seedu.address.storage;
 
+import java.util.Locale;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -35,14 +37,17 @@ class JsonAdaptedTag {
 
     /**
      * Converts this Jackson-friendly adapted tag object into the model's {@code Tag} object.
+     * The name is converted to lower case, as tag names entered in commands are, so that a data file edited
+     * to use upper case letters still refers to the same tags, groups and client types.
      *
      * @throws IllegalValueException if there were any data constraints violated in the adapted tag.
      */
     public Tag toModelType() throws IllegalValueException {
-        if (!Tag.isValidTagName(tagName)) {
+        String normalizedName = tagName.toLowerCase(Locale.ROOT);
+        if (!Tag.isValidTagName(normalizedName)) {
             throw new IllegalValueException(Tag.MESSAGE_CONSTRAINTS);
         }
-        return new Tag(tagName);
+        return new Tag(normalizedName);
     }
 
 }

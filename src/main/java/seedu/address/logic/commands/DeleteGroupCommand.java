@@ -1,6 +1,7 @@
 package seedu.address.logic.commands;
 
 import static java.util.Objects.requireNonNull;
+import static seedu.address.model.Model.PREDICATE_SHOW_ALL_PERSONS;
 
 import java.util.logging.Logger;
 
@@ -15,7 +16,7 @@ import seedu.address.model.tag.Tag;
  */
 public class DeleteGroupCommand extends Command {
 
-    public static final String MESSAGE_DELETED = "Deleted group %1$s, and removed it from %2$d client(s).";
+    public static final String MESSAGE_DELETED = "Deleted group %1$s, and removed it from %2$s.";
     public static final String MESSAGE_GROUP_NOT_FOUND = "The group %1$s does not exist.";
 
     private static final Logger logger = LogsCenter.getLogger(DeleteGroupCommand.class);
@@ -43,8 +44,20 @@ public class DeleteGroupCommand extends Command {
                 .filter(person -> person.getTags().contains(group))
                 .count();
         model.deleteGroup(group);
+        // Show every client again, so a client who left a filtered group does not seem to vanish.
+        model.updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS);
         logger.info("Deleted group " + group.tagName + " from " + clientsInGroup + " client(s)");
-        return new CommandResult(String.format(MESSAGE_DELETED, group.tagName, clientsInGroup));
+        return new CommandResult(String.format(MESSAGE_DELETED, group.tagName, describeClientCount(clientsInGroup)));
+    }
+
+    /**
+     * Returns {@code clientCount} in words, such as {@code no clients}, {@code 1 client} or {@code 3 clients}.
+     */
+    static String describeClientCount(long clientCount) {
+        if (clientCount == 0) {
+            return "no clients";
+        }
+        return clientCount == 1 ? "1 client" : clientCount + " clients";
     }
 
     @Override

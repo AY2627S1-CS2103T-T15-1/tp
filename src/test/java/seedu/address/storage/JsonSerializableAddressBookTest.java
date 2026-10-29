@@ -6,6 +6,7 @@ import static seedu.address.testutil.Assert.assertThrows;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
@@ -32,6 +33,7 @@ public class JsonSerializableAddressBookTest {
     private static final Path CLIENT_TYPE_GROUP_FILE = TEST_DATA_FOLDER.resolve("clientTypeGroupAddressBook.json");
     private static final Path INVALID_GROUP_FILE = TEST_DATA_FOLDER.resolve("invalidGroupAddressBook.json");
     private static final Path NULL_GROUP_FILE = TEST_DATA_FOLDER.resolve("nullGroupAddressBook.json");
+    private static final Path MIXED_CASE_TAGS_FILE = TEST_DATA_FOLDER.resolve("mixedCaseTagsAddressBook.json");
 
     private static final Tag MORNING = new Tag("morning");
     private static final Tag REHAB = new Tag("rehab");
@@ -159,6 +161,15 @@ public class JsonSerializableAddressBookTest {
         AddressBook addressBook = JsonUtil.readJsonFile(LEGACY_TAGS_FILE, JsonSerializableAddressBook.class).get()
                 .toModelType();
         assertEquals(List.of(MORNING), addressBook.getGroupList());
+    }
+
+    @Test
+    public void toModelType_mixedCaseTags_loadedInLowerCase() throws Exception {
+        AddressBook addressBook = JsonUtil.readJsonFile(MIXED_CASE_TAGS_FILE, JsonSerializableAddressBook.class).get()
+                .toModelType();
+        Tag evening = new Tag("evening");
+        assertEquals(List.of(MORNING, evening), addressBook.getGroupList());
+        assertEquals(Set.of(MORNING, Tag.GYM), addressBook.getPersonList().get(0).getTags());
     }
 
     @Test
