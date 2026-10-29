@@ -147,7 +147,7 @@ Format: `list [--today]`
 * Today is the computer's local calendar date when the command runs. Appointments earlier today still count. Run `list --today` again to refresh the date after midnight.
 * Cancelled appointments do not count. A client with both cancelled and non-cancelled appointments today is included, and each client appears only once. Clients marked inactive are also included if they have a non-cancelled appointment today.
 * The feedback reports the number of matching clients and each client's appointment times today, earliest first, or `No clients have appointments today.` if none match. A client with more than one appointment today has all their times shown, e.g. `07:00, 18:00 Alex Tanner (ID: 1)`.
-* Any command that shows clients again, such as `list` or `find`, goes back to sorting by name.
+* Commands that replace the displayed list, such as `list`, `find`, `add` and `edit`, go back to sorting by name. Other commands, such as `inactive` and `delete`, keep the list in its current order.
 * Run `list` to restore the full client list. Unknown flags, repeated flags and extra arguments (for example, `list --today tomorrow`) show usage feedback without changing the displayed list.
 
 Examples:
