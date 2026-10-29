@@ -81,10 +81,9 @@ public class MainAppStartupTest {
             app.stop();
             return null;
         });
-        Platform.startup(() -> {
-            Platform.setImplicitExit(false);
-            startup.run();
-        });
+        Platform.startup(() -> Platform.setImplicitExit(false));
+        // Open the modal dialog from the event queue, after native toolkit initialization returns.
+        Platform.runLater(startup);
         startup.get(15, TimeUnit.SECONDS);
 
         assertEquals(unreadableData, Files.readString(dataFile));
