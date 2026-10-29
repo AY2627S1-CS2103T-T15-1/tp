@@ -557,6 +557,8 @@ The following files are stored in the home folder:
 
 If you move the JAR to another folder, close Cindy first and move the `data` folder and `preferences.json` alongside it to retain your clients and window preferences. If the data file is missing, Cindy creates a new one with sample clients.
 
+If Cindy cannot save the initial sample clients, it shows a warning with the data-file location before opening the main window. You can browse the samples after dismissing the warning. Check that the parent folder is a directory, that you have write permission, and that there is enough free space. Fix the storage problem before changing client data; Cindy will try saving again after a data-changing command.
+
 Only one Cindy window can use the data file at a time. If Cindy is already open, opening it again shows an error and closes the new window, so that the two windows cannot overwrite each other's changes.
 
 ### Editing the data file

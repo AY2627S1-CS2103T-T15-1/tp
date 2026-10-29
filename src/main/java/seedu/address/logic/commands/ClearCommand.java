@@ -28,6 +28,11 @@ public class ClearCommand extends Command {
     }
 
     @Override
+    public boolean isReadOnly() {
+        return !confirmed;
+    }
+
+    @Override
     public CommandResult execute(Model model) {
         requireNonNull(model);
         if (!confirmed) {

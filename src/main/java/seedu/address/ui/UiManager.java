@@ -68,6 +68,20 @@ public class UiManager implements Ui {
                         + "\nBack up this file, repair it or restore a valid backup, then restart Cindy.");
     }
 
+    /**
+     * Warns that first-launch samples are only available in memory because the initial save failed.
+     */
+    public static void showInitialSaveWarning(Path dataFilePath) {
+        showAlertDialogAndWait(null, AlertType.WARNING, "Unable to save sample clients",
+                "Sample clients have not been saved",
+                "Cindy could not create the data file:\n" + dataFilePath
+                        + "\n\nSample clients are available for this session, but have not been saved."
+                        + "\nCheck that the parent folder is a directory, that you have write permission,"
+                        + " and that there is enough free space."
+                        + "\nFix the storage problem before changing client data."
+                        + " Cindy will try saving again after a data-changing command.");
+    }
+
     void showAlertDialogAndWait(Alert.AlertType type, String title, String headerText, String contentText) {
         showAlertDialogAndWait(mainWindow.getPrimaryStage(), type, title, headerText, contentText);
     }
