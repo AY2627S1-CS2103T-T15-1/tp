@@ -22,6 +22,7 @@ import seedu.address.model.tag.Tag;
  */
 public class ModelManager implements Model {
     private static final Logger logger = LogsCenter.getLogger(ModelManager.class);
+    private static final Comparator<Person> BY_NAME = Comparator.comparing(Person::getName);
 
     private final AddressBook addressBook;
     private final UserPrefs userPrefs;
@@ -39,7 +40,7 @@ public class ModelManager implements Model {
         this.addressBook = new AddressBook(addressBook);
         this.userPrefs = new UserPrefs(userPrefs);
         filteredPersons = new FilteredList<>(this.addressBook.getPersonList());
-        sortedPersons = new SortedList<>(filteredPersons, Comparator.comparing(Person::getName));
+        sortedPersons = new SortedList<>(filteredPersons, BY_NAME);
     }
 
     public ModelManager() {
@@ -133,7 +134,7 @@ public class ModelManager implements Model {
 
     /**
      * Returns an unmodifiable view of the list of {@code Person} backed by the internal list of
-     * {@code addressBook}, sorted alphabetically by name.
+     * {@code addressBook}, sorted alphabetically by name unless another order was given.
      */
     @Override
     public ObservableList<Person> getFilteredPersonList() {
@@ -142,8 +143,14 @@ public class ModelManager implements Model {
 
     @Override
     public void updateFilteredPersonList(Predicate<Person> predicate) {
-        requireNonNull(predicate);
+        updateFilteredPersonList(predicate, BY_NAME);
+    }
+
+    @Override
+    public void updateFilteredPersonList(Predicate<Person> predicate, Comparator<Person> comparator) {
+        requireAllNonNull(predicate, comparator);
         filteredPersons.setPredicate(predicate);
+        sortedPersons.setComparator(comparator);
     }
 
     @Override

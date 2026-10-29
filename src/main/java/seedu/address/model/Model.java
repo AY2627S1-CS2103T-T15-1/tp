@@ -1,5 +1,6 @@
 package seedu.address.model;
 
+import java.util.Comparator;
 import java.util.function.Predicate;
 
 import javafx.collections.ObservableList;
@@ -90,12 +91,23 @@ public interface Model {
      */
     void deleteGroup(Tag group);
 
-    /** Returns an unmodifiable view of the filtered person list, sorted alphabetically by name */
+    /**
+     * Returns an unmodifiable view of the filtered person list, sorted alphabetically by name
+     * unless another order was given with {@link #updateFilteredPersonList(Predicate, Comparator)}.
+     */
     ObservableList<Person> getFilteredPersonList();
 
     /**
-     * Updates the filter of the filtered person list to filter by the given {@code predicate}.
+     * Updates the filter of the filtered person list to filter by the given {@code predicate},
+     * and sorts the list alphabetically by name.
      * @throws NullPointerException if {@code predicate} is null.
      */
     void updateFilteredPersonList(Predicate<Person> predicate);
+
+    /**
+     * Updates the filter of the filtered person list to filter by the given {@code predicate},
+     * and sorts the list by the given {@code comparator}.
+     * @throws NullPointerException if {@code predicate} or {@code comparator} is null.
+     */
+    void updateFilteredPersonList(Predicate<Person> predicate, Comparator<Person> comparator);
 }

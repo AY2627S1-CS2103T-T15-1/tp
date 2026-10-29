@@ -17,4 +17,12 @@ public abstract class Command {
      */
     public abstract CommandResult execute(Model model) throws CommandException;
 
+    /**
+     * Returns true if this command never changes the address book data, so the data does not need to be saved
+     * after it runs. Commands that only change which clients are displayed can override this to return true.
+     */
+    public boolean isReadOnly() {
+        return false;
+    }
+
 }

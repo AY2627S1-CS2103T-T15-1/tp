@@ -88,7 +88,7 @@ public final class HelpContent {
                     ListCommand.COMMAND_WORD,
                     "list"),
             new CommandSummary(FINDING_CLIENTS, ListCommand.COMMAND_WORD,
-                    "Show clients with appointments today.",
+                    "Show clients with appointments today, with their appointment times, earliest first.",
                     ListCommand.COMMAND_WORD + " " + PREFIX_TODAY,
                     "list " + PREFIX_TODAY),
             new CommandSummary(FINDING_CLIENTS, FindCommand.COMMAND_WORD,

@@ -48,8 +48,8 @@ public class ListCommandParserTest {
             Model model = createModel();
             Person expectedClient = model.getFilteredPersonList().getFirst();
 
-            assertEquals("Listed 1 client with appointments today",
-                    parser.parse(args).execute(model).getFeedbackToUser());
+            assertEquals("Listed 1 client with appointments today:\n12:00 " + expectedClient.getName()
+                    + " (ID: " + expectedClient.getId() + ")", parser.parse(args).execute(model).getFeedbackToUser());
             assertEquals(List.of(expectedClient), model.getFilteredPersonList());
         }
     }
