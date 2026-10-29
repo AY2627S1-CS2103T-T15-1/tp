@@ -141,7 +141,7 @@ public class PersonDetailPanel extends UiPart<Region> {
         Label date = new Label(session.getDate().toString());
         date.getStyleClass().add("session-date");
 
-        String noteText = session.getNote().isBlank() ? NO_NOTE_TEXT : session.getNote();
+        String noteText = session.getNote().isBlank() ? NO_NOTE_TEXT : session.getNote().value;
         Label note = new Label(noteText);
         note.setWrapText(true);
         note.setMaxWidth(Double.MAX_VALUE);

@@ -15,6 +15,7 @@ import seedu.address.logic.Messages;
 import seedu.address.logic.commands.AddSessionCommand;
 import seedu.address.logic.commands.EditSessionCommand;
 import seedu.address.logic.commands.PersonSelector;
+import seedu.address.model.LongFormText;
 import seedu.address.model.person.PersonId;
 import seedu.address.model.session.Session;
 
@@ -27,26 +28,49 @@ public class SessionCommandParserTest {
     private final SessionCommandParser parser = new SessionCommandParser();
 
     @Test
+    public void parse_longFormNotes_preservesWhitespaceAndDecodesLineBreaks() {
+        for (String action : new String[]{"--add", "--edit"}) {
+            LongFormText note = new LongFormText("  Squats\nRest\n\nRemember --date and --edit  ");
+            var selector = PersonSelector.byId(new PersonId(2));
+            assertParseSuccess(parser,
+                    " " + action + " --id 2 --date 2026-10-21"
+                            + " --note \"  Squats\\nRest\\n\\nRemember --date and --edit  \"",
+                    action.equals("--add") ? new AddSessionCommand(selector, DATE, note)
+                            : new EditSessionCommand(selector, DATE, note));
+        }
+    }
+
+    @Test
+    public void parse_unquotedOrIncompleteNote_failure() {
+        for (String action : new String[]{"--add", "--edit"}) {
+            for (String note : new String[]{"", "Squats", "\"Squats", "Squats\""}) {
+                assertParseFailure(parser, " " + action + " --id 2 --date 2026-10-21 --note " + note,
+                        ParserUtil.MESSAGE_TEXT_NOT_QUOTED);
+            }
+        }
+    }
+
+    @Test
     public void parse_allFieldsSpecified_success() {
         AddSessionCommand expectedCommand = new AddSessionCommand(
-                PersonSelector.byId(new PersonId(2)), DATE, "Worked on squat form");
+                PersonSelector.byId(new PersonId(2)), DATE, new LongFormText("Worked on squat form"));
 
         assertParseSuccess(parser,
-                " --add --id 2 --date 2026-10-21 --note Worked on squat form", expectedCommand);
+                " --add --id 2 --date 2026-10-21 --note \"Worked on squat form\"", expectedCommand);
     }
 
     @Test
     public void parse_nameAndEmptyNote_success() {
         AddSessionCommand expectedCommand = new AddSessionCommand(
-                PersonSelector.byName("Alice Pauline"), DATE, "");
+                PersonSelector.byName("Alice Pauline"), DATE, new LongFormText(""));
 
-        assertParseSuccess(parser, " --name Alice Pauline --note --date 2026-10-21 --add", expectedCommand);
+        assertParseSuccess(parser, " --name Alice Pauline --note \"\" --date 2026-10-21 --add", expectedCommand);
     }
 
     @Test
     public void parse_noteOmitted_success() {
         AddSessionCommand expectedCommand = new AddSessionCommand(
-                PersonSelector.byId(new PersonId(2)), DATE, "");
+                PersonSelector.byId(new PersonId(2)), DATE, new LongFormText(""));
 
         assertParseSuccess(parser, " --add --id 2 --date 2026-10-21", expectedCommand);
     }
@@ -54,7 +78,7 @@ public class SessionCommandParserTest {
     @Test
     public void parse_quotedValues_success() {
         AddSessionCommand expectedCommand = new AddSessionCommand(
-                PersonSelector.byName("Alice Pauline"), DATE, "Worked on squat form");
+                PersonSelector.byName("Alice Pauline"), DATE, new LongFormText("Worked on squat form"));
 
         assertParseSuccess(parser,
                 " --add --name \"Alice Pauline\" --date \"2026-10-21\" --note \"Worked on squat form\"",
@@ -64,19 +88,19 @@ public class SessionCommandParserTest {
     @Test
     public void parse_editWithNote_success() {
         EditSessionCommand expectedCommand = new EditSessionCommand(
-                PersonSelector.byId(new PersonId(2)), DATE, "Improved squat depth");
+                PersonSelector.byId(new PersonId(2)), DATE, new LongFormText("Improved squat depth"));
 
         assertParseSuccess(parser,
-                " --edit --id 2 --date 2026-10-21 --note Improved squat depth", expectedCommand);
+                " --edit --id 2 --date 2026-10-21 --note \"Improved squat depth\"", expectedCommand);
     }
 
     @Test
     public void parse_editWithEmptyNote_success() {
         EditSessionCommand expectedCommand = new EditSessionCommand(
-                PersonSelector.byName("Alice Pauline"), DATE, "");
+                PersonSelector.byName("Alice Pauline"), DATE, new LongFormText(""));
 
         assertParseSuccess(parser,
-                " --name Alice Pauline --date 2026-10-21 --note --edit", expectedCommand);
+                " --name Alice Pauline --date 2026-10-21 --note \"\" --edit", expectedCommand);
     }
 
     @Test
@@ -108,7 +132,8 @@ public class SessionCommandParserTest {
     public void parse_quotedNoteContainingFlags_preservesNote() {
         assertParseSuccess(parser,
                 " --add --id 2 --date 2026-10-21 --note \"Remember --edit and --date\"",
-                new AddSessionCommand(PersonSelector.byId(new PersonId(2)), DATE, "Remember --edit and --date"));
+                new AddSessionCommand(PersonSelector.byId(new PersonId(2)), DATE,
+                        new LongFormText("Remember --edit and --date")));
     }
 
     @Test
@@ -120,7 +145,8 @@ public class SessionCommandParserTest {
     @Test
     public void parse_validLeapDay_success() {
         assertParseSuccess(parser, " --add --id 2 --date 2028-02-29",
-                new AddSessionCommand(PersonSelector.byId(new PersonId(2)), LocalDate.of(2028, 2, 29), ""));
+                new AddSessionCommand(PersonSelector.byId(new PersonId(2)), LocalDate.of(2028, 2, 29),
+                        new LongFormText("")));
     }
 
     @Test

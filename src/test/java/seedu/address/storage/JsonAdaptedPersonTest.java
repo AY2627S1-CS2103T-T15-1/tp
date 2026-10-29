@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import seedu.address.commons.exceptions.IllegalValueException;
 import seedu.address.commons.util.JsonUtil;
+import seedu.address.model.LongFormText;
 import seedu.address.model.appointment.Appointment;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
@@ -62,7 +63,8 @@ public class JsonAdaptedPersonTest {
 
     @Test
     public void toModelType_personWithSessionsAndAppointments_roundTrips() throws Exception {
-        Person person = BENSON.withSessions(List.of(new Session(LocalDate.of(2026, 10, 21), "Squats")))
+        Person person = BENSON.withSessions(List.of(new Session(LocalDate.of(2026, 10, 21),
+                new LongFormText("Squats"))))
                 .withAppointments(Appointment.weeklySeries(LocalDate.of(2026, 10, 26), LocalTime.of(9, 0)));
         String json = JsonUtil.toJsonString(new JsonAdaptedPerson(person));
         assertEquals(person, JsonUtil.fromJsonString(json, JsonAdaptedPerson.class).toModelType());
@@ -284,7 +286,7 @@ public class JsonAdaptedPersonTest {
 
     @Test
     public void withId_personWithSessions_preservesSessions() throws Exception {
-        Session session = new Session(java.time.LocalDate.of(2026, 10, 21), "Squats");
+        Session session = new Session(java.time.LocalDate.of(2026, 10, 21), new LongFormText("Squats"));
         JsonAdaptedPerson person = new JsonAdaptedPerson(
                 null, VALID_NAME, VALID_PHONE, List.of(new JsonAdaptedSession(session)));
 

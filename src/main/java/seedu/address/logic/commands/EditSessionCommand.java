@@ -14,6 +14,7 @@ import java.util.List;
 
 import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.logic.commands.exceptions.CommandException;
+import seedu.address.model.LongFormText;
 import seedu.address.model.Model;
 import seedu.address.model.person.Person;
 import seedu.address.model.session.Session;
@@ -25,20 +26,20 @@ public class EditSessionCommand extends SessionCommand {
 
     public static final String MESSAGE_USAGE = COMMAND_WORD + ": Edits a session note. "
             + "Parameters: " + PREFIX_EDIT + " (" + PREFIX_ID + " ID or " + PREFIX_NAME_LONG + " NAME) "
-            + PREFIX_DATE + " YYYY-MM-DD " + PREFIX_NOTE + " [NOTE]\n"
+            + PREFIX_DATE + " YYYY-MM-DD " + PREFIX_NOTE + " \"NOTE\"\n"
             + "Example: " + COMMAND_WORD + " " + PREFIX_EDIT + " " + PREFIX_ID + " 1 "
-            + PREFIX_DATE + " 2026-10-21 " + PREFIX_NOTE + " Improved squat depth";
+            + PREFIX_DATE + " 2026-10-21 " + PREFIX_NOTE + " \"Improved squat depth\"";
 
     public static final String MESSAGE_SUCCESS = "Updated session for %1$s on %2$s.";
     public static final String MESSAGE_SESSION_NOT_FOUND = "No session for %1$s exists on %2$s.";
 
     private final LocalDate date;
-    private final String note;
+    private final LongFormText note;
 
     /**
      * Creates an {@code EditSessionCommand} for the selected client and session date.
      */
-    public EditSessionCommand(PersonSelector selector, LocalDate date, String note) {
+    public EditSessionCommand(PersonSelector selector, LocalDate date, LongFormText note) {
         super(selector);
         this.date = requireNonNull(date);
         this.note = requireNonNull(note);
@@ -71,7 +72,7 @@ public class EditSessionCommand extends SessionCommand {
 
     @Override
     protected String getArgumentsAfterSelector() {
-        return " " + PREFIX_EDIT + " " + PREFIX_DATE + " " + date + " " + PREFIX_NOTE + " " + quote(note);
+        return " " + PREFIX_EDIT + " " + PREFIX_DATE + " " + date + " " + PREFIX_NOTE + " " + quoteLongFormText(note);
     }
 
     @Override

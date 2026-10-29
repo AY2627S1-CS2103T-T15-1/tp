@@ -35,6 +35,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import seedu.address.logic.LogicManager;
 import seedu.address.logic.commands.ListCommand;
+import seedu.address.model.LongFormText;
 import seedu.address.model.ModelManager;
 import seedu.address.model.appointment.Appointment;
 import seedu.address.model.person.Person;
@@ -74,13 +75,14 @@ public class MainWindowTest {
             StorageManager storage = new StorageManager(new JsonAddressBookStorage(dataFile),
                     new JsonUserPrefsStorage(testFolder.resolve("preferences.json")));
             ModelManager model = new ModelManager();
-            String longNote = "A long training note that should wrap and remain accessible. ".repeat(100);
+            String longNote = "Squats\nRest\n\n"
+                    + "A long training note that should wrap and remain accessible. ".repeat(100);
             Person aliceWithSessions = new PersonBuilder(ALICE).withSessions(
-                    new Session(LocalDate.of(2026, 8, 1), "This older session should stay hidden"),
-                    new Session(LocalDate.of(2026, 10, 22), "Worked on squat form"),
-                    new Session(LocalDate.of(2026, 12, 31), longNote),
-                    new Session(LocalDate.of(2026, 9, 10), "Improved mobility"),
-                    new Session(LocalDate.of(2026, 11, 15), ""))
+                    new Session(LocalDate.of(2026, 8, 1), new LongFormText("This older session should stay hidden")),
+                    new Session(LocalDate.of(2026, 10, 22), new LongFormText("Worked on squat form")),
+                    new Session(LocalDate.of(2026, 12, 31), new LongFormText(longNote)),
+                    new Session(LocalDate.of(2026, 9, 10), new LongFormText("Improved mobility")),
+                    new Session(LocalDate.of(2026, 11, 15), new LongFormText("")))
                     .withNote("Client note")
                     .withWorkoutPlan("Squats and rest")
                     .build();

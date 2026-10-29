@@ -26,7 +26,7 @@ import seedu.address.testutil.PersonBuilder;
 
 public class PersonTest {
 
-    private static final Session SESSION = new Session(LocalDate.of(2026, 10, 21), "Squats");
+    private static final Session SESSION = new Session(LocalDate.of(2026, 10, 21), new LongFormText("Squats"));
 
     @Test
     public void constructor_sessionsChangedAfterConstruction_preservesOriginalSessions() {
@@ -47,7 +47,7 @@ public class PersonTest {
 
     @Test
     public void constructor_duplicateSessionDates_throwsIllegalArgumentException() {
-        Session sameDate = new Session(SESSION.getDate(), "Different note");
+        Session sameDate = new Session(SESSION.getDate(), new LongFormText("Different note"));
 
         assertThrows(IllegalArgumentException.class, Person.MESSAGE_DUPLICATE_SESSION_DATE, () ->
                 new Person(ALICE.getId(), ALICE.getName(), ALICE.getPhone(), List.of(SESSION, sameDate)));
