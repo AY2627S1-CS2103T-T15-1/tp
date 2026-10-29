@@ -5,7 +5,6 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_ID;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 
 import seedu.address.commons.util.ToStringBuilder;
@@ -64,8 +63,8 @@ public class PersonSelector {
     }
 
     /**
-     * Returns a selector that chooses the clients whose phone numbers contain {@code phoneKeyword}.
-     * Spaces, parentheses and hyphens in {@code phoneKeyword} are ignored.
+     * Returns a selector that chooses the clients whose phone numbers contain the digits in {@code phoneKeyword}.
+     * Spaces, parentheses, hyphens and a leading {@code +} in {@code phoneKeyword} are ignored.
      * {@code phoneKeyword} must be valid, as declared in {@link #isValidPhoneKeyword(String)}.
      */
     public static PersonSelector byPhone(String phoneKeyword) {
@@ -98,10 +97,17 @@ public class PersonSelector {
             return person.getId().equals(id);
         }
         if (nameKeyword != null) {
-            return person.getName().fullName.toLowerCase(Locale.ROOT)
-                    .contains(nameKeyword.toLowerCase(Locale.ROOT));
+            return person.getName().containsIgnoreCase(nameKeyword);
         }
-        return person.getPhone().value.contains(phoneKeyword);
+        return digitsOf(person.getPhone().value).contains(digitsOf(phoneKeyword));
+    }
+
+    /**
+     * Returns the digits of {@code phoneNumber}, which has only digits and an optional leading {@code +}.
+     * The {@code +} is dropped so that e.g. {@code +65} also matches numbers saved without a {@code +}.
+     */
+    private static String digitsOf(String phoneNumber) {
+        return phoneNumber.replace("+", "");
     }
 
     /**

@@ -11,6 +11,14 @@ public class PersonId implements Comparable<PersonId> {
 
     public static final String MESSAGE_CONSTRAINTS = "Invalid ID: enter a positive whole number, e.g. 3.";
 
+    /**
+     * The largest ID a client can have. It is one less than the largest {@code int},
+     * so that the ID after any client's ID can still be stored.
+     */
+    public static final int MAX_CLIENT_ID = Integer.MAX_VALUE - 1;
+    public static final String MESSAGE_CLIENT_ID_CONSTRAINTS =
+            "Invalid client ID: enter a whole number from 1 to " + MAX_CLIENT_ID + ".";
+
     public final int value;
 
     /**
@@ -31,10 +39,26 @@ public class PersonId implements Comparable<PersonId> {
     }
 
     /**
+     * Returns true if {@code test} can be the ID of a client, i.e. it is from 1 to {@link #MAX_CLIENT_ID}.
+     */
+    public static boolean isValidClientId(int test) {
+        return isValidId(test) && test <= MAX_CLIENT_ID;
+    }
+
+    /**
+     * Returns true if this ID can be given to a client.
+     * The only ID that cannot is the one after {@link #MAX_CLIENT_ID}, which means that all client IDs are used.
+     */
+    public boolean isClientId() {
+        return isValidClientId(value);
+    }
+
+    /**
      * Returns the ID that comes right after this one.
+     * This ID must be a client ID, as declared in {@link #isClientId()}.
      */
     public PersonId next() {
-        assert value < Integer.MAX_VALUE : "Person IDs should never run out";
+        assert isClientId() : "Only a client ID has an ID after it";
         return new PersonId(value + 1);
     }
 

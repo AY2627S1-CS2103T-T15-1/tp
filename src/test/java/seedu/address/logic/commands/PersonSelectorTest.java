@@ -51,6 +51,14 @@ public class PersonSelectorTest {
     }
 
     @Test
+    public void matches_byNameWithUnicodeCaseVariant() {
+        // İ is a capital I with a dot above, whose lower case is not a plain i in Java
+        Person ipek = new PersonBuilder().withName("İpek").build();
+        assertTrue(PersonSelector.byName("ipek").matches(ipek));
+        assertTrue(PersonSelector.byName("IPEK").matches(ipek));
+    }
+
+    @Test
     public void findMatches_severalMatches_returnsMatchesInIdOrder() {
         List<Person> persons = List.of(DANIEL, ALICE, BENSON);
         assertEquals(List.of(BENSON, DANIEL), PersonSelector.byName("meier").findMatches(persons));
@@ -93,8 +101,10 @@ public class PersonSelectorTest {
         // not part of the number
         assertFalse(PersonSelector.byPhone("1234").matches(ALICE));
 
-        // leading + must also be in the stored number
+        // a leading + is ignored, in both the keyword and the stored number
         assertTrue(PersonSelector.byPhone("+65").matches(new PersonBuilder().withPhone("+65 9123 4567").build()));
+        assertTrue(PersonSelector.byPhone("+65").matches(new PersonBuilder().withPhone("65 8111 3333").build()));
+        assertTrue(PersonSelector.byPhone("65").matches(new PersonBuilder().withPhone("+65 9123 4567").build()));
         assertFalse(PersonSelector.byPhone("+65").matches(ALICE));
     }
 

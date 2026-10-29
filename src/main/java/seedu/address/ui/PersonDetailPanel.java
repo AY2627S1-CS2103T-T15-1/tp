@@ -9,12 +9,14 @@ import java.util.stream.IntStream;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import seedu.address.model.LongFormText;
 import seedu.address.model.appointment.Appointment;
 import seedu.address.model.person.Person;
+import seedu.address.model.person.PersonId;
 import seedu.address.model.session.Session;
 
 /**
@@ -26,6 +28,11 @@ public class PersonDetailPanel extends UiPart<Region> {
     private static final int MAX_DISPLAYED_SESSIONS = 4;
     private static final String NO_NOTE_TEXT = "No note";
     private static final String NO_SESSIONS_TEXT = "No sessions recorded";
+
+    private PersonId displayedPersonId;
+
+    @FXML
+    private ScrollPane sessionScrollPane;
 
     @FXML
     private VBox sessionList;
@@ -60,6 +67,7 @@ public class PersonDetailPanel extends UiPart<Region> {
 
     /**
      * Displays the client's contact details, and their workout plan and appointments, if present.
+     * Starts a different client's profile at the top; updates to the same client keep their scroll position.
      */
     public void showPerson(Person person) {
         requireNonNull(person);
@@ -81,6 +89,10 @@ public class PersonDetailPanel extends UiPart<Region> {
                 .collect(Collectors.joining("\n")));
         appointmentsCard.setVisible(hasAppointments);
         appointmentsCard.setManaged(hasAppointments);
+        if (!person.getId().equals(displayedPersonId)) {
+            sessionScrollPane.setVvalue(sessionScrollPane.getVmin());
+        }
+        displayedPersonId = person.getId();
     }
 
     private void showSessions(Person person) {

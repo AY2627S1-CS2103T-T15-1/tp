@@ -195,6 +195,44 @@ public class MainWindowTest {
     }
 
     @Test
+    public void view_differentClient_opensProfileAtTop() throws Exception {
+        FutureTask<Void> task = new FutureTask<>(() -> {
+            Path dataFile = testFolder.resolve("cindy.json");
+            StorageManager storage = new StorageManager(new JsonAddressBookStorage(dataFile),
+                    new JsonUserPrefsStorage(testFolder.resolve("preferences.json")));
+            String plan = "Squats: 3 sets of 12. ".repeat(100);
+            ModelManager model = new ModelManager();
+            model.addPerson(new PersonBuilder(ALICE).withWorkoutPlan(plan).build());
+            model.addPerson(new PersonBuilder(BENSON).withWorkoutPlan(plan).build());
+            Stage stage = new Stage();
+            try {
+                MainWindow window = new MainWindow(stage, new LogicManager(model, storage), dataFile);
+                window.show();
+                window.fillInnerParts();
+                TextField command = (TextField) stage.getScene().lookup("#commandTextField");
+                submitCommand(command, "view --id 1");
+                stage.getScene().getRoot().applyCss();
+                stage.getScene().getRoot().layout();
+                ScrollPane scroll = (ScrollPane) stage.getScene().lookup("#sessionScrollPane");
+                scroll.setVvalue(1);
+                scroll.layout();
+                assertTrue(scroll.getContent().getBoundsInLocal().getHeight() > scroll.getViewportBounds().getHeight());
+
+                submitCommand(command, "view --id 2");
+                stage.getScene().getRoot().layout();
+
+                assertEquals(0, scroll.getVvalue());
+                assertEquals("Benson Meier", ((Label) scroll.getContent().lookup("#name")).getText());
+            } finally {
+                stage.hide();
+            }
+            return null;
+        });
+        Platform.runLater(task);
+        task.get(15, TimeUnit.SECONDS);
+    }
+
+    @Test
     public void listToday_commandFlow_reusesFullListAndRestoresAllClients() throws Exception {
         FutureTask<Void> task = new FutureTask<>(() -> {
             Path dataFile = testFolder.resolve("addressbook.json");
