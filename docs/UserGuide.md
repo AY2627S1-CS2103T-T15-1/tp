@@ -99,6 +99,7 @@ You can also open it from **Help > Help** in the menu or by pressing **F1** in t
 
 Adds a client using their name and mandatory phone number.
 New clients start without a workout plan; you can set one later using `plan`.
+Only `--name` and `--phone` are accepted. Add notes, client types and groups afterwards with the `note` and `tag` commands.
 
 Format: `add --name "NAME" --phone "PHONE_NUMBER"`
 
@@ -121,6 +122,7 @@ Phone requirements:
 Duplicate handling:
 
 * A client is considered a duplicate only when both their normalized name and phone number match an existing client.
+* Eight-digit phone numbers are treated as Singapore numbers when comparing clients: `81234567` and `+65 8123 4567` match. The country code remains as entered for display. Other country codes are distinct.
 * Clients with the same name but different phone numbers can be added.
 * A phone number can be shared by different clients, but the application displays a warning when it is reused.
 
@@ -128,6 +130,10 @@ Invalid values produce these messages:
 
 * Name: `Invalid name: enter 1–100 characters using letters, spaces, apostrophes, hyphens or periods.`
 * Phone: `Invalid phone: enter 7–15 digits, with an optional leading +.`
+* Unsupported parameter: `Unknown parameter for add: --note.` For example, `add --name "Amy Tan" --phone 91234567 --note "Knee injury"` is rejected; no client is added.
+* Extra text after a phone number: `Unexpected text after --phone: morning.` For example, `add --name "Amy Tan" --phone 91234567 morning` is rejected. Text after a closing quote is also rejected.
+
+Unsupported parameters and extra text errors include the `add` command format. Text inside a quoted value is treated as part of that value and must meet its name or phone requirements.
 
 Examples:
 * `add --name "John Doe" --phone "+65 9123 4567"`
@@ -535,12 +541,15 @@ The **home folder** is the folder containing the Cindy JAR file. Cindy uses this
 The following files are stored in the home folder:
 
 * `data/cindy.json`: your clients, inside the `data` sub-folder.
+* `data/cindy.json.lock`: lets Cindy tell whether it is already open. It stays after Cindy closes, and you can ignore it.
 * `preferences.json`: your window size and position.
 * Rotating `cindy.log` files and their lock file: application logs.
 
 If you move the JAR to another folder, close Cindy first and move the `data` folder and `preferences.json` alongside it to retain your clients and window preferences. If the data file is missing, Cindy creates a new one with sample clients.
 
 If Cindy cannot save the initial sample clients, it shows a warning with the data-file location before opening the main window. You can browse the samples after dismissing the warning. Check that the parent folder is a directory, that you have write permission, and that there is enough free space. Fix the storage problem before changing client data; Cindy will try saving again after a data-changing command.
+
+Only one Cindy window can use the data file at a time. If Cindy is already open, opening it again shows an error and closes the new window, so that the two windows cannot overwrite each other's changes.
 
 ### Editing the data file
 

@@ -30,6 +30,7 @@ import seedu.address.model.Model;
 import seedu.address.model.ReadOnlyAddressBook;
 import seedu.address.model.UserPrefs;
 import seedu.address.model.util.SampleDataUtil;
+import seedu.address.storage.DataFileLock;
 import seedu.address.storage.JsonAddressBookStorage;
 import seedu.address.storage.JsonUserPrefsStorage;
 import seedu.address.storage.StorageManager;
@@ -165,5 +166,40 @@ public class MainAppTest {
 
         assertEquals(invalidData, Files.readString(addressBookFilePath));
         assertFalse(Files.exists(preferencesFilePath));
+    }
+
+    @Test
+    public void canUseDataFile_notOpenElsewhere_takesLock() throws Exception {
+        DataFileLock lock = new DataFileLock(temporaryFolder.resolve("cindy.json"));
+        try {
+            assertTrue(new MainApp().canUseDataFile(lock));
+            assertTrue(lock.isHeld());
+        } finally {
+            lock.release();
+        }
+    }
+
+    @Test
+    public void canUseDataFile_alreadyOpen_returnsFalse() throws Exception {
+        Path addressBookFilePath = temporaryFolder.resolve("cindy.json");
+        DataFileLock openCopy = new DataFileLock(addressBookFilePath);
+        openCopy.tryAcquire();
+        try {
+            assertFalse(new MainApp().canUseDataFile(new DataFileLock(addressBookFilePath)));
+        } finally {
+            openCopy.release();
+        }
+    }
+
+    @Test
+    public void canUseDataFile_lockFails_startsWithoutLock() {
+        DataFileLock failingLock = new DataFileLock(temporaryFolder.resolve("cindy.json")) {
+            @Override
+            public boolean tryAcquire() throws IOException {
+                throw new IOException("Folder cannot be written to");
+            }
+        };
+
+        assertTrue(new MainApp().canUseDataFile(failingLock));
     }
 }

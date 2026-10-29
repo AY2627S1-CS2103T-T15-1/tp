@@ -43,6 +43,14 @@ public class Phone {
         return phone.replaceAll("[ ()-]", "");
     }
 
+    /**
+     * Returns a comparison key treating eight-digit local numbers as Singapore numbers.
+     * The stored value retains the user's choice of whether to include the country code.
+     */
+    private String comparisonKey() {
+        return value.matches("[0-9]{8}") ? "+65" + value : value;
+    }
+
     @Override
     public String toString() {
         return value;
@@ -59,12 +67,12 @@ public class Phone {
             return false;
         }
 
-        return value.equals(otherPhone.value);
+        return comparisonKey().equals(otherPhone.comparisonKey());
     }
 
     @Override
     public int hashCode() {
-        return value.hashCode();
+        return comparisonKey().hashCode();
     }
 
 }
