@@ -140,7 +140,8 @@ public final class HelpContent {
                     SessionCommand.COMMAND_WORD + " --edit " + CLIENT_SELECTOR + " --date YYYY-MM-DD --note [TEXT]",
                     "session --edit --id 2 --date 2026-10-22 --note \"Improved squat depth\""),
             new CommandSummary(APPLICATION, ClearCommand.COMMAND_WORD,
-                    "Show a confirmation prompt. With --confirm, permanently delete all clients and reset IDs to 1.",
+                    "Show a confirmation prompt. With --confirm, permanently delete all clients and groups, "
+                            + "and reset IDs to 1.",
                     ClearCommand.COMMAND_WORD + " [--confirm]",
                     "clear"),
             new CommandSummary(APPLICATION, HelpCommand.COMMAND_WORD,

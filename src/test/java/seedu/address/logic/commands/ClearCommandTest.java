@@ -1,6 +1,7 @@
 package seedu.address.logic.commands;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandSuccess;
 import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
 
@@ -11,8 +12,24 @@ import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
 import seedu.address.model.person.PersonId;
+import seedu.address.model.tag.Tag;
 
 public class ClearCommandTest {
+
+    @Test
+    public void execute_unconfirmedGroups_warnsAndPreservesData() {
+        Model model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
+        Tag group = new Tag("morning");
+        model.addGroup(group);
+        AddressBook original = new AddressBook(model.getAddressBook());
+
+        CommandResult result = new ClearCommand(false).execute(model);
+
+        assertTrue(result.getFeedbackToUser().contains("clients"));
+        assertTrue(result.getFeedbackToUser().contains("groups"));
+        assertEquals(original, model.getAddressBook());
+        assertTrue(model.hasGroup(group));
+    }
 
     @Test
     public void execute_confirmedEmptyAddressBook_resetsNextId() {
