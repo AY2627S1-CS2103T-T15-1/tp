@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.logging.Logger;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.stage.Stage;
 import seedu.address.commons.core.LogsCenter;
 import seedu.address.commons.exceptions.DataLoadingException;
@@ -13,7 +14,6 @@ import seedu.address.commons.util.AppPaths;
 import seedu.address.commons.util.StringUtil;
 import seedu.address.logic.Logic;
 import seedu.address.logic.LogicManager;
-import seedu.address.model.AddressBook;
 import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.ReadOnlyAddressBook;
@@ -53,7 +53,16 @@ public class MainApp extends Application {
         JsonAddressBookStorage addressBookStorage = new JsonAddressBookStorage(ADDRESS_BOOK_FILE_PATH);
         storage = new StorageManager(addressBookStorage, userPrefsStorage);
 
-        model = initModelManager(storage, userPrefs);
+        try {
+            model = initModelManager(storage, userPrefs);
+        } catch (DataLoadingException e) {
+            logger.severe("Could not load client data: " + StringUtil.getDetails(e));
+            ui = primaryStage -> {
+                UiManager.showDataLoadingError(storage.getAddressBookFilePath());
+                Platform.exit();
+            };
+            return;
+        }
 
         logic = new LogicManager(model, storage);
 
@@ -63,32 +72,26 @@ public class MainApp extends Application {
     /**
      * Returns a {@code ModelManager} with the data from {@code storage}'s address book and {@code userPrefs}. <br>
      * The data from the sample address book will be used and saved if {@code storage}'s address book is not found.
-     * If saving fails, the sample data will still be used. An empty address book will be used instead if errors occur
-     * when reading {@code storage}'s address book.
+     * If saving fails, the sample data will still be used.
+     *
+     * @throws DataLoadingException if existing client data cannot be read; no replacement model is created.
      */
-    protected Model initModelManager(Storage storage, ReadOnlyUserPrefs userPrefs) {
+    protected Model initModelManager(Storage storage, ReadOnlyUserPrefs userPrefs) throws DataLoadingException {
         logger.info("Using data file : " + storage.getAddressBookFilePath());
 
-        Optional<ReadOnlyAddressBook> addressBookOptional;
+        Optional<ReadOnlyAddressBook> addressBookOptional = storage.readAddressBook();
         ReadOnlyAddressBook initialData;
-        try {
-            addressBookOptional = storage.readAddressBook();
-            if (addressBookOptional.isEmpty()) {
-                logger.info("Creating a new data file " + storage.getAddressBookFilePath()
-                        + " populated with sample Cindy data.");
-                initialData = SampleDataUtil.getSampleAddressBook();
-                try {
-                    storage.saveAddressBook(initialData);
-                } catch (IOException e) {
-                    logger.warning("Failed to save data file : " + StringUtil.getDetails(e));
-                }
-            } else {
-                initialData = addressBookOptional.get();
+        if (addressBookOptional.isEmpty()) {
+            logger.info("Creating a new data file " + storage.getAddressBookFilePath()
+                    + " populated with sample Cindy data.");
+            initialData = SampleDataUtil.getSampleAddressBook();
+            try {
+                storage.saveAddressBook(initialData);
+            } catch (IOException e) {
+                logger.warning("Failed to save data file : " + StringUtil.getDetails(e));
             }
-        } catch (DataLoadingException e) {
-            logger.warning("Data file at " + storage.getAddressBookFilePath() + " could not be loaded."
-                    + " Will be starting Cindy with no client data.");
-            initialData = new AddressBook();
+        } else {
+            initialData = addressBookOptional.get();
         }
 
         return new ModelManager(initialData, userPrefs);
@@ -135,6 +138,9 @@ public class MainApp extends Application {
     @Override
     public void stop() {
         logger.info("============================ [ Stopping Cindy ] =============================");
+        if (model == null) {
+            return;
+        }
         try {
             storage.saveUserPrefs(model.getUserPrefs());
         } catch (IOException e) {

@@ -10,6 +10,7 @@ import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
+import seedu.address.model.person.PersonId;
 import seedu.address.model.person.Phone;
 
 /**
@@ -29,6 +30,8 @@ public class AddCommand extends Command {
 
     public static final String MESSAGE_SUCCESS = "New client added: %1$s";
     public static final String MESSAGE_DUPLICATE_PERSON = "This client already exists in Cindy.";
+    public static final String MESSAGE_NO_IDS_LEFT = "Cannot add the client: every client ID up to "
+            + PersonId.MAX_CLIENT_ID + " has been used. Run clear --confirm to start the numbering again from 1.";
 
     private final Name name;
     private final Phone phone;
@@ -48,7 +51,11 @@ public class AddCommand extends Command {
     public CommandResult execute(Model model) throws CommandException {
         requireNonNull(model);
 
-        Person toAdd = new Person(model.getNextPersonId(), name, phone);
+        PersonId id = model.getNextPersonId();
+        if (!id.isClientId()) {
+            throw new CommandException(MESSAGE_NO_IDS_LEFT);
+        }
+        Person toAdd = new Person(id, name, phone);
         if (model.hasPerson(toAdd)) {
             throw new CommandException(MESSAGE_DUPLICATE_PERSON);
         }

@@ -49,7 +49,7 @@ public class SampleDataUtil {
                             + "Assisted pull-ups: 3 sets of 6\nPlank: 3 sets of 30 seconds"),
                     List.of(new Session(today.minusWeeks(2), "Practised squat technique and assisted pull-ups."),
                             new Session(today.minusWeeks(1), "Completed all squat sets; reduced pull-up assistance.")),
-                    Appointment.weeklySeries(today.plusDays(1), LocalTime.of(7, 0))),
+                    Appointment.weeklySeries(today, LocalTime.of(7, 0))),
             new Person(new PersonId(2), new Name("Bernice Yu"), new Phone("99272758"),
                     new LongFormText("Training for a 5 km run. Away during the second scheduled week."),
                     true, Set.of(Tag.PERSONAL, evening),

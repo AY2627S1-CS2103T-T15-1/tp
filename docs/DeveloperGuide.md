@@ -51,7 +51,7 @@ The bulk of the app's work is done by the following four components:
 
 **How the architecture components interact with each other**
 
-The *Sequence Diagram* below shows how the components interact with each other for the scenario where the user issues the command `delete 1`.
+The *Sequence Diagram* below shows how the components interact with each other for the scenario where the user issues the command `delete --id 1`.
 
 <puml src="diagrams/ArchitectureSequenceDiagram.puml" width="574" />
 
@@ -246,6 +246,19 @@ Phone keyword searches still match digits in the stored value; they do not use t
 
 `AddCommandParserTest` covers unsupported flags and trailing text. `PhoneTest` and `AddCommandIntegrationTest`
 cover equality, hash codes, duplicate rejection and shared-phone warnings for both input orders.
+
+### Recording and editing sessions
+
+`SessionCommandParser` creates an `AddSessionCommand` or `EditSessionCommand` with a client selector, date and note.
+Both commands create an updated immutable `Person` through `withSessions` and replace the client using `Model#setPerson`.
+Adding rejects a date already recorded for that client; editing rejects a missing session date and replaces only the note.
+An empty edit note clears the note without deleting the session. Session records do not have times or overlap checks.
+
+Both commands return `CommandResult(feedback, updatedPerson)`. `MainWindow` uses this updated client to display
+the detail panel immediately, including when a session command is run from the client list. Failed commands preserve
+the current panel. An ambiguous name lists the matching clients without changing session records.
+The profile shows only the four most recent sessions; editing an older record does not change its date or visibility.
+`AddSessionCommandTest` and `EditSessionCommandTest` verify both the updated model and the client returned for display.
 
 ### \[Proposed\] Undo/redo feature
 
@@ -516,9 +529,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 1.  Trainer requests to view a client's profile.
 2.  Cindy shows the client's details and recent session records.
 3.  Trainer requests to add a session record using `session --add`, providing the client and date, with an optional note.
-4.  Cindy records the session.
-5.  Trainer requests to view the client's profile again.
-6.  Cindy shows the updated session records.
+4.  Cindy records the session and shows the client's updated profile.
 
     Use case ends.
 
@@ -556,7 +567,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 * 3d. Trainer requests to correct an existing session note using `session --edit`, providing the client, date and note.
 
-    * 3d1. Cindy replaces the note. An empty note clears the session note; the trainer can view the profile again to check it.
+    * 3d1. Cindy replaces the note and shows the client's updated profile. An empty note clears the session note.
     * 3d2. If no session exists on that date, Cindy shows an error message.
 
       Use case ends.
@@ -751,6 +762,21 @@ Use a disposable copy of Cindy with no clients named `Add Check` or `Shared Phon
 1. Run `add --name "Extra Check" --phone 91234567 morning`, then repeat with the phone in quotes.<br>
    Expected: `Unexpected text after --phone: morning.` with usage guidance; no client is added.
 
+### Recording and editing session notes
+
+Use a disposable copy of Cindy. Add a client named `Session Check` and use its assigned ID in place of `ID` below.
+
+1. Run `view --id ID`, then `session --add --id ID --date 2026-10-27 --note "Squats: 3 sets of 8"`.<br>
+   Expected: The client's profile stays open and Recent sessions shows the new date and note.
+1. Run `session --edit --id ID --date 2026-10-27 --note "Squats: 3 sets of 10"`.<br>
+   Expected: The profile shows the replacement note, with no extra session created.
+1. Run `list`, then `session --edit --name "Session Check" --date 2026-10-27 --note ""`.<br>
+   Expected: The client's profile opens and the dated session remains with an empty note.
+1. Try adding the same date again, then editing a date with no record.<br>
+   Expected: Each command reports an error, changes no records, and leaves the profile open.
+1. Add four records on later dates, then edit the 2026-10-27 note and reopen the profile.<br>
+   Expected: Only the four later records appear, newest first. The older record remains editable and saved after restart.
+
 ### Viewing help
 
 Use a disposable copy of Cindy and its data for these checks. Opening help should not change any client's details.
@@ -846,15 +872,15 @@ Use a disposable copy of Cindy and its data for these checks. Opening help shoul
 1. Navigation, boundaries and draft restoration
 
    1. Prerequisite: Restart Cindy to begin with an empty history, then focus the command box.
-   1. Type `find Bob` without pressing Enter, then press Up and Down.<br>
-      Expected: The input stays `find Bob`; no command executes.
-   1. Replace the input with `list` and press Enter, then run `find Alice`.
-   1. Type `find Bob` without pressing Enter. Press Up twice, then Up once more.<br>
-      Expected: The input changes to `find Alice`, then `list`, and stays at `list`. The displayed clients and result message do not change during recall.
+   1. Type `find --name Bob` without pressing Enter, then press Up and Down.<br>
+      Expected: The input stays `find --name Bob`; no command executes.
+   1. Replace the input with `list` and press Enter, then run `find --name Alice`.
+   1. Type `find --name Bob` without pressing Enter. Press Up twice, then Up once more.<br>
+      Expected: The input changes to `find --name Alice`, then `list`, and stays at `list`. The displayed clients and result message do not change during recall.
    1. Press Down twice, then Down once more.<br>
-      Expected: The input changes to `find Alice`, then restores `find Bob`, and stays at `find Bob`.
+      Expected: The input changes to `find --name Alice`, then restores `find --name Bob`, and stays at `find --name Bob`.
    1. Press Up twice to recall `list`, then append ` edited`. Press Down.<br>
-      Expected: The input stays `list edited`, because editing ended browsing. Up recalls the newest entry, `find Alice`; Down restores `list edited`. The stored `list` entry is unchanged.
+      Expected: The input stays `list edited`, because editing ended browsing. Up recalls the newest entry, `find --name Alice`; Down restores `list edited`. The stored `list` entry is unchanged.
    1. Recall `list` and press Enter.<br>
       Expected: Only Enter executes the recalled command, the result shows the client list and the input clears. Up recalls `list`; Down restores the empty input.
 
