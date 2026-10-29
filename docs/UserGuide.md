@@ -523,7 +523,7 @@ Cindy data is saved automatically as a JSON file `[JAR file location]/data/cindy
 <box type="warning" seamless>
 
 **Caution:**
-If your changes make the data file invalid, Cindy starts with an empty client list at the next run. The invalid file remains on disk until you run a command (Cindy saves after every command). Still, we recommend backing up the file before editing it.<br>
+If Cindy cannot read the data file, it shows an error dialog with the file's location and closes without opening the command window or overwriting the file. Back up the unreadable file, repair it or restore a valid backup, then restart Cindy. Always back up the file before editing it.<br>
 Furthermore, certain edits can cause Cindy to behave in unexpected ways (e.g., if a value entered is outside of the acceptable range). Therefore, edit the data file only if you are confident that you can update it correctly.
 </box>
 

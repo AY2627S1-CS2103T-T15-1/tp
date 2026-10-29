@@ -58,6 +58,16 @@ public class UiManager implements Ui {
         return new Image(MainApp.class.getResourceAsStream(imagePath));
     }
 
+    /**
+     * Reports unreadable client data before any commands can run.
+     */
+    public static void showDataLoadingError(Path dataFilePath) {
+        showAlertDialogAndWait(null, AlertType.ERROR, "Unable to open Cindy", "Client data could not be loaded",
+                "Cindy could not read the data file:\n" + dataFilePath
+                        + "\n\nThe file has not been changed. Cindy will close to protect your saved data."
+                        + "\nBack up this file, repair it or restore a valid backup, then restart Cindy.");
+    }
+
     void showAlertDialogAndWait(Alert.AlertType type, String title, String headerText, String contentText) {
         showAlertDialogAndWait(mainWindow.getPrimaryStage(), type, title, headerText, contentText);
     }
@@ -70,7 +80,9 @@ public class UiManager implements Ui {
                                                String contentText) {
         final Alert alert = new Alert(type);
         alert.getDialogPane().getStylesheets().add("view/DarkTheme.css");
-        alert.initOwner(owner);
+        if (owner != null) {
+            alert.initOwner(owner);
+        }
         alert.setTitle(title);
         alert.setHeaderText(headerText);
         alert.setContentText(contentText);
