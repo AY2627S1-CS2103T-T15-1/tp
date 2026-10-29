@@ -19,6 +19,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import javafx.application.Platform;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -105,6 +106,53 @@ public class PersonDetailPanelTest {
             assertTrue(text.getWidth() <= scroll.getViewportBounds().getWidth());
             assertTrue(text.getHeight() > scroll.getViewportBounds().getHeight());
             assertTrue(scroll.getContent().getBoundsInLocal().getHeight() > scroll.getViewportBounds().getHeight());
+        });
+    }
+
+    @Test
+    public void showPerson_differentClient_resetsScrollToTop() throws Exception {
+        runOnFxThread(() -> {
+            PersonDetailPanel panel = new PersonDetailPanel();
+            String plan = "Squats: 3 sets of 12. ".repeat(100);
+            panel.showPerson(new PersonBuilder(ALICE).withWorkoutPlan(plan).build());
+            ScrollPane scroll = (ScrollPane) panel.getRoot();
+            new Scene(scroll, 360, 300);
+            scroll.resize(360, 300);
+            scroll.applyCss();
+            scroll.layout();
+            scroll.setVvalue(1);
+            scroll.layout();
+
+            panel.showPerson(new PersonBuilder(BENSON).withWorkoutPlan(plan).build());
+            scroll.layout();
+
+            assertEquals(0, scroll.getVvalue());
+            Label name = (Label) scroll.getContent().lookup("#name");
+            Node viewport = scroll.lookup(".viewport");
+            assertTrue(name.localToScene(name.getBoundsInLocal()).getMinY()
+                    >= viewport.localToScene(viewport.getBoundsInLocal()).getMinY());
+        });
+    }
+
+    @Test
+    public void showPerson_updatedClient_preservesScrollPosition() throws Exception {
+        runOnFxThread(() -> {
+            PersonDetailPanel panel = new PersonDetailPanel();
+            String plan = "Squats: 3 sets of 12. ".repeat(100);
+            panel.showPerson(new PersonBuilder(ALICE).withWorkoutPlan(plan).build());
+            ScrollPane scroll = (ScrollPane) panel.getRoot();
+            new Scene(scroll, 360, 300);
+            scroll.resize(360, 300);
+            scroll.applyCss();
+            scroll.layout();
+            scroll.setVvalue(0.75);
+
+            panel.showPerson(new PersonBuilder(ALICE).withName("Alice Updated").withWorkoutPlan(plan).build());
+            scroll.applyCss();
+            scroll.layout();
+
+            assertTrue(scroll.getVvalue() > scroll.getVmin(), "Updating this client must not jump to the top");
+            assertEquals("Alice Updated", ((Label) scroll.getContent().lookup("#name")).getText());
         });
     }
 

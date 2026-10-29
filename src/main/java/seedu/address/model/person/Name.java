@@ -45,6 +45,15 @@ public class Name implements Comparable<Name> {
         return name.trim().replaceAll(" +", " ");
     }
 
+    /**
+     * Returns true if this name contains {@code keyword}, ignoring upper and lower case in the same way as
+     * {@link #equals(Object)}, so that e.g. {@code İpek} contains {@code ipek}.
+     */
+    public boolean containsIgnoreCase(String keyword) {
+        requireNonNull(keyword);
+        return foldCase(fullName).contains(foldCase(keyword));
+    }
+
     private static String foldCase(String name) {
         StringBuilder result = new StringBuilder();
         name.codePoints()

@@ -27,8 +27,37 @@ public class PersonIdTest {
     }
 
     @Test
+    public void isValidClientId() {
+        // invalid client IDs
+        assertFalse(PersonId.isValidClientId(0));
+        assertFalse(PersonId.isValidClientId(Integer.MAX_VALUE));
+
+        // valid client IDs
+        assertTrue(PersonId.isValidClientId(1));
+        assertTrue(PersonId.isValidClientId(PersonId.MAX_CLIENT_ID));
+    }
+
+    @Test
+    public void isClientId() {
+        assertTrue(new PersonId(PersonId.MAX_CLIENT_ID).isClientId());
+        assertFalse(new PersonId(Integer.MAX_VALUE).isClientId());
+    }
+
+    @Test
     public void next_validId_returnsFollowingId() {
         assertEquals(new PersonId(8), new PersonId(7).next());
+    }
+
+    @Test
+    public void next_largestClientId_returnsIdThatIsNotAClientId() {
+        PersonId afterLargest = new PersonId(PersonId.MAX_CLIENT_ID).next();
+        assertEquals(new PersonId(Integer.MAX_VALUE), afterLargest);
+        assertFalse(afterLargest.isClientId());
+    }
+
+    @Test
+    public void next_idThatIsNotAClientId_throwsAssertionError() {
+        assertThrows(AssertionError.class, () -> new PersonId(Integer.MAX_VALUE).next());
     }
 
     @Test

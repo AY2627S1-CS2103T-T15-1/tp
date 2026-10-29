@@ -143,7 +143,7 @@ public final class HelpContent {
                     "Replace a client's appointments with four weekly appointments, starting on the given date.",
                     AddAppointmentCommand.COMMAND_WORD + " " + PREFIX_ADD + " " + CLIENT_SELECTOR
                             + " " + PREFIX_DATE + " YYYY-MM-DD " + PREFIX_TIME + " HH:MM",
-                    "appointment " + PREFIX_ADD + " " + PREFIX_ID + " 2 " + PREFIX_DATE + " 2026-10-26 "
+                    "appointment " + PREFIX_ADD + " " + PREFIX_ID + " 2 " + PREFIX_DATE + " 2026-12-07 "
                             + PREFIX_TIME + " 09:00"),
             new CommandSummary(APPOINTMENTS, AddAppointmentCommand.COMMAND_WORD,
                     "Show all clients' appointments on a date, including cancelled appointments.",
@@ -163,22 +163,23 @@ public final class HelpContent {
                     AddAppointmentCommand.COMMAND_WORD + " " + PREFIX_RESCHEDULE + " " + CLIENT_SELECTOR
                             + " " + PREFIX_INDEX + " INDEX " + PREFIX_DATE + " YYYY-MM-DD " + PREFIX_TIME + " HH:MM",
                     "appointment " + PREFIX_RESCHEDULE + " " + PREFIX_ID + " 2 " + PREFIX_INDEX + " 1 "
-                            + PREFIX_DATE + " 2026-10-27 " + PREFIX_TIME + " 18:00"),
+                            + PREFIX_DATE + " 2026-12-08 " + PREFIX_TIME + " 18:00"),
             new CommandSummary(SESSIONS, SessionCommand.COMMAND_WORD,
-                    "Record a dated session with an optional note. Only one session per client per date is allowed.",
+                    "Record a session and show the updated profile. Only one session per client per date is allowed.",
                     SessionCommand.COMMAND_WORD + " " + PREFIX_ADD + " " + CLIENT_SELECTOR + " " + PREFIX_DATE
                             + " YYYY-MM-DD [" + PREFIX_NOTE + " TEXT]",
                     "session " + PREFIX_ADD + " " + PREFIX_ID + " 2 " + PREFIX_DATE + " 2026-10-22 "
                             + PREFIX_NOTE + " \"Squats: 3 sets\""),
             new CommandSummary(SESSIONS, SessionCommand.COMMAND_WORD,
-                    "Replace an existing session's note. Use " + PREFIX_NOTE + " without text to clear it.",
+                    "Replace a session's note and show the updated profile. Use " + PREFIX_NOTE
+                            + " without text to clear it.",
                     SessionCommand.COMMAND_WORD + " " + PREFIX_EDIT + " " + CLIENT_SELECTOR + " " + PREFIX_DATE
                             + " YYYY-MM-DD " + PREFIX_NOTE + " [TEXT]",
                     "session " + PREFIX_EDIT + " " + PREFIX_ID + " 2 " + PREFIX_DATE + " 2026-10-22 "
                             + PREFIX_NOTE + " \"Improved squat depth\""),
             new CommandSummary(APPLICATION, ClearCommand.COMMAND_WORD,
                     "Show a confirmation prompt. With " + PREFIX_CONFIRM
-                            + ", permanently delete all clients and reset IDs to 1.",
+                            + ", permanently delete all clients and groups, and reset IDs to 1.",
                     ClearCommand.COMMAND_WORD + " [" + PREFIX_CONFIRM + "]",
                     "clear"),
             new CommandSummary(APPLICATION, HelpCommand.COMMAND_WORD,
