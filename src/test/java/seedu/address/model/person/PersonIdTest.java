@@ -56,6 +56,11 @@ public class PersonIdTest {
     }
 
     @Test
+    public void next_idThatIsNotAClientId_throwsAssertionError() {
+        assertThrows(AssertionError.class, () -> new PersonId(Integer.MAX_VALUE).next());
+    }
+
+    @Test
     public void compareTo() {
         assertTrue(new PersonId(1).compareTo(new PersonId(2)) < 0);
         assertEquals(0, new PersonId(2).compareTo(new PersonId(2)));
