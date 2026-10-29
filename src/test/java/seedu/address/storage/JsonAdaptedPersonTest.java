@@ -220,7 +220,19 @@ public class JsonAdaptedPersonTest {
     @Test
     public void toModelType_invalidId_throwsIllegalValueException() {
         JsonAdaptedPerson person = new JsonAdaptedPerson(INVALID_ID, VALID_NAME, VALID_PHONE);
-        assertThrows(IllegalValueException.class, PersonId.MESSAGE_CONSTRAINTS, person::toModelType);
+        assertThrows(IllegalValueException.class, PersonId.MESSAGE_CLIENT_ID_CONSTRAINTS, person::toModelType);
+    }
+
+    @Test
+    public void toModelType_idAfterLargestClientId_throwsIllegalValueException() {
+        JsonAdaptedPerson person = new JsonAdaptedPerson(Integer.MAX_VALUE, VALID_NAME, VALID_PHONE);
+        assertThrows(IllegalValueException.class, PersonId.MESSAGE_CLIENT_ID_CONSTRAINTS, person::toModelType);
+    }
+
+    @Test
+    public void toModelType_largestClientId_success() throws Exception {
+        JsonAdaptedPerson person = new JsonAdaptedPerson(PersonId.MAX_CLIENT_ID, VALID_NAME, VALID_PHONE);
+        assertEquals(new PersonId(PersonId.MAX_CLIENT_ID), person.toModelType().getId());
     }
 
     @Test

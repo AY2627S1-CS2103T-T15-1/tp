@@ -59,6 +59,18 @@ public class CommandBoxTest {
     }
 
     @Test
+    public void mainTheme_commandInput_usesBundledNotoSansMono() throws Exception {
+        runOnFxThread(() -> {
+            StackPane root = (StackPane) commandBox.getRoot();
+            root.getStyleClass().add("app-shell");
+            root.getStylesheets().add(CommandBox.class.getResource("/view/ContactTheme.css").toExternalForm());
+            root.applyCss();
+
+            assertEquals("Noto Sans Mono", commandTextField.getFont().getFamily());
+        });
+    }
+
+    @Test
     public void constructor_nullExecutor_throwsNullPointerException() throws Exception {
         runOnFxThread(() -> assertThrows(NullPointerException.class, () -> new CommandBox(null)));
     }

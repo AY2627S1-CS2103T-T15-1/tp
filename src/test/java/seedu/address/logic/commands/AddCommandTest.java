@@ -48,6 +48,15 @@ public class AddCommandTest {
     }
 
     @Test
+    public void execute_allClientIdsUsed_throwsCommandException() {
+        ModelStubWithNoIdsLeft modelStub = new ModelStubWithNoIdsLeft();
+        AddCommand addCommand = addCommandFor(new PersonBuilder().build());
+
+        assertThrows(CommandException.class, AddCommand.MESSAGE_NO_IDS_LEFT, () -> addCommand.execute(modelStub));
+        assertTrue(modelStub.personsAdded.isEmpty());
+    }
+
+    @Test
     public void execute_duplicatePerson_throwsCommandException() {
         Person validPerson = new PersonBuilder().build();
         AddCommand addCommand = addCommandFor(validPerson);
@@ -254,6 +263,16 @@ public class AddCommandTest {
         @Override
         public ReadOnlyAddressBook getAddressBook() {
             return new AddressBook();
+        }
+    }
+
+    /**
+     * A Model stub whose client IDs have all been used.
+     */
+    private class ModelStubWithNoIdsLeft extends ModelStubAcceptingPersonAdded {
+        @Override
+        public PersonId getNextPersonId() {
+            return new PersonId(Integer.MAX_VALUE);
         }
     }
 

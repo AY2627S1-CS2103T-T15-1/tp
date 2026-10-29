@@ -40,6 +40,12 @@ public class PersonTest {
     }
 
     @Test
+    public void constructor_idAfterLargestClientId_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, PersonId.MESSAGE_CLIENT_ID_CONSTRAINTS, () ->
+                new Person(new PersonId(Integer.MAX_VALUE), ALICE.getName(), ALICE.getPhone()));
+    }
+
+    @Test
     public void constructor_duplicateSessionDates_throwsIllegalArgumentException() {
         Session sameDate = new Session(SESSION.getDate(), "Different note");
 
