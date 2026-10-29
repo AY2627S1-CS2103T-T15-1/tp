@@ -59,7 +59,7 @@ Cindy is a **desktop application that helps freelance gym trainers manage their 
 * Names and phone numbers can optionally be wrapped in double quotes, which is useful for values containing spaces.<br>
   For example, `--name "John Doe"` and `--name John Doe` mean the same.
 * Long-form text, such as client notes and workout plans, must be wrapped in double quotes, even for a single word. Use `--note ""` to clear a note or `--plan ""` to clear a workout plan.
-* Inside long-form text, type `\n` for a line break or `\n\n` for a blank line. Enter the command on one line; Cindy displays the line breaks in the detail view.
+* Inside long-form text, type `\n` for a line break or `\n\n` for a blank line. Enter the command on one line; Cindy displays the line breaks in the detail view. See [Long-form text limitations](#long-form-text-limitations) for text containing literal backslashes.
 
 * Commands that act on one client (`view`, `edit`, `plan`, `appointment --add`, `appointment --cancel`, `appointment --reschedule`, `session --add`, `session --edit`, `delete`, `note`, `inactive`, `active` and `tag`) choose the client with either `--id ID` or `--name NAME`, but not both. `inactive` and `active` also accept `--phone PHONE` instead:
   * `--id ID` chooses the client with that ID. Every client's ID is shown as `#ID` on their card, e.g. `#3`.
@@ -76,6 +76,16 @@ Cindy is a **desktop application that helps freelance gym trainers manage their 
 
 * If you are using a PDF version of this document, be careful when copying and pasting commands that span multiple lines as space characters surrounding line-breaks may be omitted when copied over to the application.
 </box>
+
+### Long-form text limitations
+
+In long-form command text, `\n` always represents a line break. You cannot enter a literal backslash immediately followed by a lowercase `n` and keep both characters unchanged.
+
+* `Rest\nWalk` displays `Rest` and `Walk` on separate lines.
+* Adding another backslash does not escape the sequence: `Rest\\nWalk` displays `Rest` followed by one backslash, then a line break before `Walk`.
+* Other backslash sequences, such as `\t`, stay as typed; they are not converted to tabs or other special characters.
+
+Stored long-form text can contain literal `\n`. Re-entering that text in a command converts each such sequence to a line break. For example, a stored value `C:\notes` becomes `C:` on one line and `otes` on the next when entered as long-form command text.
 
 ### Viewing help: `help`
 
@@ -543,6 +553,8 @@ If you move the JAR to another folder, close Cindy first and move the `data` fol
 ### Editing the data file
 
 Cindy data is saved automatically as a JSON file `[JAR file location]/data/cindy.json`. Advanced users are welcome to update data directly by editing that data file.
+
+Long-form text loaded from the data file is preserved as stored, including literal backslash sequences. If you later re-enter that text through a command, the [long-form text limitations](#long-form-text-limitations) apply: literal `\n` becomes a line break.
 
 <box type="warning" seamless>
 

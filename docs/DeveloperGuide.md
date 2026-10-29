@@ -149,6 +149,14 @@ The `Model` component,
 </box>
 
 
+#### Long-form text
+
+`LongFormText` preserves its supplied value exactly; its constructor does not interpret escape sequences. Storage uses these values directly, so loading and saving text preserves literal backslashes and actual line breaks.
+
+`ParserUtil#parseLongFormText` requires outer double quotes and converts every backslash followed by a lowercase `n` into an actual line break. It does not provide an escape for a literal backslash followed by `n`: two backslashes followed by `n` become one backslash followed by a line break. Other backslash sequences remain unchanged.
+
+`LongFormText#toTypedText` converts actual line breaks to `\n` but leaves existing backslashes unchanged. Converting stored text to command text and parsing it again therefore does not preserve values containing literal `\n`. This is a documented command-input limitation; see [Long-form text limitations in the User Guide](UserGuide.md#long-form-text-limitations).
+
 ### Storage component
 
 **API** : [`Storage.java`](https://github.com/AY2627S1-CS2103T-T15-1/tp/tree/master/src/main/java/seedu/address/storage/Storage.java)
