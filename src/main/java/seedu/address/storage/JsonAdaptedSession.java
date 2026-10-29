@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import seedu.address.commons.exceptions.IllegalValueException;
+import seedu.address.model.LongFormText;
 import seedu.address.model.session.Session;
 
 /**
@@ -27,7 +28,7 @@ class JsonAdaptedSession {
 
     public JsonAdaptedSession(Session source) {
         date = source.getDate().toString();
-        note = source.getNote();
+        note = source.getNote().value;
     }
 
     /**
@@ -45,6 +46,6 @@ class JsonAdaptedSession {
             throw new IllegalValueException(Session.MESSAGE_DATE_CONSTRAINTS);
         }
 
-        return new Session(modelDate, note == null ? "" : note);
+        return new Session(modelDate, new LongFormText(note == null ? "" : note));
     }
 }

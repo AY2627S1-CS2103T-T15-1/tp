@@ -58,7 +58,7 @@ Cindy is a **desktop application that helps freelance gym trainers manage their 
 
 * Names and phone numbers can optionally be wrapped in double quotes, which is useful for values containing spaces.<br>
   For example, `--name "John Doe"` and `--name John Doe` mean the same.
-* Long-form text, such as client notes and workout plans, must be wrapped in double quotes, even for a single word. Use `--note ""` to clear a note or `--plan ""` to clear a workout plan.
+* Long-form text, such as client notes, session notes and workout plans, must be wrapped in double quotes, even for a single word. Use `--note ""` to clear a note or `--plan ""` to clear a workout plan.
 * Inside long-form text, type `\n` for a line break or `\n\n` for a blank line. Enter the command on one line; Cindy displays the line breaks in the detail view. See [Long-form text limitations](#long-form-text-limitations) for text containing literal backslashes.
 
 * Commands that act on one client (`view`, `edit`, `plan`, `appointment --add`, `appointment --cancel`, `appointment --reschedule`, `session --add`, `session --edit`, `delete`, `note`, `inactive`, `active` and `tag`) choose the client with either `--id ID` or `--name NAME`, but not both. `inactive` and `active` also accept `--phone PHONE` instead:
@@ -482,11 +482,11 @@ Examples:
 
 Records a session for a client on a date, optionally with a note.
 
-Format: `session --add (--id ID | --name NAME) --date YYYY-MM-DD [--note TEXT]`
+Format: `session --add (--id ID | --name NAME) --date YYYY-MM-DD [--note "TEXT"]`
 
 * Choose one client by ID or name. There can be only one session per client per date; use `session --edit` to change an existing session's note.
 * Dates must be real dates in `YYYY-MM-DD` format. Future dates are allowed.
-* Notes are optional. You can put them in double quotes, especially when they contain text that looks like a flag.
+* Notes are optional. When supplied, wrap them in double quotes. Use `\n` for a line break or `\n\n` for a blank line, just as with client notes and workout plans. Omit `--note` or use `--note ""` for an empty note.
 * The client's profile shows up to four sessions, newest first. Older sessions remain saved.
 * After a successful add, Cindy displays the updated client's profile. Adding an older session may leave it outside the four recent sessions shown.
 * This records a date and note only. To schedule meetings at a time, use `appointment --add`.
@@ -497,10 +497,10 @@ Example: `session --add --id 2 --date 2026-10-22 --note "Squats: 3 sets"`
 
 Replaces the note of an existing session for a client on a date.
 
-Format: `session --edit (--id ID | --name NAME) --date YYYY-MM-DD --note [TEXT]`
+Format: `session --edit (--id ID | --name NAME) --date YYYY-MM-DD --note "TEXT"`
 
 * The client and session date must already exist. This command changes the note, not the date.
-* `--note` is required. Leave the text empty, or use `--note ""`, to clear the note while keeping the session.
+* `--note` is required. Use `--note ""` to clear the note while keeping the session.
 * After a successful edit, Cindy displays the updated client's profile. Editing an older session does not move it into the four most recent sessions.
 
 Example: `session --edit --id 2 --date 2026-10-22 --note "Improved squat depth"`
@@ -619,8 +619,8 @@ Action     | Format, Examples
 **Delete group** | `group --delete --name GROUP`<br> e.g., `group --delete --name morning`
 **Group**  | `group --name GROUP`<br> e.g., `group --name morning`
 **List groups** | `group --list`
-**Add session** | `session --add (--id ID \| --name NAME) --date YYYY-MM-DD [--note TEXT]`<br> e.g., `session --add --id 2 --date 2026-10-22 --note "Squats: 3 sets"`
-**Edit session** | `session --edit (--id ID \| --name NAME) --date YYYY-MM-DD --note [TEXT]` (omit TEXT to clear the note)<br> e.g., `session --edit --id 2 --date 2026-10-22 --note "Improved squat depth"`
+**Add session** | `session --add (--id ID \| --name NAME) --date YYYY-MM-DD [--note "TEXT"]`<br> e.g., `session --add --id 2 --date 2026-10-22 --note "Squats: 3 sets"`
+**Edit session** | `session --edit (--id ID \| --name NAME) --date YYYY-MM-DD --note "TEXT"` (use `--note ""` to clear the note)<br> e.g., `session --edit --id 2 --date 2026-10-22 --note "Improved squat depth"`
 **Help**   | `help`, **Help > Help** in the menu, or **F1** in the main window
 **Exit**   | `exit`
 **Recall commands** | Up / Down while the command box has focus; Enter executes the recalled command

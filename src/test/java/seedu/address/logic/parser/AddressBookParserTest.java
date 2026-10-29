@@ -211,17 +211,17 @@ public class AddressBookParserTest {
     @Test
     public void parseCommand_sessionAdd() throws Exception {
         AddSessionCommand command = (AddSessionCommand) parser.parseCommand(
-                "session --add --id 1 --date 2026-10-21 --note Worked on squat form");
+                "session --add --id 1 --date 2026-10-21 --note \"Worked on squat form\"");
         assertEquals(new AddSessionCommand(PersonSelector.byId(new PersonId(1)),
-                LocalDate.of(2026, 10, 21), "Worked on squat form"), command);
+                LocalDate.of(2026, 10, 21), new LongFormText("Worked on squat form")), command);
     }
 
     @Test
     public void parseCommand_sessionEdit() throws Exception {
         EditSessionCommand command = (EditSessionCommand) parser.parseCommand(
-                "session --edit --id 1 --date 2026-10-21 --note Improved squat depth");
+                "session --edit --id 1 --date 2026-10-21 --note \"Improved squat depth\"");
         assertEquals(new EditSessionCommand(PersonSelector.byId(new PersonId(1)),
-                LocalDate.of(2026, 10, 21), "Improved squat depth"), command);
+                LocalDate.of(2026, 10, 21), new LongFormText("Improved squat depth")), command);
     }
 
     @Test

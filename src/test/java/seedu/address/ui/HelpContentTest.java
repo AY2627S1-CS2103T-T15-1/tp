@@ -22,6 +22,7 @@ import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
 import seedu.address.model.util.SampleDataUtil;
+import seedu.address.testutil.PersonBuilder;
 
 /**
  * Checks that the help catalog describes supported commands with usable examples.
@@ -62,6 +63,36 @@ public class HelpContentTest {
             actualTypes.add(parser.parseCommand(example).getClass().getSimpleName());
         }
         assertEquals(expectedTypes, actualTypes);
+    }
+
+    @Test
+    public void getCommands_sessionClearInstruction_clearsNoteAndKeepsSession() throws Exception {
+        CommandSummary add = HelpContent.getCommands().stream()
+                .filter(summary -> summary.getExample().startsWith("session --add "))
+                .findFirst().orElseThrow();
+        CommandSummary edit = HelpContent.getCommands().stream()
+                .filter(summary -> summary.getExample().startsWith("session --edit "))
+                .findFirst().orElseThrow();
+        assertTrue(add.getSyntax().contains("[--note \"TEXT\"]"));
+        assertTrue(edit.getSyntax().endsWith("--note \"TEXT\""));
+        Matcher clearInstruction = Pattern.compile("Use (--note \"\") to clear it").matcher(edit.getDescription());
+        assertTrue(clearInstruction.find(), "Help must advertise a quoted empty note for clearing");
+
+        Model model = new ModelManager();
+        model.addPerson(new PersonBuilder().withId(2).build());
+        AddressBookParser parser = new AddressBookParser();
+        parser.parseCommand(add.getExample()).execute(model);
+        var originalSession = model.getAddressBook().getPersonList().getFirst().getSessions().getFirst();
+        assertFalse(originalSession.getNote().isBlank());
+
+        String clearExample = edit.getExample().replaceFirst("--note.*$",
+                Matcher.quoteReplacement(clearInstruction.group(1)));
+        parser.parseCommand(clearExample).execute(model);
+
+        var sessions = model.getAddressBook().getPersonList().getFirst().getSessions();
+        assertEquals(1, sessions.size());
+        assertEquals(originalSession.getDate(), sessions.getFirst().getDate());
+        assertEquals("", sessions.getFirst().getNote().value);
     }
 
     @Test

@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.EditCommand.EditPersonDescriptor;
 import seedu.address.model.AddressBook;
+import seedu.address.model.LongFormText;
 import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
@@ -201,7 +202,7 @@ public class EditCommandTest {
 
     @Test
     public void execute_editedPerson_preservesSessions() throws Exception {
-        Session session = new Session(LocalDate.of(2026, 10, 21), "Worked on squat form");
+        Session session = new Session(LocalDate.of(2026, 10, 21), new LongFormText("Worked on squat form"));
         Person aliceWithSession = new PersonBuilder(ALICE).withSessions(session).build();
         AddressBook addressBook = new AddressBook();
         addressBook.addPerson(aliceWithSession);

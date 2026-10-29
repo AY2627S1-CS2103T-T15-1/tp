@@ -3,6 +3,7 @@ package seedu.address.ui;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalPersons.ALICE;
 import static seedu.address.testutil.TypicalPersons.BENSON;
@@ -16,7 +17,9 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 
 import javafx.application.Platform;
 import javafx.scene.Node;
@@ -27,10 +30,75 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.input.Clipboard;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+import seedu.address.model.LongFormText;
 import seedu.address.model.appointment.Appointment;
+import seedu.address.model.person.Person;
+import seedu.address.model.session.Session;
 import seedu.address.testutil.PersonBuilder;
 
 public class PersonDetailPanelTest {
+
+    @TestFactory
+    public List<DynamicTest> showPerson_sessionCountPartitions_displaysNewestFourWithoutDiscardingHistory() {
+        List<DynamicTest> tests = new ArrayList<>();
+        for (int count : List.of(0, 1, 3, 4, 5, 20)) {
+            tests.add(dynamicTest("session count " + count, () -> runOnFxThread(() -> {
+                LocalDate newest = LocalDate.of(2026, 10, 29);
+                List<Session> sessions = new ArrayList<>();
+                for (int i = count - 1; i >= 0; i--) {
+                    sessions.add(new Session(newest.minusDays(i), new LongFormText("Note " + i)));
+                }
+                Person person = new PersonBuilder(ALICE).withSessions(sessions.toArray(Session[]::new)).build();
+                PersonDetailPanel panel = new PersonDetailPanel();
+                // First populate another client, to detect stale rows when switching to an empty history.
+                panel.showPerson(new PersonBuilder(BENSON)
+                        .withSessions(new Session(newest, new LongFormText("Stale note"))).build());
+                panel.showPerson(person);
+                VBox rows = (VBox) ((ScrollPane) panel.getRoot()).getContent().lookup("#sessionList");
+                if (count == 0) {
+                    assertEquals(1, rows.getChildren().size());
+                    assertEquals("No sessions recorded", ((Label) rows.getChildren().getFirst()).getText());
+                } else {
+                    assertEquals(Math.min(count, 4), rows.getChildren().size());
+                    for (int i = 0; i < Math.min(count, 4); i++) {
+                        VBox row = (VBox) rows.getChildren().get(i);
+                        assertEquals(newest.minusDays(i).toString(), ((Label) row.getChildren().get(0)).getText());
+                        assertEquals("Note " + i, ((Label) row.getChildren().get(1)).getText());
+                    }
+                }
+                assertEquals(sessions, person.getSessions());
+            })));
+        }
+        return tests;
+    }
+
+    @TestFactory
+    public List<DynamicTest> showPerson_sessionNotePartitions_displaysBlankPlaceholderOrExactContents() {
+        List<DynamicTest> tests = new ArrayList<>();
+        List<String> notes = List.of("", "   ", "\t\n", "  Squats\nRest\n\nWalk  ", "训练 💪 café",
+                "Legacy literal \\n", "Long note. ".repeat(500));
+        for (int i = 0; i < notes.size(); i++) {
+            String note = notes.get(i);
+            tests.add(dynamicTest("session display note partition " + i, () -> runOnFxThread(() -> {
+                PersonDetailPanel panel = new PersonDetailPanel();
+                Person person = new PersonBuilder(ALICE)
+                        .withSessions(new Session(LocalDate.of(2026, 10, 21), new LongFormText(note))).build();
+                panel.showPerson(person);
+                ScrollPane scroll = (ScrollPane) panel.getRoot();
+                new Scene(scroll, 360, 300);
+                scroll.resize(360, 300);
+                scroll.applyCss();
+                scroll.layout();
+                Label label = (Label) scroll.getContent().lookup(".session-note");
+                assertEquals(note.isBlank() ? "No note" : note, label.getText());
+                assertTrue(label.isWrapText());
+                assertTrue(label.getWidth() <= scroll.getViewportBounds().getWidth());
+                assertEquals(note, person.getSessions().getFirst().getNote().value);
+            })));
+        }
+        return tests;
+    }
 
     @BeforeAll
     public static void initializeJavaFx() throws Exception {

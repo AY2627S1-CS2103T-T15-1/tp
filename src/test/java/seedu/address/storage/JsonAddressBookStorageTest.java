@@ -19,6 +19,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import seedu.address.commons.exceptions.DataLoadingException;
 import seedu.address.model.AddressBook;
+import seedu.address.model.LongFormText;
 import seedu.address.model.ReadOnlyAddressBook;
 import seedu.address.model.person.Person;
 import seedu.address.model.session.Session;
@@ -131,8 +132,8 @@ public class JsonAddressBookStorageTest {
                 .withTags("strength")
                 .withWorkoutPlan("Squats and rest")
                 .withSessions(
-                        new Session(LocalDate.of(2026, 10, 21), "Worked on squat form"),
-                        new Session(LocalDate.of(2026, 11, 15), "Future reminder"))
+                        new Session(LocalDate.of(2026, 10, 21), new LongFormText("Worked on squat form")),
+                        new Session(LocalDate.of(2026, 11, 15), new LongFormText("Future reminder")))
                 .build());
         JsonAddressBookStorage storage = new JsonAddressBookStorage(filePath);
 

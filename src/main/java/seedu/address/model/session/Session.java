@@ -5,6 +5,7 @@ import java.time.format.DateTimeParseException;
 import java.util.Objects;
 
 import seedu.address.commons.util.ToStringBuilder;
+import seedu.address.model.LongFormText;
 
 /**
  * Represents a dated session note belonging to a client.
@@ -16,13 +17,13 @@ public class Session {
             "Session dates must use YYYY-MM-DD and be valid calendar dates.";
 
     private final LocalDate date;
-    private final String note;
+    private final LongFormText note;
 
     /**
      * Creates a {@code Session} on {@code date} with {@code note}.
      * The note may be empty.
      */
-    public Session(LocalDate date, String note) {
+    public Session(LocalDate date, LongFormText note) {
         this.date = Objects.requireNonNull(date);
         this.note = Objects.requireNonNull(note);
     }
@@ -31,7 +32,7 @@ public class Session {
         return date;
     }
 
-    public String getNote() {
+    public LongFormText getNote() {
         return note;
     }
 

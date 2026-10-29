@@ -14,6 +14,7 @@ import java.util.List;
 
 import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.logic.commands.exceptions.CommandException;
+import seedu.address.model.LongFormText;
 import seedu.address.model.Model;
 import seedu.address.model.person.Person;
 import seedu.address.model.session.Session;
@@ -25,21 +26,21 @@ public class AddSessionCommand extends SessionCommand {
 
     public static final String MESSAGE_USAGE = COMMAND_WORD + ": Adds a session to a client. "
             + "Parameters: " + PREFIX_ADD + " (" + PREFIX_ID + " ID or " + PREFIX_NAME_LONG + " NAME) "
-            + PREFIX_DATE + " YYYY-MM-DD [" + PREFIX_NOTE + " NOTE]\n"
+            + PREFIX_DATE + " YYYY-MM-DD [" + PREFIX_NOTE + " \"NOTE\"]\n"
             + "Example: " + COMMAND_WORD + " " + PREFIX_ADD + " " + PREFIX_ID + " 1 "
-            + PREFIX_DATE + " 2026-10-21 " + PREFIX_NOTE + " Worked on squat form";
+            + PREFIX_DATE + " 2026-10-21 " + PREFIX_NOTE + " \"Worked on squat form\"";
 
     public static final String MESSAGE_SUCCESS = "Added session for %1$s on %2$s.";
     public static final String MESSAGE_DUPLICATE_SESSION =
             "A session for %1$s already exists on %2$s. Use session --edit to update it.";
 
     private final LocalDate date;
-    private final String note;
+    private final LongFormText note;
 
     /**
      * Creates an {@code AddSessionCommand} for the selected client.
      */
-    public AddSessionCommand(PersonSelector selector, LocalDate date, String note) {
+    public AddSessionCommand(PersonSelector selector, LocalDate date, LongFormText note) {
         super(selector);
         this.date = requireNonNull(date);
         this.note = requireNonNull(note);
@@ -62,7 +63,7 @@ public class AddSessionCommand extends SessionCommand {
 
     @Override
     protected String getArgumentsAfterSelector() {
-        return " " + PREFIX_ADD + " " + PREFIX_DATE + " " + date + " " + PREFIX_NOTE + " " + quote(note);
+        return " " + PREFIX_ADD + " " + PREFIX_DATE + " " + date + " " + PREFIX_NOTE + " " + quoteLongFormText(note);
     }
 
     @Override

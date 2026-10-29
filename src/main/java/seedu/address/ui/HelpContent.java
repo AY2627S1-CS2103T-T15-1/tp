@@ -171,16 +171,17 @@ public final class HelpContent {
                     "appointment " + PREFIX_RESCHEDULE + " " + PREFIX_ID + " 2 " + PREFIX_INDEX + " 1 "
                             + PREFIX_DATE + " 2026-12-08 " + PREFIX_TIME + " 18:00"),
             new CommandSummary(SESSIONS, SessionCommand.COMMAND_WORD,
-                    "Record a session and show the updated profile. Only one session per client per date is allowed.",
+                    "Record a session and show the updated profile. Only one session per client per date is allowed. "
+                            + "Double quotes are required when supplying a note; use \\n for line breaks.",
                     SessionCommand.COMMAND_WORD + " " + PREFIX_ADD + " " + CLIENT_SELECTOR + " " + PREFIX_DATE
-                            + " YYYY-MM-DD [" + PREFIX_NOTE + " TEXT]",
+                            + " YYYY-MM-DD [" + PREFIX_NOTE + " \"TEXT\"]",
                     "session " + PREFIX_ADD + " " + PREFIX_ID + " 2 " + PREFIX_DATE + " 2026-10-22 "
                             + PREFIX_NOTE + " \"Squats: 3 sets\""),
             new CommandSummary(SESSIONS, SessionCommand.COMMAND_WORD,
-                    "Replace a session's note and show the updated profile. Use " + PREFIX_NOTE
-                            + " without text to clear it.",
+                    "Replace a session's note and show the updated profile. Double quotes are required; use \\n "
+                            + "for line breaks. Use " + PREFIX_NOTE + " \"\" to clear it.",
                     SessionCommand.COMMAND_WORD + " " + PREFIX_EDIT + " " + CLIENT_SELECTOR + " " + PREFIX_DATE
-                            + " YYYY-MM-DD " + PREFIX_NOTE + " [TEXT]",
+                            + " YYYY-MM-DD " + PREFIX_NOTE + " \"TEXT\"",
                     "session " + PREFIX_EDIT + " " + PREFIX_ID + " 2 " + PREFIX_DATE + " 2026-10-22 "
                             + PREFIX_NOTE + " \"Improved squat depth\""),
             new CommandSummary(APPLICATION, ClearCommand.COMMAND_WORD,

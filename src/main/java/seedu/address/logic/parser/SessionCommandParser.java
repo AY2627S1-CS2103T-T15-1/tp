@@ -18,6 +18,7 @@ import seedu.address.logic.commands.EditSessionCommand;
 import seedu.address.logic.commands.PersonSelector;
 import seedu.address.logic.commands.SessionCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
+import seedu.address.model.LongFormText;
 import seedu.address.model.session.Session;
 
 /**
@@ -60,7 +61,9 @@ public class SessionCommandParser implements Parser<SessionCommand> {
             throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, messageUsage));
         }
 
-        String note = argMultimap.getValue(PREFIX_NOTE).map(ParserUtil::removeOptionalQuotes).orElse("");
+        LongFormText note = argMultimap.getValue(PREFIX_NOTE).isPresent()
+                ? ParserUtil.parseLongFormText(argMultimap.getValue(PREFIX_NOTE).get())
+                : new LongFormText("");
         return hasAdd
                 ? new AddSessionCommand(selector, date, note)
                 : new EditSessionCommand(selector, date, note);

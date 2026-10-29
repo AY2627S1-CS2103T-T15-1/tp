@@ -35,6 +35,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import seedu.address.logic.LogicManager;
 import seedu.address.logic.commands.ListCommand;
+import seedu.address.model.LongFormText;
 import seedu.address.model.ModelManager;
 import seedu.address.model.appointment.Appointment;
 import seedu.address.model.person.Person;
@@ -74,13 +75,14 @@ public class MainWindowTest {
             StorageManager storage = new StorageManager(new JsonAddressBookStorage(dataFile),
                     new JsonUserPrefsStorage(testFolder.resolve("preferences.json")));
             ModelManager model = new ModelManager();
-            String longNote = "A long training note that should wrap and remain accessible. ".repeat(100);
+            String longNote = "Squats\nRest\n\n"
+                    + "A long training note that should wrap and remain accessible. ".repeat(100);
             Person aliceWithSessions = new PersonBuilder(ALICE).withSessions(
-                    new Session(LocalDate.of(2026, 8, 1), "This older session should stay hidden"),
-                    new Session(LocalDate.of(2026, 10, 22), "Worked on squat form"),
-                    new Session(LocalDate.of(2026, 12, 31), longNote),
-                    new Session(LocalDate.of(2026, 9, 10), "Improved mobility"),
-                    new Session(LocalDate.of(2026, 11, 15), ""))
+                    new Session(LocalDate.of(2026, 8, 1), new LongFormText("This older session should stay hidden")),
+                    new Session(LocalDate.of(2026, 10, 22), new LongFormText("Worked on squat form")),
+                    new Session(LocalDate.of(2026, 12, 31), new LongFormText(longNote)),
+                    new Session(LocalDate.of(2026, 9, 10), new LongFormText("Improved mobility")),
+                    new Session(LocalDate.of(2026, 11, 15), new LongFormText("")))
                     .withNote("Client note")
                     .withWorkoutPlan("Squats and rest")
                     .build();
@@ -312,6 +314,74 @@ public class MainWindowTest {
                 stage.hide();
             }
         }, null);
+        Platform.runLater(task);
+        task.get(15, TimeUnit.SECONDS);
+    }
+
+    @Test
+    public void sessionCommands_addEditClearAndErrors_keepProfileAndSavedDataConsistent() throws Exception {
+        FutureTask<Void> task = new FutureTask<>(() -> {
+            Path dataFile = testFolder.resolve("session-flow.json");
+            StorageManager storage = new StorageManager(new JsonAddressBookStorage(dataFile),
+                    new JsonUserPrefsStorage(testFolder.resolve("preferences.json")));
+            ModelManager model = new ModelManager();
+            model.addPerson(ALICE);
+            Stage stage = new Stage();
+            try {
+                MainWindow window = new MainWindow(stage, new LogicManager(model, storage), dataFile);
+                window.show();
+                window.fillInnerParts();
+                stage.getScene().getRoot().applyCss();
+                stage.getScene().getRoot().layout();
+                TextField command = (TextField) stage.getScene().lookup("#commandTextField");
+                TextArea feedback = (TextArea) stage.getScene().lookup("#resultDisplay");
+                StackPane details = (StackPane) stage.getScene().lookup("#personDetailPanelPlaceholder");
+
+                submitCommand(command, "session --add --id 1 --date 2026-10-21 --note \"Squats\\nRest\"");
+                VBox rows = (VBox) details.lookup("#sessionList");
+                assertEquals("", command.getText());
+                assertTrue(details.isVisible());
+                assertTrue(details.isManaged());
+                assertSessionRow((VBox) rows.getChildren().getFirst(), "2026-10-21", "Squats\nRest");
+
+                submitCommand(command, "session --edit --id 1 --date 2026-10-21 --note \"Changed\\n\\nNote\"");
+                assertTrue(details.isVisible());
+                assertSessionRow((VBox) rows.getChildren().getFirst(), "2026-10-21", "Changed\n\nNote");
+
+                submitCommand(command, "session --edit --id 1 --date 2026-10-21 --note \"\"");
+                assertSessionRow((VBox) rows.getChildren().getFirst(), "2026-10-21", "No note");
+
+                for (String invalid : List.of("session --add --id 1 --date 2026-10-21",
+                        "session --edit --id 1 --date 2026-10-21 --note",
+                        "session --edit --id 1 --date 2026-10-22 --note \"Missing\"")) {
+                    submitCommand(command, invalid);
+                    assertEquals(invalid, command.getText());
+                    assertFalse(feedback.getText().isBlank());
+                    assertTrue(details.isVisible());
+                    assertSessionRow((VBox) rows.getChildren().getFirst(), "2026-10-21", "No note");
+                    assertEquals(model.getAddressBook(), storage.readAddressBook().orElseThrow());
+                }
+
+                // An older fifth entry stays saved, while only the four newest dates appear in the profile.
+                for (int day : List.of(23, 25, 24, 20)) {
+                    submitCommand(command, "session --add --id 1 --date 2026-10-" + day);
+                }
+                assertEquals(4, rows.getChildren().size());
+                assertSessionRow((VBox) rows.getChildren().getFirst(), "2026-10-25", "No note");
+                assertSessionRow((VBox) rows.getChildren().get(3), "2026-10-21", "No note");
+                submitCommand(command, "session --edit --id 1 --date 2026-10-20 --note \"Older note\"");
+                assertTrue(details.isVisible());
+                assertEquals(4, rows.getChildren().size());
+                assertEquals(5, model.getAddressBook().getPersonList().getFirst().getSessions().size());
+                assertEquals("Older note", model.getAddressBook().getPersonList().getFirst().getSessions().stream()
+                        .filter(session -> session.getDate().equals(LocalDate.of(2026, 10, 20)))
+                        .findFirst().orElseThrow().getNote().value);
+                assertEquals(model.getAddressBook(), storage.readAddressBook().orElseThrow());
+            } finally {
+                stage.hide();
+            }
+            return null;
+        });
         Platform.runLater(task);
         task.get(15, TimeUnit.SECONDS);
     }
