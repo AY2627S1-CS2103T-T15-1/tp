@@ -50,6 +50,7 @@ public class MainApp extends Application {
 
     private final DataFileLock dataFileLock = new DataFileLock(ADDRESS_BOOK_FILE_PATH);
     private boolean isAlreadyOpen;
+    private boolean initialDataSaveFailed;
 
     @Override
     public void init() throws Exception {
@@ -112,6 +113,7 @@ public class MainApp extends Application {
      */
     protected Model initModelManager(Storage storage, ReadOnlyUserPrefs userPrefs) throws DataLoadingException {
         logger.info("Using data file : " + storage.getAddressBookFilePath());
+        initialDataSaveFailed = false;
 
         Optional<ReadOnlyAddressBook> addressBookOptional = storage.readAddressBook();
         ReadOnlyAddressBook initialData;
@@ -122,6 +124,7 @@ public class MainApp extends Application {
             try {
                 storage.saveAddressBook(initialData);
             } catch (IOException e) {
+                initialDataSaveFailed = true;
                 logger.warning("Failed to save data file : " + StringUtil.getDetails(e));
             }
         } else {
@@ -170,6 +173,9 @@ public class MainApp extends Application {
             return;
         }
         logger.info("Starting Cindy " + MainApp.VERSION);
+        if (initialDataSaveFailed) {
+            UiManager.showInitialSaveWarning(storage.getAddressBookFilePath());
+        }
         ui.start(primaryStage);
     }
 

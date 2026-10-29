@@ -59,7 +59,7 @@ Cindy is a **desktop application that helps freelance gym trainers manage their 
 * Names and phone numbers can optionally be wrapped in double quotes, which is useful for values containing spaces.<br>
   For example, `--name "John Doe"` and `--name John Doe` mean the same.
 * Long-form text, such as client notes, session notes and workout plans, must be wrapped in double quotes, even for a single word. Use `--note ""` to clear a note or `--plan ""` to clear a workout plan.
-* Inside long-form text, type `\n` for a line break or `\n\n` for a blank line. Enter the command on one line; Cindy displays the line breaks in the detail view.
+* Inside long-form text, type `\n` for a line break or `\n\n` for a blank line. Enter the command on one line; Cindy displays the line breaks in the detail view. See [Long-form text limitations](#long-form-text-limitations) for text containing literal backslashes.
 
 * Commands that act on one client (`view`, `edit`, `plan`, `appointment --add`, `appointment --cancel`, `appointment --reschedule`, `session --add`, `session --edit`, `delete`, `note`, `inactive`, `active` and `tag`) choose the client with either `--id ID` or `--name NAME`, but not both. `inactive` and `active` also accept `--phone PHONE` instead:
   * `--id ID` chooses the client with that ID. Every client's ID is shown as `#ID` on their card, e.g. `#3`.
@@ -76,6 +76,16 @@ Cindy is a **desktop application that helps freelance gym trainers manage their 
 
 * If you are using a PDF version of this document, be careful when copying and pasting commands that span multiple lines as space characters surrounding line-breaks may be omitted when copied over to the application.
 </box>
+
+### Long-form text limitations
+
+In long-form command text, `\n` always represents a line break. You cannot enter a literal backslash immediately followed by a lowercase `n` and keep both characters unchanged.
+
+* `Rest\nWalk` displays `Rest` and `Walk` on separate lines.
+* Adding another backslash does not escape the sequence: `Rest\\nWalk` displays `Rest` followed by one backslash, then a line break before `Walk`.
+* Other backslash sequences, such as `\t`, stay as typed; they are not converted to tabs or other special characters.
+
+Stored long-form text can contain literal `\n`. Re-entering that text in a command converts each such sequence to a line break. For example, a stored value `C:\notes` becomes `C:` on one line and `otes` on the next when entered as long-form command text.
 
 ### Viewing help: `help`
 
@@ -194,7 +204,7 @@ Format: `plan --id ID --plan "TEXT"` or `plan --name NAME --plan "TEXT"`
 * Use `--plan ""` to clear the plan. A bare `--plan`, unquoted text, or omitting `--plan` is an error.
 * The plan is saved automatically. Editing a client's contact details with `edit` preserves their plan.
 * After an update, the client's detail view opens with the workout plan in its own card. Empty plans have no card.
-* Avoid ` --id`, ` --name`, and ` --plan` inside the workout-plan text: these are interpreted as command prefixes even inside quotes.
+* Text inside the quotes that looks like a parameter, such as `--id`, `--name`, or `--plan`, is kept as part of the workout plan.
 
 Examples:
 
@@ -547,11 +557,15 @@ The following files are stored in the home folder:
 
 If you move the JAR to another folder, close Cindy first and move the `data` folder and `preferences.json` alongside it to retain your clients and window preferences. If the data file is missing, Cindy creates a new one with sample clients.
 
+If Cindy cannot save the initial sample clients, it shows a warning with the data-file location before opening the main window. You can browse the samples after dismissing the warning. Check that the parent folder is a directory, that you have write permission, and that there is enough free space. Fix the storage problem before changing client data; Cindy will try saving again after a data-changing command.
+
 Only one Cindy window can use the data file at a time. If Cindy is already open, opening it again shows an error and closes the new window, so that the two windows cannot overwrite each other's changes.
 
 ### Editing the data file
 
 Cindy data is saved automatically as a JSON file `[JAR file location]/data/cindy.json`. Advanced users are welcome to update data directly by editing that data file.
+
+Long-form text loaded from the data file is preserved as stored, including literal backslash sequences. If you later re-enter that text through a command, the [long-form text limitations](#long-form-text-limitations) apply: literal `\n` becomes a line break.
 
 <box type="warning" seamless>
 
