@@ -541,10 +541,13 @@ The **home folder** is the folder containing the Cindy JAR file. Cindy uses this
 The following files are stored in the home folder:
 
 * `data/cindy.json`: your clients, inside the `data` sub-folder.
+* `data/cindy.json.lock`: lets Cindy tell whether it is already open. It stays after Cindy closes, and you can ignore it.
 * `preferences.json`: your window size and position.
 * Rotating `cindy.log` files and their lock file: application logs.
 
 If you move the JAR to another folder, close Cindy first and move the `data` folder and `preferences.json` alongside it to retain your clients and window preferences. If the data file is missing, Cindy creates a new one with sample clients.
+
+Only one Cindy window can use the data file at a time. If Cindy is already open, opening it again shows an error and closes the new window, so that the two windows cannot overwrite each other's changes.
 
 ### Editing the data file
 
