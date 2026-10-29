@@ -57,7 +57,7 @@ public class EditSessionCommand extends SessionCommand {
 
         model.setPerson(target, updatedPerson);
         model.updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS);
-        return new CommandResult(String.format(MESSAGE_SUCCESS, target.getName(), date));
+        return new CommandResult(String.format(MESSAGE_SUCCESS, target.getName(), date), updatedPerson);
     }
 
     private int findSessionIndex(List<Session> sessions) {

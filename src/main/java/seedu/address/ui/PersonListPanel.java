@@ -37,6 +37,17 @@ public class PersonListPanel extends UiPart<Region> {
      * Custom {@code ListCell} that displays the graphics of a {@code Person} using a {@code PersonCard}.
      */
     class PersonListViewCell extends ListCell<Person> {
+        PersonListViewCell() {
+            // Size rows to the viewport so long names wrap instead of widening the list.
+            setPrefWidth(0);
+        }
+
+        @Override
+        protected double computePrefHeight(double width) {
+            // The virtual list must reserve at least the card's minimum height.
+            return Math.max(super.computePrefHeight(width), super.computeMinHeight(width));
+        }
+
         @Override
         protected void updateItem(Person person, boolean empty) {
             super.updateItem(person, empty);
