@@ -7,8 +7,8 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_ID;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME_LONG;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE_LONG;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import seedu.address.logic.commands.FindCommand;
@@ -22,7 +22,7 @@ import seedu.address.model.tag.Tag;
 public class FindCommandParser implements Parser<FindCommand> {
 
     public static final String MESSAGE_INVALID_GROUP = "Enter a group name made of letters, digits, "
-            + "spaces and hyphens after " + PREFIX_GROUP + ".";
+            + "spaces and hyphens, at most " + Tag.MAX_LENGTH + " characters long, after " + PREFIX_GROUP + ".";
 
     private static final Prefix[] PERSON_FILTER_PREFIXES = {PREFIX_NAME_LONG, PREFIX_PHONE_LONG, PREFIX_ID};
 
@@ -36,8 +36,8 @@ public class FindCommandParser implements Parser<FindCommand> {
         ArgumentMultimap argMultimap = ArgumentTokenizer.tokenize(args, PREFIX_NAME_LONG, PREFIX_PHONE_LONG, PREFIX_ID,
                 PREFIX_GROUP);
 
-        Optional<String> groupValue = argMultimap.getValue(PREFIX_GROUP);
-        if (groupValue.isEmpty()) {
+        List<String> groupValues = argMultimap.getAllValues(PREFIX_GROUP);
+        if (groupValues.isEmpty()) {
             return new FindCommand(ParserUtil.parsePersonFilters(argMultimap, FindCommand.MESSAGE_USAGE,
                     PERSON_FILTER_PREFIXES));
         }
@@ -45,12 +45,16 @@ public class FindCommandParser implements Parser<FindCommand> {
         if (!argMultimap.getPreamble().isEmpty()) {
             throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, FindCommand.MESSAGE_USAGE));
         }
-        Tag group;
-        try {
-            argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_GROUP);
-            group = parseGroup(groupValue.get());
-        } catch (ParseException pe) {
-            throw new ParseException(ParserUtil.withUsage(pe.getMessage(), FindCommand.MESSAGE_USAGE), pe);
+        List<Tag> groups = new ArrayList<>();
+        for (String groupValue : groupValues) {
+            try {
+                Tag group = parseGroup(groupValue);
+                if (!groups.contains(group)) {
+                    groups.add(group);
+                }
+            } catch (ParseException pe) {
+                throw new ParseException(ParserUtil.withUsage(pe.getMessage(), FindCommand.MESSAGE_USAGE), pe);
+            }
         }
 
         boolean hasPersonFilter = Stream.of(PERSON_FILTER_PREFIXES)
@@ -58,7 +62,7 @@ public class FindCommandParser implements Parser<FindCommand> {
         List<PersonSelector> filters = hasPersonFilter
                 ? ParserUtil.parsePersonFilters(argMultimap, FindCommand.MESSAGE_USAGE, PERSON_FILTER_PREFIXES)
                 : List.of();
-        return new FindCommand(filters, group);
+        return new FindCommand(filters, groups);
     }
 
     /**

@@ -73,6 +73,24 @@ public class JsonSerializableAddressBookTest {
     }
 
     @Test
+    public void toModelType_largestClientIdSaved_loadsWithNoIdsLeft() throws Exception {
+        List<JsonAdaptedPerson> persons = List.of(
+                new JsonAdaptedPerson(PersonId.MAX_CLIENT_ID, "Alice Pauline", "94351253"));
+        AddressBook addressBook = new JsonSerializableAddressBook(persons, Integer.MAX_VALUE).toModelType();
+
+        assertEquals(new PersonId(Integer.MAX_VALUE), addressBook.getNextPersonId());
+    }
+
+    @Test
+    public void toModelType_idAfterLargestClientIdSaved_throwsIllegalValueException() {
+        List<JsonAdaptedPerson> persons = List.of(
+                new JsonAdaptedPerson(Integer.MAX_VALUE, "Alice Pauline", "94351253"));
+        JsonSerializableAddressBook data = new JsonSerializableAddressBook(persons, null);
+
+        assertThrows(IllegalValueException.class, PersonId.MESSAGE_CLIENT_ID_CONSTRAINTS, data::toModelType);
+    }
+
+    @Test
     public void toModelType_legacyFileWithoutIds_assignsIdsInFileOrder() throws Exception {
         JsonSerializableAddressBook dataFromFile = JsonUtil.readJsonFile(LEGACY_PERSONS_FILE,
                 JsonSerializableAddressBook.class).get();

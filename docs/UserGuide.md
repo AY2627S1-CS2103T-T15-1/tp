@@ -36,7 +36,7 @@ Cindy is a **desktop application that helps freelance gym trainers manage their 
 
    * `delete --id 3` : Deletes the client with ID 3. Each client's ID is shown as `#ID` on their card.
 
-   * `clear` : Shows a confirmation prompt. Run `clear --confirm` to delete all clients.
+   * `clear` : Shows a confirmation prompt. Run `clear --confirm` to delete all clients and groups.
 
    * `exit` : Exits the app.
 
@@ -61,7 +61,7 @@ Cindy is a **desktop application that helps freelance gym trainers manage their 
 * Long-form text, such as client notes and workout plans, must be wrapped in double quotes, even for a single word. Use `--note ""` to clear a note or `--plan ""` to clear a workout plan.
 * Inside long-form text, type `\n` for a line break or `\n\n` for a blank line. Enter the command on one line; Cindy displays the line breaks in the detail view.
 
-* Commands that act on one client (`view`, `edit`, `plan`, `appointment --add`, `appointment --cancel`, `appointment --reschedule`, `delete`, `note`, `inactive`, `active` and `tag`) choose the client with either `--id ID` or `--name NAME`, but not both. `inactive` and `active` also accept `--phone PHONE` instead:
+* Commands that act on one client (`view`, `edit`, `plan`, `appointment --add`, `appointment --cancel`, `appointment --reschedule`, `session --add`, `session --edit`, `delete`, `note`, `inactive`, `active` and `tag`) choose the client with either `--id ID` or `--name NAME`, but not both. `inactive` and `active` also accept `--phone PHONE` instead:
   * `--id ID` chooses the client with that ID. Every client's ID is shown as `#ID` on their card, e.g. `#3`.
   * `--name NAME` chooses the client whose name contains `NAME`, ignoring upper and lower case. For example, `--name john` matches `John`, `John Doe` and `Johnny Tan`.
   * If more than one client's name contains `NAME`, Cindy does not act on any of them. Instead, it lists those clients and asks you to run the command again with `--id`, using one of the IDs shown.
@@ -102,7 +102,7 @@ New clients start without a workout plan; you can set one later using `plan`.
 
 Format: `add --name "NAME" --phone "PHONE_NUMBER"`
 
-Cindy gives every new client a unique ID number, shown in the message after the client is added (e.g. `New client added: John Doe (ID: 7); Phone: +6591234567`). A client keeps the same ID for as long as they are in Cindy, and an ID is never given to another client, even after the client it belonged to is deleted. The only exception is `clear --confirm`: it deletes all clients and starts the numbering again, so the next client added after `clear --confirm` gets ID 1.
+Cindy gives every new client a unique ID number, shown in the message after the client is added (e.g. `New client added: John Doe (ID: 7); Phone: +6591234567`). A client keeps the same ID for as long as they are in Cindy, and an ID is never given to another client, even after the client it belonged to is deleted. The only exception is `clear --confirm`: it deletes all clients and groups and starts the numbering again, so the next client added after `clear --confirm` gets ID 1. IDs go up to 2147483646; once every ID up to that has been used, `add` shows an error until you run `clear --confirm`.
 
 Name requirements:
 
@@ -270,13 +270,13 @@ Examples:
 
 Finds clients by name, phone number, ID or group, and shows only those clients in the list.
 
-Format: `find [--name NAME] [--phone PHONE] [--id ID] [--group GROUP]`
+Format: `find [--name NAME] [--phone PHONE] [--id ID] [--group GROUP]...`
 
 * At least one of `--name`, `--phone`, `--id` and `--group` must be given.
 * `--name` finds clients whose names contain `NAME`, ignoring upper and lower case. For example, `--name han` finds `Hans` and `Johan Lee`.
-* `--phone` finds clients whose phone numbers contain the digits in `PHONE`. Spaces, parentheses and hyphens in `PHONE` are ignored, so `--phone 9123 4567` finds `91234567`.
+* `--phone` finds clients whose phone numbers contain the digits in `PHONE`. Spaces, parentheses, hyphens and a leading `+` in `PHONE` are ignored, so `--phone 9123 4567` finds `91234567`, and `--phone +65` also finds numbers saved without a `+`, such as `6581113333`.
 * `--id` finds the client with that ID.
-* `--group` finds clients in the group `GROUP`, ignoring upper and lower case. `GROUP` can also be `gym` or `personal`, to find all gym or personal clients.
+* `--group` finds clients in the group `GROUP`, ignoring upper and lower case. `GROUP` can also be `gym` or `personal`, to find all gym or personal clients. You can give `--group` more than once to find clients in all of the groups, e.g. gym clients in the group `morning`.
 * If you give more than one of them, only clients that match all of them are found.
 * The clients found are still sorted by name. Use `list` to show all clients again.
 
@@ -286,6 +286,7 @@ Examples:
 * `find --name tan --phone 8` finds clients whose names contain `tan` and whose phone numbers contain `8`.
 * `find --group morning` finds every client in the group `morning`.
 * `find --group gym --name tan` finds gym clients whose names contain `tan`.
+* `find --group morning --group gym` finds gym clients in the group `morning`.
 
 ### Deleting a client: `delete`
 
@@ -462,6 +463,8 @@ Format: `session --add (--id ID | --name NAME) --date YYYY-MM-DD [--note TEXT]`
 * Dates must be real dates in `YYYY-MM-DD` format. Future dates are allowed.
 * Notes are optional. You can put them in double quotes, especially when they contain text that looks like a flag.
 * The client's profile shows up to four sessions, newest first. Older sessions remain saved.
+* After a successful add, Cindy displays the updated client's profile. Adding an older session may leave it outside the four recent sessions shown.
+* This records a date and note only. To schedule meetings at a time, use `appointment --add`.
 
 Example: `session --add --id 2 --date 2026-10-22 --note "Squats: 3 sets"`
 
@@ -473,20 +476,21 @@ Format: `session --edit (--id ID | --name NAME) --date YYYY-MM-DD --note [TEXT]`
 
 * The client and session date must already exist. This command changes the note, not the date.
 * `--note` is required. Leave the text empty, or use `--note ""`, to clear the note while keeping the session.
+* After a successful edit, Cindy displays the updated client's profile. Editing an older session does not move it into the four most recent sessions.
 
 Example: `session --edit --id 2 --date 2026-10-22 --note "Improved squat depth"`
 
 ### Clearing all entries: `clear`
 
-Deletes all clients from Cindy after confirmation.
+Deletes all clients and custom groups from Cindy after confirmation.
 
 Format: `clear` or `clear --confirm`
 
-* `clear` displays a prompt asking you to run `clear --confirm`. It leaves all clients and the next client ID unchanged.
-* `clear --confirm` immediately deletes all saved clients. You can run it directly without first running `clear`.
+* `clear` displays a prompt asking you to run `clear --confirm`. It leaves all clients, groups and the next client ID unchanged.
+* `clear --confirm` immediately deletes all saved clients and custom groups, including groups with no clients. You can run it directly without first running `clear`. Recreate any custom groups you need afterwards with `group --name GROUP`; the built-in client types `gym` and `personal` remain available.
 * Clearing cannot be undone.
 * Client IDs start again from 1 after `clear --confirm`, even if there are already no clients, so the next client you add gets ID 1. IDs you noted down before clearing no longer refer to the same clients.
-* Only the exact flag `--confirm` is accepted. Unknown arguments, extra text, or repeated flags (e.g. `clear --confirm --confirm`) produce an error and leave your clients unchanged.
+* Only the exact flag `--confirm` is accepted. Unknown arguments, extra text, or repeated flags (e.g. `clear --confirm --confirm`) produce an error and leave your clients and groups unchanged.
 
 ### Recalling previous commands: Up / Down
 
@@ -502,10 +506,10 @@ Click the command box and press **Up** to recall your most recently submitted co
 
 Example:
 
-1. Run `list`, then run `find Alice`.
-1. Type `find Bob` without pressing Enter.
-1. Press Up to recall `find Alice`, then Up again to recall `list`.
-1. Press Down twice to return to your unfinished `find Bob` command.
+1. Run `list`, then run `find --name Alice`.
+1. Type `find --name Bob` without pressing Enter.
+1. Press Up to recall `find --name Alice`, then Up again to recall `list`.
+1. Press Down twice to return to your unfinished `find --name Bob` command.
 
 ### Exiting the program: `exit`
 
@@ -534,7 +538,7 @@ Cindy data is saved automatically as a JSON file `[JAR file location]/data/cindy
 <box type="warning" seamless>
 
 **Caution:**
-If your changes make the data file invalid, Cindy starts with an empty client list at the next run. The invalid file remains on disk until you run a command (Cindy saves after every command). Still, we recommend backing up the file before editing it.<br>
+If Cindy cannot read the data file, it shows an error dialog with the file's location and closes without opening the command window or overwriting the file. Back up the unreadable file, repair it or restore a valid backup, then restart Cindy. Always back up the file before editing it.<br>
 Furthermore, certain edits can cause Cindy to behave in unexpected ways (e.g., if a value entered is outside of the acceptable range). Therefore, edit the data file only if you are confident that you can update it correctly.
 </box>
 
@@ -563,10 +567,10 @@ _Details coming soon ..._
 Action     | Format, Examples
 -----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 **Add**    | `add --name "NAME" --phone "PHONE_NUMBER"` <br> e.g., `add --name "James Ho" --phone "+65 9123 4567"`
-**Clear**  | `clear` to show the prompt; `clear --confirm` to delete all clients and reset IDs
+**Clear**  | `clear` to show the prompt; `clear --confirm` to delete all clients and groups and reset IDs
 **Delete** | `delete --id ID` or `delete --name NAME`<br> e.g., `delete --id 3`
 **Edit**   | `edit --id ID [--to-name NEW_NAME] [--to-phone NEW_PHONE]` (at least one change; or `--name NAME` instead of `--id ID`)<br> e.g., `edit --id 2 --to-name "James Lee"`
-**Find**   | `find [--name NAME] [--phone PHONE] [--id ID] [--group GROUP]` (at least one)<br> e.g., `find --name james`, `find --group morning`
+**Find**   | `find [--name NAME] [--phone PHONE] [--id ID] [--group GROUP]...` (at least one)<br> e.g., `find --name james`, `find --group morning --group gym`
 **List**   | `list` for all clients; `list --today` for clients with a non-cancelled appointment today
 **Plan**   | `plan --id ID --plan "TEXT"` (or `--name NAME` instead of `--id ID`)<br> e.g., `plan --id 2 --plan "Squats: 3 sets"`
 **Schedule appointments** | `appointment --add --id ID --date DATE --time TIME` (or `--name NAME` instead of `--id ID`)<br> e.g., `appointment --add --id 2 --date 2026-10-26 --time 09:00`

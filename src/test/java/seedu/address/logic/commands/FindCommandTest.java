@@ -58,14 +58,14 @@ public class FindCommandTest {
         assertFalse(findFirstCommand.equals(findSecondCommand));
 
         // same filters and group -> returns true
-        FindCommand findMorningCommand = new FindCommand(firstFilters, MORNING);
-        assertTrue(findMorningCommand.equals(new FindCommand(firstFilters, new Tag("morning"))));
+        FindCommand findMorningCommand = new FindCommand(firstFilters, List.of(MORNING));
+        assertTrue(findMorningCommand.equals(new FindCommand(firstFilters, List.of(new Tag("morning")))));
 
         // group and no group -> returns false
         assertFalse(findFirstCommand.equals(findMorningCommand));
 
         // different groups -> returns false
-        assertFalse(findMorningCommand.equals(new FindCommand(firstFilters, Tag.GYM)));
+        assertFalse(findMorningCommand.equals(new FindCommand(firstFilters, List.of(Tag.GYM))));
     }
 
     @Test
@@ -76,6 +76,18 @@ public class FindCommandTest {
 
         assertGroupFindResult(List.of(), MORNING, String.format(FindCommand.MESSAGE_MATCHES, 2));
         assertEquals(List.of(morningAlice, morningBenson), model.getFilteredPersonList());
+    }
+
+    @Test
+    public void execute_severalGroups_clientsInAllGroupsFound() {
+        Person gymMorningAlice = tag(ALICE, "gym", "morning");
+        tag(BENSON, "personal", "morning");
+        tag(DANIEL, "gym");
+
+        expectedModel.updateFilteredPersonList(person -> person.equals(gymMorningAlice));
+        assertCommandSuccess(new FindCommand(List.of(), List.of(MORNING, Tag.GYM)), model,
+                FindCommand.MESSAGE_ONE_MATCH, expectedModel);
+        assertEquals(List.of(gymMorningAlice), model.getFilteredPersonList());
     }
 
     @Test
@@ -160,12 +172,12 @@ public class FindCommandTest {
     public void toStringMethod() {
         List<PersonSelector> filters = List.of(PersonSelector.byName("keyword"));
         FindCommand findCommand = new FindCommand(filters);
-        String expected = FindCommand.class.getCanonicalName() + "{filters=" + filters + ", group=null}";
+        String expected = FindCommand.class.getCanonicalName() + "{filters=" + filters + ", groups=[]}";
         assertEquals(expected, findCommand.toString());
 
-        FindCommand findGroupCommand = new FindCommand(filters, MORNING);
-        String expectedWithGroup = FindCommand.class.getCanonicalName() + "{filters=" + filters + ", group="
-                + MORNING + "}";
+        FindCommand findGroupCommand = new FindCommand(filters, List.of(MORNING));
+        String expectedWithGroup = FindCommand.class.getCanonicalName() + "{filters=" + filters + ", groups=["
+                + MORNING + "]}";
         assertEquals(expectedWithGroup, findGroupCommand.toString());
     }
 
@@ -186,7 +198,7 @@ public class FindCommandTest {
     private void assertGroupFindResult(List<PersonSelector> filters, Tag group, String expectedMessage) {
         expectedModel.updateFilteredPersonList(person -> filters.stream().allMatch(filter -> filter.matches(person))
                 && person.getTags().stream().anyMatch(tag -> tag.tagName.equalsIgnoreCase(group.tagName)));
-        assertCommandSuccess(new FindCommand(filters, group), model, expectedMessage, expectedModel);
+        assertCommandSuccess(new FindCommand(filters, List.of(group)), model, expectedMessage, expectedModel);
     }
 
     /**

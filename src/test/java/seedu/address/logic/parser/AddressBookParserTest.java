@@ -175,7 +175,7 @@ public class AddressBookParserTest {
         FindCommand command = (FindCommand) parser.parseCommand(FindCommand.COMMAND_WORD + " --name foo bar");
         assertEquals(new FindCommand(List.of(PersonSelector.byName("foo bar"))), command);
 
-        assertEquals(new FindCommand(List.of(), new Tag("morning")),
+        assertEquals(new FindCommand(List.of(), List.of(new Tag("morning"))),
                 parser.parseCommand(FindCommand.COMMAND_WORD + " --group morning"));
     }
 

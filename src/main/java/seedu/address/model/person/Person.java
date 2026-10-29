@@ -86,6 +86,7 @@ public class Person {
 
     /**
      * Creates a person with all details. Every argument must be present and not null.
+     * {@code id} must be a client ID, as declared in {@link PersonId#isClientId()}.
      * Session dates must be unique for this client.
      * {@code appointments} may be in any order, and must hold at most {@value Appointment#SERIES_LENGTH}
      * appointments.
@@ -105,6 +106,9 @@ public class Person {
         }
         this.appointments = appointments.stream().sorted().toList();
         Objects.requireNonNull(id);
+        if (!id.isClientId()) {
+            throw new IllegalArgumentException(PersonId.MESSAGE_CLIENT_ID_CONSTRAINTS);
+        }
         Objects.requireNonNull(name);
         Objects.requireNonNull(phone);
         Objects.requireNonNull(note);

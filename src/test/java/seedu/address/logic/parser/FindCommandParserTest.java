@@ -1,7 +1,6 @@
 package seedu.address.logic.parser;
 
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_GROUP;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME_LONG;
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseFailure;
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseSuccess;
@@ -54,23 +53,24 @@ public class FindCommandParserTest {
 
     @Test
     public void parse_groupOnly_returnsFindCommandWithGroup() {
-        FindCommand expectedCommand = new FindCommand(List.of(), new Tag("morning"));
+        FindCommand expectedCommand = new FindCommand(List.of(), List.of(new Tag("morning")));
         assertParseSuccess(parser, " --group morning", expectedCommand);
 
         // group ignores upper and lower case, and may be in quotes
         assertParseSuccess(parser, " --group \"Morning\"", expectedCommand);
 
         // client types can be used as groups
-        assertParseSuccess(parser, " --group GYM", new FindCommand(List.of(), Tag.GYM));
+        assertParseSuccess(parser, " --group GYM", new FindCommand(List.of(), List.of(Tag.GYM)));
 
         // group with spaces
-        assertParseSuccess(parser, " --group \"Weight Loss\"", new FindCommand(List.of(), new Tag("weight loss")));
+        assertParseSuccess(parser, " --group \"Weight Loss\"",
+                new FindCommand(List.of(), List.of(new Tag("weight loss"))));
     }
 
     @Test
     public void parse_groupAndOtherFilters_returnsFindCommandWithAll() {
         assertParseSuccess(parser, " --group rehab --name Alice",
-                new FindCommand(List.of(PersonSelector.byName("Alice")), new Tag("rehab")));
+                new FindCommand(List.of(PersonSelector.byName("Alice")), List.of(new Tag("rehab"))));
     }
 
     @Test
@@ -95,8 +95,18 @@ public class FindCommandParserTest {
     }
 
     @Test
-    public void parse_repeatedGroup_throwsParseException() {
-        assertParseFailure(parser, " --group morning --group rehab", ParserUtil.withUsage(
-                Messages.getErrorMessageForDuplicatePrefixes(PREFIX_GROUP), FindCommand.MESSAGE_USAGE));
+    public void parse_severalGroups_returnsFindCommandWithAllGroups() {
+        assertParseSuccess(parser, " --group morning --group gym",
+                new FindCommand(List.of(), List.of(new Tag("morning"), Tag.GYM)));
+
+        // the same group given twice is only kept once
+        assertParseSuccess(parser, " --group morning --group Morning",
+                new FindCommand(List.of(), List.of(new Tag("morning"))));
+    }
+
+    @Test
+    public void parse_severalGroupsWithOneInvalid_throwsParseExceptionWithUsage() {
+        assertParseFailure(parser, " --group morning --group rehab!",
+                ParserUtil.withUsage(FindCommandParser.MESSAGE_INVALID_GROUP, FindCommand.MESSAGE_USAGE));
     }
 }
