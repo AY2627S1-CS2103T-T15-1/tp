@@ -279,13 +279,14 @@ The profile shows only the four most recent sessions; editing an older record do
 
 **Target user profile**:
 
-* has a need to manage a significant number of contacts
+* is a freelance gym trainer who trains many clients, at a gym or personally
+* needs to keep each client's contact details, notes, workout plan, sessions and appointments in one place
+* groups clients, e.g. by training time or goal, and needs to see which clients they are training today
 * prefers desktop apps over other types of applications
-* can type fast
-* prefers typing to mouse interactions
+* can type fast and prefers typing to mouse interactions
 * is reasonably comfortable using CLI apps
 
-**Value proposition**: Manage contacts faster than with a typical mouse-driven GUI application.
+**Value proposition**: Keep every client's details, training records and appointments in one place, and find or update them faster than with paper notes, spreadsheets or a mouse-driven app, even between back-to-back sessions.
 
 
 ### User stories
@@ -483,43 +484,6 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 Session records have a date and an optional note, with at most one record per client per date.
 Scheduling uses the separate `appointment --add` command, which accepts a first date and time
 and replaces the client's current appointments with four weekly appointments. It does not check for overlaps.
-
-**Use case: Record client progress**
-
-**MSS**
-
-1.  Trainer requests to view a client's progress history.
-2.  Cindy shows the client's existing progress records.
-3.  Trainer submits a new progress entry with its date and results.
-4.  Cindy records the entry and shows the updated progress history.
-
-    Use case ends.
-
-**Extensions**
-
-* 1a. The requested client does not exist in the roster.
-
-    * 1a1. Cindy shows an error message.
-
-      Use case ends.
-
-* 2a. The client has no progress records.
-
-    * 2a1. Cindy shows that the client has no progress records yet.
-
-      Use case resumes at step 3.
-
-* 3a. Trainer leaves out the date or the results of the entry.
-
-    * 3a1. Cindy shows an error message stating which details are missing.
-
-      Use case resumes at step 3.
-
-* 3b. The given date is invalid (e.g., in the wrong format, or a non-existent date such as 30 February).
-
-    * 3b1. Cindy shows an error message describing the expected format.
-
-      Use case resumes at step 3.
 
 **Use case: View a client**
 
@@ -767,13 +731,9 @@ and replaces the client's current appointments with four weekly appointments. It
 * **Appointment**: A scheduled meeting with a client, identified by its date and time; managed using the `appointment` command
 * **Client**: A person who receives fitness coaching from a trainer and whose information is managed in Cindy
 * **Client ID**: A positive whole number that Cindy gives a client when they are added. It never changes, and it is never given to another client, even after the client it belonged to is deleted, unless all clients are cleared, which starts the numbering again from 1
-* **Client progress**: Changes in a client's recorded fitness metrics or exercise performance over time
-* **Client record**: The information Cindy stores about a client, including contact details, training sessions, and progress entries
+* **Client record**: The information Cindy stores about a client, including contact details, note, tags, workout plan, training sessions and appointments
 * **Client roster**: The collection of client records managed by a trainer in Cindy
-* **Fitness metric**: A measurable value used to assess a client's physical condition or exercise performance
 * **Mainstream OS**: Windows, Linux, Unix, or macOS
-* **Progress entry**: A dated record of a client's fitness metrics, exercise results, or other progress observations
-* **Progress history**: A client's progress entries arranged in chronological order
 * **Trainer**: A freelance gym trainer who uses Cindy to manage clients
 * **Training schedule**: The collection of appointments arranged with clients
 * **Training session**: A dated session record for a client with an optional note, managed using `session --add` and `session --edit`; at most one record is stored per client per date
