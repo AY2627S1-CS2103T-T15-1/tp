@@ -136,17 +136,11 @@ The `Model` component,
 
 * stores Cindy's client data i.e., all `Person` objects (which are contained in a `UniquePersonList` object).
 * stores the custom groups (e.g. `morning`, `rehab`) as a list of `Tag` objects in `AddressBook`, in the order they were created. Every custom tag of a `Person` is also one of these groups, so a client can never be in a group that does not exist. `gym` and `personal` are built-in client types, not groups.
-* stores the `Person` objects selected by the current filter, such as search results, in a separate _filtered_ list, which is kept sorted alphabetically by name (case-insensitive). It exposes this list as an unmodifiable `ObservableList<Person>` that the UI can observe and bind to, so the UI updates when the list changes.
+* stores the `Person` objects selected by the current filter, such as search results, in a separate _filtered_ list, which is kept sorted alphabetically by name (case-insensitive) unless a command gives another order. `list --today`, for example, sorts clients by their earliest appointment today. It exposes this list as an unmodifiable `ObservableList<Person>` that the UI can observe and bind to, so the UI updates when the list changes.
 * stores a `UserPrefs` object that represents the user’s preferences (currently, just the GUI settings). This is exposed to the outside as a `ReadOnlyUserPrefs` object.
 * does not depend on any of the other three components (as the `Model` represents data entities of the domain, they should make sense on their own without depending on other components)
 
 
-<box type="info" seamless>
-
-**Note:** The alternative, arguably more object-oriented, design below keeps a unique list of tags in `AddressBook`, and each `Person` references tags from that list. This lets `AddressBook` maintain one `Tag` object per unique tag instead of each `Person` holding its own `Tag` objects.<br>
-
-<puml src="diagrams/BetterModelClassDiagram.puml" width="450" />
-</box>
 
 
 #### Long-form text
@@ -268,100 +262,6 @@ the current panel. An ambiguous name lists the matching clients without changing
 The profile shows only the four most recent sessions; editing an older record does not change its date or visibility.
 `AddSessionCommandTest` and `EditSessionCommandTest` verify both the updated model and the client returned for display.
 
-### \[Proposed\] Undo/redo feature
-
-#### Proposed Implementation
-
-The proposed undo/redo mechanism is facilitated by `VersionedAddressBook`. It extends `AddressBook` with an undo/redo history, stored internally as an `addressBookStateList` and `currentStatePointer`. Additionally, it implements the following operations:
-
-* `VersionedAddressBook#commit()` -- Saves the current address book state in its history.
-* `VersionedAddressBook#undo()` -- Restores the previous address book state from its history.
-* `VersionedAddressBook#redo()` -- Restores a previously undone address book state from its history.
-
-These operations are exposed in the `Model` interface as `Model#commitAddressBook()`, `Model#undoAddressBook()` and `Model#redoAddressBook()` respectively.
-
-Given below is an example usage scenario and how the undo/redo mechanism behaves at each step.
-
-Step 1. The user launches the application for the first time. The `VersionedAddressBook` will be initialized with the initial address book state, and the `currentStatePointer` pointing to that single address book state.
-
-<puml src="diagrams/UndoRedoState0.puml" alt="UndoRedoState0" />
-
-Step 2. The user executes `delete 5` command to delete the 5th person in the address book. The `delete` command calls `Model#commitAddressBook()`, causing the modified state of the address book after the `delete 5` command executes to be saved in the `addressBookStateList`, and the `currentStatePointer` is shifted to the newly inserted address book state.
-
-<puml src="diagrams/UndoRedoState1.puml" alt="UndoRedoState1" />
-
-Step 3. The user executes `add n/David …​` to add a new person. The `add` command also calls `Model#commitAddressBook()`, causing another modified address book state to be saved into the `addressBookStateList`.
-
-<puml src="diagrams/UndoRedoState2.puml" alt="UndoRedoState2" />
-
-<box type="info" seamless>
-
-**Note:** If a command fails its execution, it will not call `Model#commitAddressBook()`, so the address book state will not be saved into the `addressBookStateList`.
-</box>
-
-Step 4. The user now decides that adding the person was a mistake, and decides to undo that action by executing the `undo` command. The `undo` command will call `Model#undoAddressBook()`, which will shift the `currentStatePointer` once to the left, pointing it to the previous address book state, and restores the address book to that state.
-
-<puml src="diagrams/UndoRedoState3.puml" alt="UndoRedoState3" />
-
-
-<box type="info" seamless>
-
-**Note:** If the `currentStatePointer` is at index 0, pointing to the initial AddressBook state, then there are no previous AddressBook states to restore. The `undo` command uses `Model#canUndoAddressBook()` to check if this is the case. If so, it will return an error to the user rather
-than attempting to perform the undo.
-</box>
-
-The following sequence diagram shows how an undo operation goes through the `Logic` component:
-
-<puml src="diagrams/UndoSequenceDiagram-Logic.puml" alt="UndoSequenceDiagram-Logic" />
-
-<box type="info" seamless>
-
-**Note:** The lifeline for `UndoCommand` should end at the destroy marker (X), but due to a limitation of PlantUML, it continues to the end of the diagram.
-</box>
-
-Similarly, how an undo operation goes through the `Model` component is shown below:
-
-<puml src="diagrams/UndoSequenceDiagram-Model.puml" alt="UndoSequenceDiagram-Model" />
-
-The `redo` command does the opposite — it calls `Model#redoAddressBook()`, which shifts the `currentStatePointer` once to the right, pointing to the previously undone state, and restores the address book to that state.
-
-<box type="info" seamless>
-
-**Note:** If the `currentStatePointer` is at index `addressBookStateList.size() - 1`, pointing to the latest address book state, then there are no undone AddressBook states to restore. The `redo` command uses `Model#canRedoAddressBook()` to check if this is the case. If so, it will return an error to the user rather than attempting to perform the redo.
-</box>
-
-Step 5. The user then decides to execute the command `list`. Commands that do not modify the address book, such as `list`, will usually not call `Model#commitAddressBook()`, `Model#undoAddressBook()` or `Model#redoAddressBook()`. Thus, the `addressBookStateList` remains unchanged.
-
-<puml src="diagrams/UndoRedoState4.puml" alt="UndoRedoState4" />
-
-Step 6. The user executes `clear --confirm`, which calls `Model#commitAddressBook()`. Since the `currentStatePointer` is not pointing at the end of the `addressBookStateList`, all address book states after the `currentStatePointer` will be purged. Reason: It no longer makes sense to redo the `add n/David …` command. This is the behavior that most modern desktop applications follow.
-
-<puml src="diagrams/UndoRedoState5.puml" alt="UndoRedoState5" />
-
-The following activity diagram summarizes what happens when a user executes a new command:
-
-<puml src="diagrams/CommitActivityDiagram.puml" width="250" />
-
-#### Design considerations:
-
-**Aspect: How undo & redo execute:**
-
-* **Alternative 1 (current choice):** Saves the entire address book.
-  * Pros: Easy to implement.
-  * Cons: May have performance issues in terms of memory usage.
-
-* **Alternative 2:** Individual command knows how to undo/redo by
-  itself.
-  * Pros: Will use less memory (e.g. for `delete`, just save the person being deleted).
-  * Cons: We must ensure that the implementation of each individual command is correct.
-
-_{more aspects and alternatives to be added}_
-
-### \[Proposed\] Data archiving
-
-_{Explain here how the data archiving feature will be implemented}_
-
-
 --------------------------------------------------------------------------------------------------------------------
 
 ## **Documentation, logging, testing, dev-ops**
@@ -379,13 +279,14 @@ _{Explain here how the data archiving feature will be implemented}_
 
 **Target user profile**:
 
-* has a need to manage a significant number of contacts
+* is a freelance gym trainer who trains many clients, at a gym or personally
+* needs to keep each client's contact details, notes, workout plan, sessions and appointments in one place
+* groups clients, e.g. by training time or goal, and needs to see which clients they are training today
 * prefers desktop apps over other types of applications
-* can type fast
-* prefers typing to mouse interactions
+* can type fast and prefers typing to mouse interactions
 * is reasonably comfortable using CLI apps
 
-**Value proposition**: Manage contacts faster than with a typical mouse-driven GUI application.
+**Value proposition**: Keep every client's details, training records and appointments in one place, and find or update them faster than with paper notes, spreadsheets or a mouse-driven app, even between back-to-back sessions.
 
 
 ### User stories
@@ -415,8 +316,6 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 | `*`      | fitness trainer | set follow-up reminders for clients | check in with clients on time and keep them engaged between sessions |
 | `*`      | fitness trainer | track client payments | see who has outstanding payments without keeping separate records |
 | `*`      | fitness trainer | export my client list | back up my records or share them with another trainer if I need cover |
-
-*{More to be added}*
 
 ### Use cases
 
@@ -584,43 +483,6 @@ Session records have a date and an optional note, with at most one record per cl
 Scheduling uses the separate `appointment --add` command, which accepts a first date and time
 and replaces the client's current appointments with four weekly appointments. It does not check for overlaps.
 
-**Use case: Record client progress**
-
-**MSS**
-
-1.  Trainer requests to view a client's progress history.
-2.  Cindy shows the client's existing progress records.
-3.  Trainer submits a new progress entry with its date and results.
-4.  Cindy records the entry and shows the updated progress history.
-
-    Use case ends.
-
-**Extensions**
-
-* 1a. The requested client does not exist in the roster.
-
-    * 1a1. Cindy shows an error message.
-
-      Use case ends.
-
-* 2a. The client has no progress records.
-
-    * 2a1. Cindy shows that the client has no progress records yet.
-
-      Use case resumes at step 3.
-
-* 3a. Trainer leaves out the date or the results of the entry.
-
-    * 3a1. Cindy shows an error message stating which details are missing.
-
-      Use case resumes at step 3.
-
-* 3b. The given date is invalid (e.g., in the wrong format, or a non-existent date such as 30 February).
-
-    * 3b1. Cindy shows an error message describing the expected format.
-
-      Use case resumes at step 3.
-
 **Use case: View a client**
 
 **MSS**
@@ -656,7 +518,7 @@ and replaces the client's current appointments with four weekly appointments. It
 
       Use case resumes at step 3.
 
-* 4a. Trainer runs a command that updates this client's note, workout plan or appointments.
+* 4a. Trainer runs a command that updates this client's note, workout plan, appointments or sessions.
 
     * 4a1. Cindy keeps showing the client's details, with the change.
 
@@ -867,13 +729,9 @@ and replaces the client's current appointments with four weekly appointments. It
 * **Appointment**: A scheduled meeting with a client, identified by its date and time; managed using the `appointment` command
 * **Client**: A person who receives fitness coaching from a trainer and whose information is managed in Cindy
 * **Client ID**: A positive whole number that Cindy gives a client when they are added. It never changes, and it is never given to another client, even after the client it belonged to is deleted, unless all clients are cleared, which starts the numbering again from 1
-* **Client progress**: Changes in a client's recorded fitness metrics or exercise performance over time
-* **Client record**: The information Cindy stores about a client, including contact details, training sessions, and progress entries
+* **Client record**: The information Cindy stores about a client, including contact details, note, tags, workout plan, training sessions and appointments
 * **Client roster**: The collection of client records managed by a trainer in Cindy
-* **Fitness metric**: A measurable value used to assess a client's physical condition or exercise performance
 * **Mainstream OS**: Windows, Linux, Unix, or macOS
-* **Progress entry**: A dated record of a client's fitness metrics, exercise results, or other progress observations
-* **Progress history**: A client's progress entries arranged in chronological order
 * **Trainer**: A freelance gym trainer who uses Cindy to manage clients
 * **Training schedule**: The collection of appointments arranged with clients
 * **Training session**: A dated session record for a client with an optional note, managed using `session --add` and `session --edit`; at most one record is stored per client per date
@@ -910,8 +768,6 @@ testers are expected to do more *exploratory* testing.
 
    1. With Cindy open, double-click the JAR file again.<br>
       Expected: An error says Cindy is already open. Closing the error closes the second copy. The first window keeps working, and its clients are unchanged after it is closed and reopened.
-
-1. _{ more test cases … }_
 
 ### Adding clients and checking duplicates
 
@@ -963,7 +819,7 @@ Use a disposable copy of Cindy and its data for these checks. Opening help shoul
    1. Check the syntax and client-selector guidance above the command cards.<br>
       Expected: It explains placeholders, optional parts, alternatives, persistent client IDs and ambiguous names.
    1. Scroll through the reference.<br>
-      Expected: There are 27 command cards in eight groups: Client details, Finding clients, Training information, Client status, Client types and groups, Appointments, Session records and Application. Each has a description, format and example. The reference covers group creation and moving, tagging and untagging, group deletion, appointment scheduling/day/week/cancellation/rescheduling, and session add/edit.
+      Expected: There are 28 command cards in eight groups: Client details, Finding clients, Training information, Client status, Client types and groups, Appointments, Session records and Application. Each has a description, format and example. The reference covers group creation and moving, tagging and untagging, group deletion, appointment scheduling/day/week/cancellation/rescheduling, and session add/edit.
    1. Find the `list --today` card.<br>
       Expected: Its heading says `list`, its format says `list --today`, and its description explains that it shows clients with appointments today.
    1. Check the appointment scheduling and rescheduling examples.<br>
@@ -1013,8 +869,6 @@ Use a disposable copy of Cindy and its data for these checks. Opening help shoul
 
    1. Other incorrect delete commands to try: `delete`, `delete 1`, `delete --id x` (where no client has the ID x), `delete --id 1 --name a`<br>
       Expected: No client is deleted. The status message shows error details.
-
-1. _{ more test cases … }_
 
 ### Managing groups
 
@@ -1099,8 +953,24 @@ Use a disposable copy of Cindy with no groups named `morning`, `evening` or `reh
 
 ### Saving data
 
-1. Dealing with missing/corrupted data files
+Use a disposable copy of Cindy in its own folder. The data file is `data/cindy.json` in the folder containing the JAR.
 
-   1. _{Explain how to simulate missing or corrupted data files and state the expected behavior.}_
+1. Saving after each command
 
-1. _{ more test cases … }_
+   1. Run `add --name "Save Check" --phone 91234567`, then close Cindy using `exit`.
+   1. Reopen Cindy.<br>
+      Expected: `Save Check` is still listed, with the same ID.
+
+1. Missing data file
+
+   1. Close Cindy and delete `data/cindy.json`.
+   1. Reopen Cindy.<br>
+      Expected: Cindy opens with the sample clients and creates a new `data/cindy.json`.
+
+1. Corrupted data file
+
+   1. Close Cindy, back up `data/cindy.json`, then replace its contents with `{"persons": [` and save it.
+   1. Reopen Cindy.<br>
+      Expected: An error titled `Unable to open Cindy` says the client data could not be loaded and shows the file's location. Closing it closes Cindy without opening the main window. The file still contains `{"persons": [`.
+   1. Restore the backup and reopen Cindy.<br>
+      Expected: Cindy opens with the clients from the backup.
