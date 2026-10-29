@@ -136,7 +136,7 @@ The `Model` component,
 
 * stores Cindy's client data i.e., all `Person` objects (which are contained in a `UniquePersonList` object).
 * stores the custom groups (e.g. `morning`, `rehab`) as a list of `Tag` objects in `AddressBook`, in the order they were created. Every custom tag of a `Person` is also one of these groups, so a client can never be in a group that does not exist. `gym` and `personal` are built-in client types, not groups.
-* stores the `Person` objects selected by the current filter, such as search results, in a separate _filtered_ list, which is kept sorted alphabetically by name (case-insensitive). It exposes this list as an unmodifiable `ObservableList<Person>` that the UI can observe and bind to, so the UI updates when the list changes.
+* stores the `Person` objects selected by the current filter, such as search results, in a separate _filtered_ list, which is kept sorted alphabetically by name (case-insensitive) unless a command gives another order. `list --today`, for example, sorts clients by their earliest appointment today. It exposes this list as an unmodifiable `ObservableList<Person>` that the UI can observe and bind to, so the UI updates when the list changes.
 * stores a `UserPrefs` object that represents the user’s preferences (currently, just the GUI settings). This is exposed to the outside as a `ReadOnlyUserPrefs` object.
 * does not depend on any of the other three components (as the `Model` represents data entities of the domain, they should make sense on their own without depending on other components)
 
@@ -316,8 +316,6 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 | `*`      | fitness trainer | set follow-up reminders for clients | check in with clients on time and keep them engaged between sessions |
 | `*`      | fitness trainer | track client payments | see who has outstanding payments without keeping separate records |
 | `*`      | fitness trainer | export my client list | back up my records or share them with another trainer if I need cover |
-
-*{More to be added}*
 
 ### Use cases
 
@@ -520,7 +518,7 @@ and replaces the client's current appointments with four weekly appointments. It
 
       Use case resumes at step 3.
 
-* 4a. Trainer runs a command that updates this client's note, workout plan or appointments.
+* 4a. Trainer runs a command that updates this client's note, workout plan, appointments or sessions.
 
     * 4a1. Cindy keeps showing the client's details, with the change.
 
@@ -771,8 +769,6 @@ testers are expected to do more *exploratory* testing.
    1. With Cindy open, double-click the JAR file again.<br>
       Expected: An error says Cindy is already open. Closing the error closes the second copy. The first window keeps working, and its clients are unchanged after it is closed and reopened.
 
-1. _{ more test cases … }_
-
 ### Adding clients and checking duplicates
 
 Use a disposable copy of Cindy with no clients named `Add Check` or `Shared Phone Check`.
@@ -823,7 +819,7 @@ Use a disposable copy of Cindy and its data for these checks. Opening help shoul
    1. Check the syntax and client-selector guidance above the command cards.<br>
       Expected: It explains placeholders, optional parts, alternatives, persistent client IDs and ambiguous names.
    1. Scroll through the reference.<br>
-      Expected: There are 27 command cards in eight groups: Client details, Finding clients, Training information, Client status, Client types and groups, Appointments, Session records and Application. Each has a description, format and example. The reference covers group creation and moving, tagging and untagging, group deletion, appointment scheduling/day/week/cancellation/rescheduling, and session add/edit.
+      Expected: There are 28 command cards in eight groups: Client details, Finding clients, Training information, Client status, Client types and groups, Appointments, Session records and Application. Each has a description, format and example. The reference covers group creation and moving, tagging and untagging, group deletion, appointment scheduling/day/week/cancellation/rescheduling, and session add/edit.
    1. Find the `list --today` card.<br>
       Expected: Its heading says `list`, its format says `list --today`, and its description explains that it shows clients with appointments today.
    1. Check the appointment scheduling and rescheduling examples.<br>
@@ -873,8 +869,6 @@ Use a disposable copy of Cindy and its data for these checks. Opening help shoul
 
    1. Other incorrect delete commands to try: `delete`, `delete 1`, `delete --id x` (where no client has the ID x), `delete --id 1 --name a`<br>
       Expected: No client is deleted. The status message shows error details.
-
-1. _{ more test cases … }_
 
 ### Managing groups
 
@@ -959,8 +953,24 @@ Use a disposable copy of Cindy with no groups named `morning`, `evening` or `reh
 
 ### Saving data
 
-1. Dealing with missing/corrupted data files
+Use a disposable copy of Cindy in its own folder. The data file is `data/cindy.json` in the folder containing the JAR.
 
-   1. _{Explain how to simulate missing or corrupted data files and state the expected behavior.}_
+1. Saving after each command
 
-1. _{ more test cases … }_
+   1. Run `add --name "Save Check" --phone 91234567`, then close Cindy using `exit`.
+   1. Reopen Cindy.<br>
+      Expected: `Save Check` is still listed, with the same ID.
+
+1. Missing data file
+
+   1. Close Cindy and delete `data/cindy.json`.
+   1. Reopen Cindy.<br>
+      Expected: Cindy opens with the sample clients and creates a new `data/cindy.json`.
+
+1. Corrupted data file
+
+   1. Close Cindy, back up `data/cindy.json`, then replace its contents with `{"persons": [` and save it.
+   1. Reopen Cindy.<br>
+      Expected: An error titled `Unable to open Cindy` says the client data could not be loaded and shows the file's location. Closing it closes Cindy without opening the main window. The file still contains `{"persons": [`.
+   1. Restore the backup and reopen Cindy.<br>
+      Expected: Cindy opens with the clients from the backup.
