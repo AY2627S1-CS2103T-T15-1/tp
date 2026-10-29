@@ -198,7 +198,7 @@ Format: `plan --id ID --plan "TEXT"` or `plan --name NAME --plan "TEXT"`
 * Use `--plan ""` to clear the plan. A bare `--plan`, unquoted text, or omitting `--plan` is an error.
 * The plan is saved automatically. Editing a client's contact details with `edit` preserves their plan.
 * After an update, the client's detail view opens with the workout plan in its own card. Empty plans have no card.
-* Avoid ` --id`, ` --name`, and ` --plan` inside the workout-plan text: these are interpreted as command prefixes even inside quotes.
+* Text inside the quotes that looks like a parameter, such as `--id`, `--name`, or `--plan`, is kept as part of the workout plan.
 
 Examples:
 
