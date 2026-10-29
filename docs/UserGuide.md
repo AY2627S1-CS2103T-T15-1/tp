@@ -332,10 +332,11 @@ Format: `note --id ID --note "TEXT"` or `note --name NAME --note "TEXT"`
 * Changes the note of the client chosen by `--id` or `--name`, as described in [the notes about the command format](#features).
 * The note must be in double quotes. There is no fixed character limit.
 * Use `\n` inside the quotes for a line break, or `\n\n` for a blank line. Other backslash sequences and spaces inside the quotes are preserved. Empty or whitespace-only notes are hidden from the detail view.
-* Each client has at most one note. Running `note` again replaces the note, so to change part of a note, type the whole new note.
+* Each client has at most one note. Running `note` again replaces the whole note.
+* To change part of a long note without retyping it, right-click the note on the client's details page and choose **Copy note**. The note is copied as you would type it, with `\n` for each line break, so you can paste it between the quotes of a new `note` command and edit it.
 * `--note ""` removes the client's note.
 * After the note is changed, the client's details page opens and shows the note.
-* The note cannot contain text that looks like a parameter, such as ` --id`, as Cindy would treat it as the start of another parameter.
+* Text inside the quotes that looks like a parameter, such as `--id`, is kept as part of the note. For example, `note --id 3 --note "Check --id 5's plan first"` saves the whole text.
 
 Examples:
 * `note --id 3 --note "Knee injury, avoid lunges"` gives the client with ID 3 that note.

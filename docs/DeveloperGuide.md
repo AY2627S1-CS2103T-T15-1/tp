@@ -631,9 +631,15 @@ and replaces the client's current appointments with four weekly appointments. It
 
       Use case resumes at step 3.
 
-* 4a. Trainer runs another command that lists or changes clients.
+* 4a. Trainer runs a command that updates this client's note, workout plan or appointments.
 
-    * 4a1. Cindy returns to the client list.
+    * 4a1. Cindy keeps showing the client's details, with the change.
+
+      Use case ends.
+
+* 4b. Trainer runs another command that lists or changes clients.
+
+    * 4b1. Cindy returns to the client list.
 
       Use case ends.
 

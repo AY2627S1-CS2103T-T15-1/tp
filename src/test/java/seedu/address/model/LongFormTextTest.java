@@ -23,6 +23,12 @@ public class LongFormTextTest {
     }
 
     @Test
+    public void toTypedText_lineBreaks_writtenAsBackslashN() {
+        assertEquals("Squats\\nRest", new LongFormText("Squats\nRest").toTypedText());
+        assertEquals("No line breaks", new LongFormText("No line breaks").toTypedText());
+    }
+
+    @Test
     public void isBlank_whitespaceOnly_returnsTrue() {
         assertTrue(new LongFormText("").isBlank());
         assertTrue(new LongFormText(" \t\n").isBlank());
