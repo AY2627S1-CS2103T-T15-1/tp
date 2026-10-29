@@ -33,7 +33,7 @@ public class TagCommandParser implements Parser<Command> {
     public static final String MESSAGE_CONFLICTING_ACTIONS = "Give only one of " + PREFIX_TYPE + ", "
             + PREFIX_GROUP + " and " + PREFIX_UNTAG + ".";
     public static final String MESSAGE_INVALID_UNTAG = "Enter a tag name made of letters, digits, "
-            + "spaces and hyphens after " + PREFIX_UNTAG + ".";
+            + "spaces and hyphens, at most " + Tag.MAX_LENGTH + " characters long, after " + PREFIX_UNTAG + ".";
 
     private static final Prefix[] ACTION_PREFIXES = {PREFIX_TYPE, PREFIX_GROUP, PREFIX_UNTAG};
 

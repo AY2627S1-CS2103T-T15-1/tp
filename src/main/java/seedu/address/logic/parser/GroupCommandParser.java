@@ -30,7 +30,8 @@ import seedu.address.model.tag.Tag;
 public class GroupCommandParser implements Parser<Command> {
 
     public static final String MESSAGE_INVALID_GROUP_NAME = "Group names should be words made of letters and digits, "
-            + "separated by spaces or single hyphens, e.g. morning or weight loss.";
+            + "separated by spaces or single hyphens, and at most " + Tag.MAX_LENGTH
+            + " characters long, e.g. morning or weight loss.";
     public static final String MESSAGE_CLIENT_TYPE_GROUP = "gym and personal are built-in labels, not groups. "
             + "Use tag --type to label a client as a gym or personal client.";
     public static final String MESSAGE_SAME_GROUP = "The groups after " + PREFIX_FROM + " and " + PREFIX_TO

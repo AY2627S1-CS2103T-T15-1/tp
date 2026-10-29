@@ -370,7 +370,7 @@ Creates a group of clients, such as clients you train in the morning or clients 
 
 Format: `group --name GROUP`
 
-* `GROUP` is made of letters and digits, with spaces or single hyphens between words, e.g. `morning`, `batch2`, `weight loss` or `weight-loss`. Extra spaces between words are ignored.
+* `GROUP` is made of letters and digits, with spaces or single hyphens between words, e.g. `morning`, `batch2`, `weight loss` or `weight-loss`, and is at most 50 characters long. Extra spaces between words are ignored.
 * `GROUP` ignores upper and lower case, so `group --name Morning` creates the group `morning`.
 * Each group can only be created once.
 * `gym` and `personal` are built-in labels, not groups. Use [`tag --type`](#labelling-a-client-as-a-gym-or-personal-client-tag) to label a client as a gym or personal client.

@@ -28,6 +28,7 @@ public class GroupCommand extends Command {
             + "rehab, moves a client, chosen by ID or by part of their name, from one group to another, "
             + "deletes a group, or lists every group. "
             + "Group names are made of letters and digits, with spaces or hyphens between words, "
+            + "are at most " + Tag.MAX_LENGTH + " characters long, "
             + "and ignore upper and lower case. "
             + "gym and personal are built-in labels, so they cannot be groups.\n"
             + "Parameters: " + PREFIX_NAME_LONG + " GROUP, or " + PREFIX_MOVE + " " + PREFIX_ID + " ID (or "

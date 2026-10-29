@@ -35,6 +35,8 @@ public class TagTest {
         assertFalse(Tag.isValidTagName("-loss")); // leading hyphen
         assertFalse(Tag.isValidTagName("weight-")); // trailing hyphen
         assertFalse(Tag.isValidTagName("weight - loss")); // hyphen with spaces around it
+        assertFalse(Tag.isValidTagName("a".repeat(Tag.MAX_LENGTH + 1))); // too long
+        assertFalse(Tag.isValidTagName("a ".repeat(9999) + "a")); // very long, must not overflow the stack
 
         // valid tag names
         assertTrue(Tag.isValidTagName("morning")); // letters only
@@ -42,6 +44,7 @@ public class TagTest {
         assertTrue(Tag.isValidTagName("weight loss")); // words separated by a space
         assertTrue(Tag.isValidTagName("weight-loss")); // words separated by a hyphen
         assertTrue(Tag.isValidTagName("post-op knee rehab 2")); // spaces and hyphens
+        assertTrue(Tag.isValidTagName("a".repeat(Tag.MAX_LENGTH))); // longest allowed
     }
 
 }

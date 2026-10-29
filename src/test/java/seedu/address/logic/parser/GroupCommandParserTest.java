@@ -65,6 +65,10 @@ public class GroupCommandParserTest {
         assertParseFailure(parser, " --name weight--loss", expectedMessage);
         assertParseFailure(parser, " --name -loss", expectedMessage);
         assertParseFailure(parser, " --name weight-", expectedMessage);
+        assertParseFailure(parser, " --name " + "a".repeat(Tag.MAX_LENGTH + 1), expectedMessage);
+
+        // a very long name is rejected with the usual message instead of overflowing the stack
+        assertParseFailure(parser, " --name " + "a ".repeat(9999) + "a", expectedMessage);
     }
 
     @Test
