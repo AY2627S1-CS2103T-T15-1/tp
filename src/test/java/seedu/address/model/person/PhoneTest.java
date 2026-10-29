@@ -1,5 +1,6 @@
 package seedu.address.model.person;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.Assert.assertThrows;
@@ -42,6 +43,30 @@ public class PhoneTest {
         assertTrue(Phone.isValidPhone("+1 (202) 555-0123"));
         assertTrue(Phone.isValidPhone("1234567")); // 7 digits
         assertTrue(Phone.isValidPhone("+123456789012345")); // 15 digits
+    }
+
+    @Test
+    public void equals_localAndSingaporeCountryCode_sameNumber() {
+        Phone local = new Phone("81234567");
+        Phone international = new Phone("+65 8123 4567");
+
+        assertEquals(local, international);
+        assertEquals(international, local);
+        assertEquals(local.hashCode(), international.hashCode());
+        assertEquals("81234567", local.value);
+        assertEquals("+6581234567", international.value);
+        assertEquals(new Phone("61234567"), new Phone("+65 6123 4567"));
+    }
+
+    @Test
+    public void equals_differentCountryCodesOrLengths_distinctNumbers() {
+        Phone local = new Phone("81234567");
+
+        assertFalse(local.equals(new Phone("+60 81234567")));
+        assertFalse(local.equals(new Phone("6581234567")));
+        assertFalse(local.equals(new Phone("+65 8123456")));
+        assertFalse(local.equals(new Phone("+65 812345678")));
+        assertFalse(local.equals(new Phone("+65 81234568")));
     }
 
     @Test

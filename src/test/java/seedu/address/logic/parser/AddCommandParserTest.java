@@ -60,6 +60,41 @@ public class AddCommandParserTest {
 
         AddCommand addSingleCharacterName = new AddCommand(new Name("A"), new Phone("6123456"));
         assertParseSuccess(parser, " --name A --phone 6123456", addSingleCharacterName);
+        assertParseSuccess(parser, " --name John Doe --phone +65 6123 4567",
+                new AddCommand(new Name("John Doe"), new Phone("+6561234567")));
+    }
+
+    @Test
+    public void parse_unknownParameter_reportsParameter() {
+        for (String flag : new String[] {"--note", "--group", "--type", "--unknown"}) {
+            String message = ParserUtil.withUsage(
+                    String.format(AddCommandParser.MESSAGE_UNKNOWN_PARAMETER, flag), AddCommand.MESSAGE_USAGE);
+            assertParseFailure(parser, " --name \"Amy Tan\" --phone 91234567 " + flag + " \"Extra\"", message);
+            assertParseFailure(parser, " --name \"Amy Tan\" " + flag + " Extra --phone 91234567", message);
+            assertParseFailure(parser, " " + flag + " Extra --name \"Amy Tan\" --phone 91234567", message);
+            assertParseFailure(parser, " --phone \"91234567\" --name \"Amy Tan\" " + flag, message);
+        }
+    }
+
+    @Test
+    public void parse_extraTextAfterValue_reportsExtraText() {
+        String phoneMessage = ParserUtil.withUsage(
+                String.format(AddCommandParser.MESSAGE_UNEXPECTED_TEXT, PREFIX_PHONE_LONG, "morning"),
+                AddCommand.MESSAGE_USAGE);
+        assertParseFailure(parser, " --name \"Amy Tan\" --phone 91234567 morning", phoneMessage);
+        assertParseFailure(parser, " --name \"Amy Tan\" --phone \"91234567\" morning", phoneMessage);
+        assertParseFailure(parser, " --phone +65 (9123)-4567 morning --name \"Amy Tan\"", phoneMessage);
+        assertParseFailure(parser, " --name \"Amy Tan\" morning --phone 91234567", ParserUtil.withUsage(
+                String.format(AddCommandParser.MESSAGE_UNEXPECTED_TEXT, PREFIX_NAME_LONG, "morning"),
+                AddCommand.MESSAGE_USAGE));
+    }
+
+    @Test
+    public void parse_flagInsideQuotes_isPartOfValue() {
+        assertParseSuccess(parser, " --name \"Amy --Tan\" --phone 91234567",
+                new AddCommand(new Name("Amy --Tan"), new Phone("91234567")));
+        assertParseSuccess(parser, " --name \"Amy --note Tan\" --phone 91234567",
+                new AddCommand(new Name("Amy --note Tan"), new Phone("91234567")));
     }
 
     @Test
@@ -126,6 +161,7 @@ public class AddCommandParserTest {
 
         // invalid phone
         assertParseFailure(parser, LONG_NAME_DESC_BOB + INVALID_LONG_PHONE_DESC, Phone.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, " --name Bob --phone 12345678 12345678", Phone.MESSAGE_CONSTRAINTS);
 
         // non-empty preamble
         assertParseFailure(parser, PREAMBLE_NON_EMPTY + LONG_NAME_DESC_BOB + LONG_PHONE_DESC_BOB,
