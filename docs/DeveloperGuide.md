@@ -703,6 +703,155 @@ and replaces the client's current appointments with four weekly appointments. It
 
       Use case resumes at step 3.
 
+**Use case: Create a group**
+
+**MSS**
+
+1.  Trainer requests to create a group with a given name.
+2.  Cindy creates the group, in lower case, and confirms the creation.
+
+    Use case ends.
+
+**Extensions**
+
+* 1a. The group name is not made of letters and digits, or is longer than 50 characters.
+
+    * 1a1. Cindy shows an error message describing valid group names.
+
+      Use case resumes at step 1.
+
+* 1b. The group name is `gym` or `personal`.
+
+    * 1b1. Cindy shows an error message stating that these are built-in client types, not groups.
+
+      Use case ends.
+
+* 1c. A group with the same name, ignoring case, already exists.
+
+    * 1c1. Cindy shows an error message stating that the group already exists.
+
+      Use case ends.
+
+**Use case: Add a client to a group**
+
+**MSS**
+
+1.  Trainer requests to view the client roster.
+2.  Cindy shows the client roster.
+3.  Trainer requests to add a specific client to a group.
+4.  Cindy adds the client to the group, keeping their other groups and client type, and confirms the addition.
+
+    Use case ends.
+
+**Extensions**
+
+* 3a. The group does not exist.
+
+    * 3a1. Cindy shows an error message with the command that creates the group.
+
+      Use case resumes at step 3.
+
+* 3b. The requested client does not exist in the roster.
+
+    * 3b1. Cindy shows an error message stating that the client does not exist.
+
+      Use case resumes at step 2.
+
+* 3c. The trainer chooses the client by name, and more than one client's name contains that name.
+
+    * 3c1. Cindy lists those clients, with their client IDs, without changing any of them, and asks the trainer to choose one by ID.
+
+      Use case resumes at step 3.
+
+* 3d. The client is already in the group.
+
+    * 3d1. Cindy states that the client is already in the group, and changes nothing.
+
+      Use case ends.
+
+**Use case: Remove a client from a group**
+
+**MSS**
+
+1.  Trainer requests to view the client roster.
+2.  Cindy shows the client roster.
+3.  Trainer requests to remove a specific client from a group.
+4.  Cindy removes the client from the group, keeping the group and its other clients, and confirms the removal.
+
+    Use case ends.
+
+**Extensions**
+
+* 3a. The requested client does not exist, or more than one client's name contains the given name.
+
+    * 3a1. Cindy responds as in extensions 3b and 3c of *Add a client to a group*.
+
+* 3b. The client is not in the group.
+
+    * 3b1. Cindy shows an error message stating that the client is not in the group.
+
+      Use case ends.
+
+**Use case: Move a client to another group**
+
+**MSS**
+
+1.  Trainer requests to view the client roster.
+2.  Cindy shows the client roster.
+3.  Trainer requests to move a specific client from one group to another.
+4.  Cindy removes the client from the first group and adds them to the second, keeping both groups and the client's other tags.
+5.  Cindy shows all clients and confirms the move.
+
+    Use case ends.
+
+**Extensions**
+
+* 3a. The two groups are the same.
+
+    * 3a1. Cindy shows an error message stating that the groups must be different.
+
+      Use case resumes at step 3.
+
+* 3b. The requested client does not exist, or more than one client's name contains the given name.
+
+    * 3b1. Cindy responds as in extensions 3b and 3c of *Add a client to a group*.
+
+* 3c. The client is not in the first group.
+
+    * 3c1. Cindy shows an error message stating that the client is not in that group.
+
+      Use case ends.
+
+* 3d. The second group does not exist.
+
+    * 3d1. Cindy shows an error message with the command that creates the group.
+
+      Use case resumes at step 3.
+
+**Use case: Delete a group**
+
+**MSS**
+
+1.  Trainer requests to delete a group.
+2.  Cindy deletes the group and removes it from every client in it, keeping the clients themselves.
+3.  Cindy shows all clients and confirms the deletion, stating how many clients were in the group.
+
+    Use case ends.
+
+**Extensions**
+
+* 1a. The group does not exist.
+
+    * 1a1. Cindy shows an error message stating that the group does not exist.
+
+      Use case ends.
+
+* 1b. The group name is `gym` or `personal`.
+
+    * 1b1. Cindy shows an error message stating that these are built-in client types, not groups.
+
+      Use case ends.
+
 ### Non-Functional Requirements
 
 1.  Should work on any _mainstream OS_ as long as it has Java `25` or above installed.
@@ -866,6 +1015,31 @@ Use a disposable copy of Cindy and its data for these checks. Opening help shoul
       Expected: No client is deleted. The status message shows error details.
 
 1. _{ more test cases … }_
+
+### Managing groups
+
+Use a disposable copy of Cindy with no groups named `morning`, `evening` or `rehab`, and no clients whose names contain `check`. Add clients named `Group Check` and `Other Check`, and use their assigned IDs in place of `ID1` and `ID2` below.
+
+1. Run `group --name Morning`, `group --name evening`, then `group --list`.<br>
+   Expected: The groups `morning` and `evening` are created in lower case, and `group --list` includes both in alphabetical order.
+1. Run `group --name MORNING`, `group --name gym` and `group --name "early!"`.<br>
+   Expected: Each shows an error and no group is created. The errors say that `morning` already exists, that `gym` is a built-in label, and what a valid group name is.
+1. Run `tag --id ID1 --group morning`, then run it again.<br>
+   Expected: The client is added to `morning`. The second command reports that the client is already in the group and changes nothing.
+1. Run `tag --id ID1 --group rehab`.<br>
+   Expected: An error says that `rehab` does not exist and suggests `group --name rehab`.
+1. Run `tag --name check --group morning`, then `tag --name "other check" --group morning`, then `find --group morning`.<br>
+   Expected: The first command lists both clients and asks you to choose one by ID, without adding either. The second adds `Other Check`. The search shows both clients.
+1. Run `group --move --id ID1 --from morning --to evening`, then close and reopen Cindy and run `find --group evening`.<br>
+   Expected: `Group Check` is in `evening` and no longer in `morning`; `Other Check` is still in `morning`. The groups and their clients are unchanged after reopening.
+1. Run the same move again, then `group --move --id ID1 --from evening --to rehab` and `group --move --id ID1 --from evening --to evening`.<br>
+   Expected: Each shows an error and changes nothing. The errors say that the client is not in `morning`, that `rehab` does not exist, and that the groups must be different.
+1. Run `tag --id ID1 --untag evening`, then `group --list`.<br>
+   Expected: `Group Check` is no longer in `evening`, but `evening` is still listed.
+1. Run `find --group morning`, then `group --delete --name morning`.<br>
+   Expected: `Deleted group morning, and removed it from 1 client.` All clients are shown again, `Other Check` is no longer in `morning`, and `morning` is no longer listed by `group --list`.
+1. Run `group --delete --name morning`, `group --delete --name gym`, then `tag --delete --group evening`.<br>
+   Expected: The first two show errors. The last deletes `evening` with `Deleted group evening, and removed it from no clients.`
 
 ### Listing clients with appointments today
 
