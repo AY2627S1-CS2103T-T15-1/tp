@@ -162,8 +162,8 @@ class JsonAdaptedPerson {
         if (id == null) {
             throw new IllegalValueException(String.format(MISSING_FIELD_MESSAGE_FORMAT, "ID"));
         }
-        if (!PersonId.isValidId(id)) {
-            throw new IllegalValueException(PersonId.MESSAGE_CONSTRAINTS);
+        if (!PersonId.isValidClientId(id)) {
+            throw new IllegalValueException(PersonId.MESSAGE_CLIENT_ID_CONSTRAINTS);
         }
         final PersonId modelId = new PersonId(id);
 
