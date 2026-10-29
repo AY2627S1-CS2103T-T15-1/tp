@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_TODAY;
 
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +28,7 @@ import javafx.scene.input.DataFormat;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import seedu.address.logic.commands.ListCommand;
 
 /**
  * Checks the real help layout, its command reference, and its existing guide controls.
@@ -63,8 +65,7 @@ public class HelpWindowTest {
                 for (int i = 0; i < cards.size(); i++) {
                     CommandSummary summary = HelpContent.getCommands().get(i);
                     Parent card = (Parent) cards.get(i);
-                    String title = summary.getCommandWord() + (summary.isAvailable() ? "" : " (coming soon)");
-                    assertEquals(title, ((Label) card.lookup(".help-command-name")).getText());
+                    assertEquals(summary.getCommandWord(), ((Label) card.lookup(".help-command-name")).getText());
                     assertEquals(summary.getDescription(), ((Label) card.lookup(".help-description")).getText());
                     assertEquals("Format: " + summary.getSyntax(), ((Label) card.lookup(".help-syntax")).getText());
                     assertEquals("Example: " + summary.getExample(), ((Label) card.lookup(".help-example")).getText());
@@ -72,8 +73,11 @@ public class HelpWindowTest {
                 assertEquals(8, summaries.getChildren().stream()
                         .filter(node -> node.getStyleClass().contains("help-category")).count());
                 assertEquals(27, cards.size());
-                assertEquals(0, cards.stream().filter(card -> ((Label) card.lookup(".help-command-name"))
-                        .getText().equals("list (coming soon)")).count());
+                Parent todayListCard = (Parent) cards.stream()
+                        .filter(card -> ((Label) card.lookup(".help-syntax"))
+                                .getText().equals("Format: " + ListCommand.COMMAND_WORD + " " + PREFIX_TODAY))
+                        .findFirst().orElseThrow();
+                assertEquals("list", ((Label) todayListCard.lookup(".help-command-name")).getText());
             } finally {
                 stage.hide();
             }
