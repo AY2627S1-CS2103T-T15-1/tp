@@ -12,7 +12,9 @@ import seedu.address.logic.commands.CommandResult;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.logic.parser.AddressBookParser;
 import seedu.address.logic.parser.exceptions.ParseException;
+import seedu.address.model.AddressBook;
 import seedu.address.model.Model;
+import seedu.address.model.ReadOnlyAddressBook;
 import seedu.address.model.person.Person;
 import seedu.address.storage.Storage;
 
@@ -44,13 +46,20 @@ public class LogicManager implements Logic {
     public CommandResult execute(String commandText) throws CommandException, ParseException {
         logger.info("----------------[USER COMMAND][" + commandText + "]");
 
-        CommandResult commandResult;
         Command command = addressBookParser.parseCommand(commandText);
-        commandResult = command.execute(model);
-
         // Commands that cannot change the data skip saving, so they still work if the data file cannot be written.
-        if (!command.isReadOnly()) {
+        if (command.isReadOnly()) {
+            return command.execute(model);
+        }
+
+        ReadOnlyAddressBook previousData = new AddressBook(model.getAddressBook());
+        CommandResult commandResult = command.execute(model);
+        try {
             saveAddressBook();
+        } catch (CommandException e) {
+            // A later successful save must not persist a change whose save has failed.
+            model.setAddressBook(previousData);
+            throw e;
         }
         return commandResult;
     }
