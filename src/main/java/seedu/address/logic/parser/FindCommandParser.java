@@ -24,6 +24,8 @@ public class FindCommandParser implements Parser<FindCommand> {
     public static final String MESSAGE_INVALID_GROUP = "Enter a group name made of letters, digits, "
             + "spaces and hyphens, at most " + Tag.MAX_LENGTH + " characters long, after " + PREFIX_GROUP + ".";
 
+    public static final String MESSAGE_UNKNOWN_PARAMETER = "Unknown parameter for find: %1$s.";
+
     private static final Prefix[] PERSON_FILTER_PREFIXES = {PREFIX_NAME_LONG, PREFIX_PHONE_LONG, PREFIX_ID};
 
     /**
@@ -33,6 +35,8 @@ public class FindCommandParser implements Parser<FindCommand> {
      */
     public FindCommand parse(String args) throws ParseException {
         requireNonNull(args);
+        ParserUtil.verifyKnownParameters(args, MESSAGE_UNKNOWN_PARAMETER, FindCommand.MESSAGE_USAGE,
+                PREFIX_NAME_LONG, PREFIX_PHONE_LONG, PREFIX_ID, PREFIX_GROUP);
         ArgumentMultimap argMultimap = ArgumentTokenizer.tokenize(args, PREFIX_NAME_LONG, PREFIX_PHONE_LONG, PREFIX_ID,
                 PREFIX_GROUP);
 

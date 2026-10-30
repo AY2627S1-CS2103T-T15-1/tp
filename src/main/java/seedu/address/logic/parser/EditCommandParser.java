@@ -17,6 +17,8 @@ import seedu.address.logic.parser.exceptions.ParseException;
  */
 public class EditCommandParser implements Parser<EditCommand> {
 
+    public static final String MESSAGE_UNKNOWN_PARAMETER = "Unknown parameter for edit: %1$s.";
+
     /**
      * Parses the given {@code String} of arguments in the context of the EditCommand
      * and returns an EditCommand object for execution.
@@ -24,6 +26,8 @@ public class EditCommandParser implements Parser<EditCommand> {
      */
     public EditCommand parse(String args) throws ParseException {
         requireNonNull(args);
+        ParserUtil.verifyKnownParameters(args, MESSAGE_UNKNOWN_PARAMETER, EditCommand.MESSAGE_USAGE,
+                PREFIX_ID, PREFIX_NAME_LONG, PREFIX_TO_NAME, PREFIX_TO_PHONE);
         ArgumentMultimap argMultimap = ArgumentTokenizer.tokenize(args,
                 PREFIX_ID, PREFIX_NAME_LONG, PREFIX_TO_NAME, PREFIX_TO_PHONE);
 

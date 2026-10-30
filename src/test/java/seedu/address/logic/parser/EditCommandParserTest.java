@@ -83,6 +83,20 @@ public class EditCommandParserTest {
     }
 
     @Test
+    public void parse_unknownParameter_reportsParameter() {
+        for (String flag : new String[] {"--note", "--phone", "--unknown"}) {
+            String message = withUsage(String.format(EditCommandParser.MESSAGE_UNKNOWN_PARAMETER, flag));
+            assertParseFailure(parser, ID_DESC + " --to-name Bob " + flag + " hi", message);
+            assertParseFailure(parser, " " + flag + " hi" + ID_DESC + TO_NAME_DESC_AMY, message);
+        }
+
+        // a flag inside a quoted name is part of the name
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withName("Bob --note").build();
+        assertParseSuccess(parser, ID_DESC + " --to-name \"Bob --note\"",
+                new EditCommand(SELECT_ID, descriptor));
+    }
+
+    @Test
     public void parse_clientChosenByName_success() {
         // quotes around values are optional
         String userInput = " --name \"Alice  Pauline\"" + " --to-phone \"9123 4567\"";
