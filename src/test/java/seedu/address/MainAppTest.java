@@ -136,6 +136,18 @@ public class MainAppTest {
     }
 
     @Test
+    public void initModelManager_nullAddressBook_doesNotCreateSamplesOrOverwriteFile() throws Exception {
+        Path addressBookFilePath = temporaryFolder.resolve("cindy.json");
+        Files.writeString(addressBookFilePath, "null");
+        StorageManager storage = new StorageManager(new JsonAddressBookStorage(addressBookFilePath),
+                new JsonUserPrefsStorage(temporaryFolder.resolve("preferences.json")));
+
+        assertThrows(DataLoadingException.class, () -> new MainApp().initModelManager(storage, new UserPrefs()));
+
+        assertEquals("null", Files.readString(addressBookFilePath));
+    }
+
+    @Test
     public void initModelManager_repairedAddressBook_loadsSavedClients() throws Exception {
         Path addressBookFilePath = temporaryFolder.resolve("cindy.json");
         JsonAddressBookStorage addressBookStorage = new JsonAddressBookStorage(addressBookFilePath);
