@@ -29,6 +29,16 @@ public class FindCommandParserTest {
     }
 
     @Test
+    public void parse_unknownParameter_reportsParameter() {
+        for (String flag : new String[] {"--type", "--note", "--unknown"}) {
+            String message = ParserUtil.withUsage(
+                    String.format(FindCommandParser.MESSAGE_UNKNOWN_PARAMETER, flag), FindCommand.MESSAGE_USAGE);
+            assertParseFailure(parser, " --name alex " + flag + " gym", message);
+            assertParseFailure(parser, " --group morning " + flag + " gym", message);
+        }
+    }
+
+    @Test
     public void parse_oneFilter_returnsFindCommand() {
         assertParseSuccess(parser, " --name \"Alice Bob\"",
                 new FindCommand(List.of(PersonSelector.byName("Alice Bob"))));

@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import seedu.address.commons.core.index.Index;
@@ -42,6 +43,8 @@ public class ParserUtil {
             "Enter part of the client's name after " + PREFIX_NAME_LONG + ".";
     public static final String MESSAGE_INVALID_PHONE_KEYWORD = "Enter digits of the client's phone number after "
             + PREFIX_PHONE_LONG + ". Spaces, parentheses, hyphens and a leading + are allowed.";
+
+    private static final Pattern LONG_FLAG = Pattern.compile("(?<!\\S)--[^\\s\"]+");
 
     /**
      * Parses long-form command text, requiring outer double quotes and converting literal {@code \n}
@@ -181,6 +184,26 @@ public class ParserUtil {
         requireNonNull(message);
         requireNonNull(messageUsage);
         return message + "\n" + messageUsage;
+    }
+
+    /**
+     * Rejects flags in {@code args} other than {@code knownPrefixes}, so that a mistyped or unsupported
+     * flag is not read as part of another value. Flags inside quoted values are ignored.
+     *
+     * @throws ParseException with {@code unknownMessageFormat} and {@code messageUsage} if an unknown flag is given.
+     */
+    public static void verifyKnownParameters(String args, String unknownMessageFormat, String messageUsage,
+            Prefix... knownPrefixes) throws ParseException {
+        List<Prefix> known = List.of(knownPrefixes);
+        List<Prefix> candidates = LONG_FLAG.matcher(args).results()
+                .map(match -> new Prefix(match.group())).distinct().toList();
+        Prefix[] prefixes = Stream.concat(known.stream(), candidates.stream()).distinct().toArray(Prefix[]::new);
+        ArgumentMultimap arguments = ArgumentTokenizer.tokenize(args, prefixes);
+        for (Prefix prefix : candidates) {
+            if (!known.contains(prefix) && arguments.getValue(prefix).isPresent()) {
+                throw new ParseException(withUsage(String.format(unknownMessageFormat, prefix), messageUsage));
+            }
+        }
     }
 
     /**

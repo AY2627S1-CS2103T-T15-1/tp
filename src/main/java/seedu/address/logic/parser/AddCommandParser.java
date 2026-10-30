@@ -5,7 +5,6 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME_LONG;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE_LONG;
 import static seedu.address.logic.parser.ParserUtil.removeOptionalQuotes;
 
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -22,7 +21,6 @@ public class AddCommandParser implements Parser<AddCommand> {
 
     public static final String MESSAGE_UNKNOWN_PARAMETER = "Unknown parameter for add: %1$s.";
     public static final String MESSAGE_UNEXPECTED_TEXT = "Unexpected text after %1$s: %2$s.";
-    private static final Pattern LONG_FLAG = Pattern.compile("(?<!\\S)--[^\\s\"]+");
     private static final Pattern PHONE_WITH_EXTRA_TEXT = Pattern.compile("^([+0-9 ()-]+)\\s+([^+0-9 ()-].*)$");
 
     /**
@@ -31,7 +29,8 @@ public class AddCommandParser implements Parser<AddCommand> {
      * @throws ParseException if the user input does not conform to the expected format
      */
     public AddCommand parse(String args) throws ParseException {
-        verifyKnownParameters(args);
+        ParserUtil.verifyKnownParameters(args, MESSAGE_UNKNOWN_PARAMETER, AddCommand.MESSAGE_USAGE,
+                PREFIX_NAME_LONG, PREFIX_PHONE_LONG);
         ArgumentMultimap argMultimap =
                 ArgumentTokenizer.tokenize(args, PREFIX_NAME_LONG, PREFIX_PHONE_LONG);
 
@@ -54,22 +53,6 @@ public class AddCommandParser implements Parser<AddCommand> {
         Phone phone = ParserUtil.parsePhone(removeOptionalQuotes(phoneValue));
 
         return new AddCommand(name, phone);
-    }
-
-    /** Rejects unsupported flags while letting the tokenizer ignore flags inside quoted values. */
-    private static void verifyKnownParameters(String args) throws ParseException {
-        List<Prefix> candidates = LONG_FLAG.matcher(args).results()
-                .map(match -> new Prefix(match.group())).distinct().toList();
-        Prefix[] prefixes = Stream.concat(Stream.of(PREFIX_NAME_LONG, PREFIX_PHONE_LONG), candidates.stream())
-                .distinct().toArray(Prefix[]::new);
-        ArgumentMultimap arguments = ArgumentTokenizer.tokenize(args, prefixes);
-        for (Prefix prefix : candidates) {
-            if (!prefix.equals(PREFIX_NAME_LONG) && !prefix.equals(PREFIX_PHONE_LONG)
-                    && arguments.getValue(prefix).isPresent()) {
-                throw new ParseException(ParserUtil.withUsage(
-                        String.format(MESSAGE_UNKNOWN_PARAMETER, prefix), AddCommand.MESSAGE_USAGE));
-            }
-        }
     }
 
     /** A closing quote ends a value; any following text is an extra argument. */
