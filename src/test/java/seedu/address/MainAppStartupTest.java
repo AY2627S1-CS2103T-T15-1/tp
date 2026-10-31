@@ -45,10 +45,10 @@ public class MainAppStartupTest {
     }
 
     @Test
-    public void startup_unreadableData_showsRecoveryAndPreservesFile() throws Exception {
+    public void startup_nullRootData_showsRecoveryAndPreservesFile() throws Exception {
         Path dataFile = Path.of("data/cindy.json").toAbsolutePath();
         Files.createDirectories(dataFile.getParent());
-        String unreadableData = "{\"persons\": [";
+        String unreadableData = "null";
         Files.writeString(dataFile, unreadableData);
         MainApp app = new MainApp();
 

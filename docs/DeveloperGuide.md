@@ -175,6 +175,16 @@ The application does not search another folder for existing data or fall back to
 
 `AppPathsTest#getHomeDirectory_packagedJar_usesJarFolderInsteadOfWorkingDirectory()` packages the helper, logging class and a probe into a test JAR. It runs the probe in a separate JVM from a different working directory and verifies that the home folder and generated log are beside the JAR, with no files created in the launch directory. The JAR folder contains spaces and a percent character to cover URI decoding and log-pattern escaping. `MainAppTest#defaultFilePaths_useAbsoluteDevelopmentHome()` verifies the contact, preference and log paths for development runs.
 
+#### Data-loading failures
+
+`JsonUtil#readJsonFile` returns `Optional.empty()` only when the file does not exist. An existing file whose entire JSON value is `null` is rejected with a `DataLoadingException`, as are JSON read and parse failures. Although `null` is valid JSON syntax, it does not contain the object Cindy needs. The null-root check runs before `Optional.of`, preventing an unchecked `NullPointerException`.
+
+For a missing client-data file, `MainApp#initModelManager` creates and saves sample clients. For an unreadable client-data file, including a null root, initialization instead leaves the model and logic unset. Starting the app shows the `Unable to open Cindy` recovery dialog with the data-file location and closes without opening the command window or replacing the file. A null root must not be treated as a missing file, because doing so would overwrite it with sample data. The user must repair the file or restore a backup before reopening Cindy.
+
+Preference loading uses a different recovery policy: `MainApp#initPrefs` catches `DataLoadingException` and uses and saves default preferences. The shared null-root check also routes a `preferences.json` containing `null` through this existing fallback.
+
+`JsonUtilTest#readJsonFile_nullRoot_throwsDataLoadingExceptionAndPreservesFile` checks the loading exception and unchanged file contents. `MainAppTest#initModelManager_nullAddressBook_doesNotCreateSamplesOrOverwriteFile` checks that invalid data does not trigger sample creation. `MainAppStartupTest#startup_nullRootData_showsRecoveryAndPreservesFile` checks the real JavaFX recovery dialog, disabled commands and file preservation in an isolated test process.
+
 ### Common classes
 
 Classes used by multiple components are in the `seedu.address.commons` package.
@@ -972,5 +982,13 @@ Use a disposable copy of Cindy in its own folder. The data file is `data/cindy.j
    1. Close Cindy, back up `data/cindy.json`, then replace its contents with `{"persons": [` and save it.
    1. Reopen Cindy.<br>
       Expected: An error titled `Unable to open Cindy` says the client data could not be loaded and shows the file's location. Closing it closes Cindy without opening the main window. The file still contains `{"persons": [`.
+   1. Restore the backup and reopen Cindy.<br>
+      Expected: Cindy opens with the clients from the backup.
+
+1. JSON null root
+
+   1. Close Cindy, back up `data/cindy.json`, then replace its entire contents with `null` (without quotes) and save it.
+   1. Reopen Cindy from a terminal with `java -jar cindy.jar`.<br>
+      Expected: The `Unable to open Cindy` recovery dialog appears and shows the data-file location. Closing it closes Cindy without opening the command window. The terminal does not report an uncaught `NullPointerException`, and `data/cindy.json` still contains `null`; sample clients are not written over it.
    1. Restore the backup and reopen Cindy.<br>
       Expected: Cindy opens with the clients from the backup.
