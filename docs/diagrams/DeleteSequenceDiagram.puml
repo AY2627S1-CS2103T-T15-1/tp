@@ -64,7 +64,13 @@ deactivate AddressBookParser
 LogicManager -> DeleteCommand : execute(m)
 activate DeleteCommand
 
-DeleteCommand -> PersonSelector : findMatches(...)
+DeleteCommand -> Model : getAddressBook().getPersonList()
+activate Model
+
+Model --> DeleteCommand : clients
+deactivate Model
+
+DeleteCommand -> PersonSelector : findMatches(clients)
 activate PersonSelector
 
 PersonSelector --> DeleteCommand : matches
@@ -99,6 +105,13 @@ else several clients match (only possible with --name)
     Model --> DeleteCommand
     deactivate Model
 
+    create CommandResult
+    DeleteCommand -> CommandResult
+    activate CommandResult
+
+    CommandResult --> DeleteCommand
+    deactivate CommandResult
+
     note right of DeleteCommand
         r lists the matching clients
         and asks the user to choose
@@ -109,6 +122,8 @@ end
 
 DeleteCommand --> LogicManager : r
 deactivate DeleteCommand
+
+LogicManager -> LogicManager : saveAddressBook()
 
 [<--LogicManager
 deactivate LogicManager
