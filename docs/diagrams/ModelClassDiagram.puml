@@ -19,6 +19,8 @@ Class Name
 Class Phone
 Class LongFormText
 Class Tag
+Class Appointment
+Class Session
 
 Class I #FFFFFF
 }
@@ -43,13 +45,18 @@ Person *--> "1" Name
 Person *--> "1" Phone
 Person *--> "2" LongFormText : note,\nworkout plan
 Person --> "*" Tag
+Person *--> "0..4" Appointment
+Person *--> "*" Session
+Session *--> "1" LongFormText : note
 
 Person -[hidden]up--> I
 UniquePersonList -[hidden]right-> I
 
+Session -[hidden]right-> Appointment
+Appointment -[hidden]right-> PersonId
 PersonId -[hidden]right-> Name
 Name -[hidden]right-> Phone
-Phone -[hidden]right-> LongFormText
+Phone -[hidden]right-> Tag
 
 ModelManager --> "~* filtered" Person
 @enduml

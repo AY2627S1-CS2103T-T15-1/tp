@@ -134,7 +134,7 @@ How the parsing works:
 
 The `Model` component,
 
-* stores Cindy's client data i.e., all `Person` objects (which are contained in a `UniquePersonList` object).
+* stores Cindy's client data i.e., all `Person` objects (which are contained in a `UniquePersonList` object). Each `Person` has a unique `PersonId`, up to four `Appointment` objects, and any number of `Session` records. `AddressBook` also stores the next `PersonId` to give out, so IDs are never reused, even after a client is deleted.
 * stores the custom groups (e.g. `morning`, `rehab`) as a list of `Tag` objects in `AddressBook`, in the order they were created. Every custom tag of a `Person` is also one of these groups, so a client can never be in a group that does not exist. `gym` and `personal` are built-in client types, not groups.
 * stores the `Person` objects selected by the current filter, such as search results, in a separate _filtered_ list, which is kept sorted alphabetically by name (case-insensitive) unless a command gives another order. `list --today`, for example, sorts clients by their earliest appointment today. It exposes this list as an unmodifiable `ObservableList<Person>` that the UI can observe and bind to, so the UI updates when the list changes.
 * stores a `UserPrefs` object that represents the user’s preferences (currently, just the GUI settings). This is exposed to the outside as a `ReadOnlyUserPrefs` object.
@@ -261,6 +261,51 @@ the detail panel immediately, including when a session command is run from the c
 the current panel. An ambiguous name lists the matching clients without changing session records.
 The profile shows only the four most recent sessions; editing an older record does not change its date or visibility.
 `AddSessionCommandTest` and `EditSessionCommandTest` verify both the updated model and the client returned for display.
+
+### Custom groups
+
+A custom group, such as `morning` or `rehab`, is a `Tag`. The same `Tag` class is used for the built-in client types `gym` and `personal`, so a client's group memberships are simply their tags that are not client types (`Tag.CLIENT_TYPES`).
+
+**Group registry.** `AddressBook` keeps every group in a `LinkedHashSet<Tag>`, separately from the clients. This lets a group exist before anyone is in it, so `group --list` can show empty groups. `AddressBook` keeps one invariant: every custom tag of every client is also in the registry. Whenever a client is added or replaced (`addPerson`, `setPerson`, `setPersons`), `addGroupsOf` adds that client's custom tags to the registry. A client therefore can never be in a group that does not exist, even if the data file was edited by hand. The registry is saved as a separate `groups` list in the JSON data file. A data file saved before groups existed has no such list, so its groups are rebuilt from the clients' tags when it is loaded.
+
+**Group names.** `ParserUtil#normalizeTagName` trims the name, removes optional quotes, collapses repeated spaces and converts it to lower case, so `Weight  Loss` and `weight loss` name the same group. `Tag#isValidTagName` then accepts words of letters and digits separated by single spaces or hyphens, up to `Tag.MAX_LENGTH` (50) characters. The length is checked before the regular expression runs, because a very long name would otherwise overflow the stack while matching.
+
+**Commands.** `GroupCommandParser` picks the command from its flag:
+
+* `group --name GROUP` creates a `GroupCommand`, which adds the group to the registry.
+* `group --list` creates a `ListGroupsCommand`, which reads the registry and returns the group names in alphabetical order.
+* `group --move ... --from GROUP --to GROUP` creates a `MoveGroupCommand`.
+* `group --delete --name GROUP` creates a `DeleteGroupCommand`. `tag --delete --group GROUP` creates the same command.
+
+`tag --group` (`AddToGroupCommand`), `tag --untag` (`UntagCommand`) and `group --move` (`MoveGroupCommand`) change one client, so they extend `PersonTargetedCommand` and find the client in the same way as `delete`. Each builds a new tag set, creates an updated client with `Person#withTags` and replaces the client with `Model#setPerson`. Adding a client to a group, or moving them into one, fails if the group is not in the registry, so typing mistakes do not create new groups.
+
+The sequence diagram below shows how `group --delete --name rehab` is executed.
+
+<puml src="diagrams/DeleteGroupSequenceDiagram.puml" alt="Interactions for the `group --delete` Command" />
+
+`DeleteGroupCommand` checks that the group exists, then calls `Model#deleteGroup`. `AddressBook#removeGroup` removes the group from every client in it before removing it from the registry, so the invariant above still holds afterwards.
+
+`DeleteGroupCommand`, `UntagCommand` and `MoveGroupCommand` all end by showing every client again with `updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS)`. Without this, running one of them after `find --group rehab` would make the changed client disappear from the displayed list, which looks as if the client was deleted.
+
+**Alternative considered.** We could store groups only as client tags, as AB3 does, without a separate registry. This was rejected because a group would then disappear as soon as its last client left it, and users could not create a group before adding clients to it.
+
+`GroupCommandParserTest`, `TagTest` and `ParserUtilTest` cover parsing and name rules. `GroupCommandTest`, `AddToGroupCommandTest`, `ListGroupsCommandTest`, `MoveGroupCommandTest`, `UntagCommandTest` and `DeleteGroupCommandTest` cover execution, including the show-all-clients behaviour after `find --group`. See the [manual group checks](#managing-groups) for checks in the running application.
+
+### Listing clients and today's appointments
+
+`list` shows every client sorted by name, and `list --today` shows only the clients with a non-cancelled appointment today, earliest first. Both forms are handled by `ListCommand`. The sequence diagram below shows how `list --today` is executed.
+
+<puml src="diagrams/ListTodaySequenceDiagram.puml" alt="Interactions for the `list --today` Command" />
+
+**Filtering and sorting.** `ModelManager` wraps the `FilteredList` of clients in a `SortedList`. `Model#updateFilteredPersonList(Predicate, Comparator)` sets both at once. The one-argument `updateFilteredPersonList(Predicate)`, used by `list`, `find` and most other commands, resets the order to sorting by name. `list --today` passes a predicate that keeps clients with a non-cancelled appointment today, and a comparator that orders them by their earliest appointment time today, then by name. The order stays until a command replaces the displayed list.
+
+**Today's date.** `ListCommand` reads the date once, from a `Clock`, and uses it for both the filter and the feedback, so the result stays consistent even if the command runs across midnight. `ListCommand.forToday(Clock)` takes the clock as an argument, so the app passes the system clock and tests pass a fixed one that does not depend on the real date.
+
+**Feedback.** For each client shown, `formatScheduleLine` lists that client's appointment times today, earliest first, followed by their name and ID, for example `07:00, 18:00 Alex Tanner (ID: 1)`.
+
+**Skipping the save.** `Command#isReadOnly()` returns `false` by default. `ListCommand` overrides it to return `true`, because listing only changes which clients are displayed. `LogicManager` checks this before executing a command and does not save the data file after a read-only command. Listing therefore still works when the data file cannot be written, for example when it is read-only.
+
+`ListCommandTest` covers filtering, cancelled appointments, sorting with ties, the feedback format and `isReadOnly()`. `ModelManagerTest` covers resetting the comparator, and `LogicManagerTest` checks that both forms of `list` succeed when saving would fail. See the [manual checks for today's appointments](#listing-clients-with-appointments-today) for checks in the running application.
 
 --------------------------------------------------------------------------------------------------------------------
 
