@@ -64,13 +64,26 @@ deactivate AddressBookParser
 LogicManager -> DeleteCommand : execute(m)
 activate DeleteCommand
 
-DeleteCommand -> PersonSelector : findMatches(...)
+DeleteCommand -> Model : getAddressBook().getPersonList()
+activate Model
+
+Model --> DeleteCommand : clients
+deactivate Model
+
+DeleteCommand -> PersonSelector : findMatches(clients)
 activate PersonSelector
 
 PersonSelector --> DeleteCommand : matches
 deactivate PersonSelector
 
-alt exactly one client p matches
+alt no client matches
+
+    note right of DeleteCommand
+        A CommandException is thrown
+        and no client is deleted.
+    end note
+
+else exactly one client p matches
 
     DeleteCommand -> DeleteCommand : executeOn(p, m)
     activate DeleteCommand
@@ -98,6 +111,13 @@ else several clients match (only possible with --name)
 
     Model --> DeleteCommand
     deactivate Model
+
+    create CommandResult
+    DeleteCommand -> CommandResult
+    activate CommandResult
+
+    CommandResult --> DeleteCommand
+    deactivate CommandResult
 
     note right of DeleteCommand
         r lists the matching clients
