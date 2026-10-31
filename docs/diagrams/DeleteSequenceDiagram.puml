@@ -76,14 +76,7 @@ activate PersonSelector
 PersonSelector --> DeleteCommand : matches
 deactivate PersonSelector
 
-alt no client matches
-
-    note right of DeleteCommand
-        A CommandException is thrown
-        and no client is deleted.
-    end note
-
-else exactly one client p matches
+alt exactly one client p matches
 
     DeleteCommand -> DeleteCommand : executeOn(p, m)
     activate DeleteCommand
@@ -129,6 +122,8 @@ end
 
 DeleteCommand --> LogicManager : r
 deactivate DeleteCommand
+
+LogicManager -> LogicManager : saveAddressBook()
 
 [<--LogicManager
 deactivate LogicManager
