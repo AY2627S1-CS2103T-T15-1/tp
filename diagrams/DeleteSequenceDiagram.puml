@@ -14,6 +14,7 @@ end box
 
 box Model MODEL_COLOR_T1
 participant "m:Model" as Model MODEL_COLOR
+participant "ab:AddressBook" as AddressBook MODEL_COLOR
 end box
 
 [-> LogicManager : execute("delete --id 1")
@@ -64,7 +65,19 @@ deactivate AddressBookParser
 LogicManager -> DeleteCommand : execute(m)
 activate DeleteCommand
 
-DeleteCommand -> PersonSelector : findMatches(...)
+DeleteCommand -> Model : getAddressBook()
+activate Model
+
+Model --> DeleteCommand : ab
+deactivate Model
+
+DeleteCommand -> AddressBook : getPersonList()
+activate AddressBook
+
+AddressBook --> DeleteCommand : clients
+deactivate AddressBook
+
+DeleteCommand -> PersonSelector : findMatches(clients)
 activate PersonSelector
 
 PersonSelector --> DeleteCommand : matches
@@ -99,6 +112,13 @@ else several clients match (only possible with --name)
     Model --> DeleteCommand
     deactivate Model
 
+    create CommandResult
+    DeleteCommand -> CommandResult
+    activate CommandResult
+
+    CommandResult --> DeleteCommand
+    deactivate CommandResult
+
     note right of DeleteCommand
         r lists the matching clients
         and asks the user to choose
@@ -109,6 +129,8 @@ end
 
 DeleteCommand --> LogicManager : r
 deactivate DeleteCommand
+
+LogicManager -> LogicManager : saveAddressBook()
 
 [<--LogicManager
 deactivate LogicManager
