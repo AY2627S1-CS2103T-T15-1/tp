@@ -18,6 +18,11 @@ public class ListGroupsCommand extends Command {
     public static final String MESSAGE_NO_GROUPS = "No groups yet. Use group --name GROUP to create one.";
 
     @Override
+    public boolean isReadOnly() {
+        return true;
+    }
+
+    @Override
     public CommandResult execute(Model model) {
         requireNonNull(model);
         List<Tag> groups = model.getAddressBook().getGroupList();

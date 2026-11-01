@@ -237,8 +237,8 @@ public class ListCommandTest {
         assertTrue(new ListCommand().isReadOnly());
         assertTrue(ListCommand.forToday(TODAY_CLOCK).isReadOnly());
 
-        // other commands are not read-only unless they say so
-        assertFalse(new ExitCommand().isReadOnly());
+        // Data-changing commands still require saving by default.
+        assertFalse(new AddCommand(ALICE.getName(), ALICE.getPhone()).isReadOnly());
     }
 
     @Test

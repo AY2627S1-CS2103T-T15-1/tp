@@ -80,6 +80,11 @@ public class ListAppointmentsCommand extends Command {
     }
 
     @Override
+    public boolean isReadOnly() {
+        return true;
+    }
+
+    @Override
     public CommandResult execute(Model model) {
         requireNonNull(model);
         List<Entry> entries = model.getAddressBook().getPersonList().stream()
