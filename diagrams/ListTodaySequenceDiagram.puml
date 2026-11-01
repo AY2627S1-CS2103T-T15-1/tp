@@ -1,0 +1,61 @@
+@startuml
+!include style.puml
+skinparam ArrowFontStyle plain
+
+box Logic LOGIC_COLOR_T1
+participant ":LogicManager" as LogicManager LOGIC_COLOR
+participant "c:ListCommand" as ListCommand LOGIC_COLOR
+participant "r:CommandResult" as CommandResult LOGIC_COLOR
+end box
+
+box Model MODEL_COLOR_T1
+participant "m:Model" as Model MODEL_COLOR
+end box
+
+[-> LogicManager : execute("list ~--today")
+activate LogicManager
+
+ref over LogicManager, ListCommand
+    parse the command into c
+    (see the Logic component section)
+end ref
+
+LogicManager -> ListCommand : isReadOnly()
+activate ListCommand
+ListCommand --> LogicManager : true
+deactivate ListCommand
+
+note left of ListCommand
+    read-only, so the
+    data file is not saved
+end note
+
+LogicManager -> ListCommand : execute(m)
+activate ListCommand
+
+ListCommand -> ListCommand : today = LocalDate.now(clock)
+
+ListCommand -> Model : updateFilteredPersonList(\nhas appointment today,\nearliest time today, then name)
+activate Model
+Model --> ListCommand
+deactivate Model
+
+ListCommand -> Model : getFilteredPersonList()
+activate Model
+Model --> ListCommand : clients
+deactivate Model
+
+ListCommand -> ListCommand : formatScheduleLine(...)\nfor each client
+
+create CommandResult
+ListCommand -> CommandResult
+activate CommandResult
+CommandResult --> ListCommand
+deactivate CommandResult
+
+ListCommand --> LogicManager : r
+deactivate ListCommand
+
+[<--LogicManager
+deactivate LogicManager
+@enduml

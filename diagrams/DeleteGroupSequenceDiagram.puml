@@ -1,0 +1,73 @@
+@startuml
+!include style.puml
+skinparam ArrowFontStyle plain
+
+box Logic LOGIC_COLOR_T1
+participant ":LogicManager" as LogicManager LOGIC_COLOR
+participant "c:DeleteGroupCommand" as DeleteGroupCommand LOGIC_COLOR
+participant "r:CommandResult" as CommandResult LOGIC_COLOR
+end box
+
+box Model MODEL_COLOR_T1
+participant "m:Model" as Model MODEL_COLOR
+participant ":AddressBook" as AddressBook MODEL_COLOR
+participant "p:Person" as Person MODEL_COLOR
+end box
+
+[-> LogicManager : execute("group ~--delete ~--name rehab")
+activate LogicManager
+
+ref over LogicManager, DeleteGroupCommand
+    parse the command into c
+    (see the Logic component section)
+end ref
+
+LogicManager -> DeleteGroupCommand : execute(m)
+activate DeleteGroupCommand
+
+DeleteGroupCommand -> Model : hasGroup(rehab)
+activate Model
+Model --> DeleteGroupCommand : true
+deactivate Model
+
+DeleteGroupCommand -> Model : deleteGroup(rehab)
+activate Model
+
+Model -> AddressBook : removeGroup(rehab)
+activate AddressBook
+
+loop each client p in rehab
+    AddressBook -> Person : withTags(tags without rehab)
+    activate Person
+    Person --> AddressBook : updated p
+    deactivate Person
+    AddressBook -> AddressBook : replace p with updated p
+end
+
+AddressBook -> AddressBook : remove rehab from groups
+
+AddressBook --> Model
+deactivate AddressBook
+
+Model --> DeleteGroupCommand
+deactivate Model
+
+DeleteGroupCommand -> Model : updateFilteredPersonList(all clients)
+activate Model
+Model --> DeleteGroupCommand
+deactivate Model
+
+create CommandResult
+DeleteGroupCommand -> CommandResult
+activate CommandResult
+CommandResult --> DeleteGroupCommand
+deactivate CommandResult
+
+DeleteGroupCommand --> LogicManager : r
+deactivate DeleteGroupCommand
+
+LogicManager -> LogicManager : saveAddressBook()
+
+[<--LogicManager
+deactivate LogicManager
+@enduml
