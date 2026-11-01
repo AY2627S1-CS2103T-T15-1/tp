@@ -24,6 +24,8 @@ Class LogicManager
 
 package Model as ModelPackage {
 Class "<<interface>>\nModel" as Model MODEL_COLOR
+Class Person MODEL_COLOR
+Class PersonId MODEL_COLOR
 }
 
 package Storage as StoragePackage {
@@ -52,11 +54,12 @@ LogicManager .left.> Command : <<call>>
 LogicManager --> Model
 LogicManager --> Storage
 Command .right.> Model
-PersonSelector ..> Model
+PersonSelector ..> Person
+PersonSelector --> "id\n0..1" PersonId
 ' Only representative concrete commands are shown.
 
 Logic ..> CommandResult
 LogicManager .down.> CommandResult
 Command .up.> CommandResult : <<create>>
-CommandResult ..> Model
+CommandResult --> "personToView\n0..1" Person
 @enduml
