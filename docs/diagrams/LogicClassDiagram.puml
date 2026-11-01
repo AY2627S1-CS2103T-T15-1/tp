@@ -35,13 +35,12 @@ Class "<<interface>>\nStorage" as Storage STORAGE_COLOR
 Class HiddenOutside #FFFFFF
 HiddenOutside ..> Logic
 
-LogicManager .right.|> Logic
+LogicManager .up.|> Logic
 LogicManager -left->"1" ParserClasses
 ParserClasses ..> AddCommand : <<create>>
-ParserClasses ..> FindCommand : <<create>>
 ParserClasses ..> DeleteCommand : <<create>>
-ParserClasses ..> ViewCommand : <<create>>
 ParserClasses ..> PersonSelector : <<create>>
+' Show representative creation dependencies; FindCommand and ViewCommand are also parser-created.
 
 AddCommand -up-|> Command
 FindCommand -up-|> Command
@@ -49,17 +48,21 @@ PersonTargetedCommand -up-|> Command
 DeleteCommand -up-|> PersonTargetedCommand
 ViewCommand -up-|> PersonTargetedCommand
 PersonTargetedCommand --> "1" PersonSelector
-LogicManager .left.> Command : <<call>>
+LogicManager .down.> Command : <<call>>
 
 LogicManager --> Model
 LogicManager --> Storage
 Command .right.> Model
 PersonSelector ..> Person
-PersonSelector --> "id\n0..1" PersonId
+PersonSelector --> "0..1\nid" PersonId
 ' Only representative concrete commands are shown.
 
 Logic ..> CommandResult
 LogicManager .down.> CommandResult
-Command .up.> CommandResult : <<create>>
-CommandResult --> "personToView\n0..1" Person
+Command .right.> CommandResult : <<create>>
+CommandResult --> "0..1\npersonToView" Person
+
+legend bottom
+Only representative commands and creation dependencies are shown.
+endlegend
 @enduml
