@@ -434,8 +434,8 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 * 1a. Trainer includes `--today` in the request.
 
-    * 1a1. Cindy replaces any previous filter and shows only clients with a non-cancelled appointment on the computer's local date at execution time, using the same alphabetical roster layout and client IDs.
-    * 1a2. Each matching client appears once, including inactive clients and clients whose appointment time has already passed today. If no clients match, Cindy shows an empty list and reports `No clients have appointments today.`
+    * 1a1. Cindy replaces any previous filter and shows only clients with a non-cancelled appointment on the computer's local date at execution time. Clients keep their original IDs and are ordered by their earliest appointment time today, with name as the tie-breaker.
+    * 1a2. Each matching client appears once, including inactive clients and clients whose appointment time has already passed today. The feedback lists each client's non-cancelled appointment times today, earliest first, followed by their name and ID. If no clients match, Cindy shows an empty list and reports `No clients have appointments today.`
 
       Use case ends.
 
@@ -964,7 +964,12 @@ Use a disposable copy of Cindy with no groups named `morning`, `evening` or `reh
 
    1. Prerequisites: Prepare three clients with IDs 1, 2 and 3. Client 1 has a non-cancelled appointment today, client 2 has only a cancelled appointment today, and client 3 has only an appointment tomorrow. Use the computer's current local date for today.
    1. Run `find --id 3`, then `list --today`.<br>
-      Expected: Only client 1 appears, using the same card layout as `list`, with their original ID. The feedback is `Listed 1 client with appointments today`. The earlier search does not restrict the results.
+      Expected: Only client 1 appears, using the same card layout as `list`, with their original ID. The feedback starts with `Listed 1 client with appointments today:` and then lists the client's non-cancelled times today, name and ID on the next line. For example, if client 1 is Alex Tanner with an appointment at 09:00, the full feedback is:
+      ```text
+      Listed 1 client with appointments today:
+      09:00 Alex Tanner (ID: 1)
+      ```
+      Use the actual times and name from the prepared data. The earlier search does not restrict the results.
    1. Run `view --id 1`, then `list --today`.<br>
       Expected: The detail view is replaced by the same filtered client list. The command box clears and the menu and status bar remain visible.
    1. Run `list --today --today`, `list --todai`, `list --today tomorrow` and `list 3`.<br>
