@@ -224,6 +224,7 @@ Format: `appointment --add --id ID --date DATE --time TIME` or `appointment --ad
 * `TIME` is in the 24-hour format `HH:MM`, e.g. `09:00` or `18:30`.
 * Creates 4 appointments, one week apart, starting on `DATE`. A client has at most 4 appointments.
 * Replaces all of the client's current appointments, including cancelled ones.
+* Cindy does not check for conflicts with other clients' appointments. Use [`appointment --date` or `appointment --week`](#viewing-appointments-appointment-date-appointment-week) to review your schedule before choosing a time.
 * Exactly one selector, one `--date` and one `--time` must be provided. Repeated flags are rejected, and nothing may follow `--add` itself.
 * The appointments are saved automatically. Editing a client's contact details with `edit` preserves their appointments.
 * After scheduling, the client's detail view opens with the appointments listed in their own card, numbered in order of date and time. Clients with no appointments have no card.
@@ -263,6 +264,7 @@ Format: `appointment --reschedule --id ID --index INDEX --date DATE --time TIME`
 * `DATE` and `TIME` are the new date and time, in the same formats as for `appointment --add`. The new `DATE` must be from today up to one year from today, but an appointment that has already passed can be moved to a new date.
 * A cancelled appointment that is rescheduled becomes active again, even when it keeps its old date and time.
 * The client cannot have two appointments at the same date and time, including cancelled ones, because a cancelled appointment keeps its date and time. To use that date and time, first reschedule the other appointment to a different date or time. This makes it active again if it was cancelled, so cancel it again if needed.
+* Clash checks apply only to this client's other appointments. Cindy does not check for conflicts with other clients. Review your schedule with [`appointment --date` or `appointment --week`](#viewing-appointments-appointment-date-appointment-week) before choosing a new time.
 * The appointments card is re-numbered in order of date and time, so the moved appointment may get a new number.
 * Exactly one selector, one `--index`, one `--date` and one `--time` must be provided. Repeated flags are rejected, and nothing may follow `--reschedule` itself.
 * After rescheduling, the client's detail view opens.
