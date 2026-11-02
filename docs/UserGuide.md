@@ -545,7 +545,7 @@ Format: `exit`
 
 ### Saving the data
 
-Cindy automatically saves data after every successfully executed command. You do not need to save manually.
+Cindy automatically saves data after every successful command that changes saved data. Read-only commands, such as `list`, `find` and `view`, do not save. You do not need to save manually.
 
 The **home folder** is the folder containing the Cindy JAR file. Cindy uses this folder even when you launch it from another directory. Keep the JAR in a folder where you have permission to write files.
 
