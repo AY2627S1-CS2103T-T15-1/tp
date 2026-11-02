@@ -867,6 +867,115 @@ Use a disposable copy of Cindy with no clients named `Add Check` or `Shared Phon
 1. Run `add --name "Extra Check" --phone 91234567 morning`, then repeat with the phone in quotes.<br>
    Expected: `Unexpected text after --phone: morning.` with usage guidance; no client is added.
 
+### Editing, finding and viewing clients
+
+Start with an empty disposable copy of Cindy. Run `add --name "Profile Check" --phone 81112222` and `add --name "Profile Other" --phone 82223333`. Use the assigned IDs as `ID1` and `ID2` below; do not type the placeholders literally.
+
+1. Run `edit --id ID1 --to-name "Profile Renamed" --to-phone 83334444`, then `view --name "profile renamed"`.<br>
+   Expected: The first client's details show the new name and phone number with the same ID. The other client is unchanged.
+
+1. Run `find --name renamed --phone 8333`, then `find --id ID2`.<br>
+   Expected: The first search shows only `Profile Renamed`; the second replaces that filter and shows only `Profile Other`.
+
+1. Run `find --name "No Such Client"`, then `list`.<br>
+   Expected: The search shows no clients without deleting anything. `list` restores both clients in alphabetical order.
+
+1. Run `edit --id ID1`, then `edit --id ID1 --to-name "Profile Other" --to-phone 82223333`.<br>
+   Expected: The first command requires a changed field; the second rejects a duplicate client. Neither changes the saved details. Close and reopen Cindy, then run `view --id ID1` to check the successful edit is retained.
+
+### Workout plans and client notes
+
+Use a disposable copy with a client created by `add --name "Training Check" --phone 84445555`. Use its assigned ID as `ID` below.
+
+1. Run `plan --id ID --plan "Squats: 3 sets\nPush-ups: 3 sets"`, then `note --id ID --note "Knee injury\nAvoid lunges"`.<br>
+   Expected: The client's detail view opens with separate plan and note sections, each displaying two lines. Enter each command on one line, typing a backslash followed by `n` for the line break.
+
+1. Run `plan --name "Training Check" --plan "Walking: 20 minutes"`.<br>
+   Expected: The plan is replaced in full and the two-line note is unchanged.
+
+1. Right-click the displayed note, choose **Copy note**, and paste into an empty text editor.<br>
+   Expected: The clipboard contains the single-line text `Knee injury\nAvoid lunges`, ready to paste inside a quoted note argument. Run `note --id ID --note "Knee injury\nAvoid deep lunges"` to check replacement of the note without changing the plan.
+
+1. Run `edit --id ID --to-phone 85556666`, close and reopen Cindy, then run `view --id ID`.<br>
+   Expected: The client keeps the same ID; the new phone, replacement plan and revised two-line note are all retained.
+
+1. Run `plan --id ID --plan unquoted`, then `note --id ID --note unquoted`.<br>
+   Expected: Both commands require quoted text and leave the saved plan and note unchanged.
+
+1. Run `plan --id ID --plan ""`, then `note --id ID --note ""`.<br>
+   Expected: The plan card and note section disappear. The client and their contact details remain.
+
+### Client status and client-type labels
+
+Start with an empty disposable copy. Run `add --name "Status Check" --phone 90001111`, `add --name "Status Other" --phone 90002222`, and `group --name status-check`. Use the assigned IDs as `ID1` and `ID2`; add the first client to the group with `tag --id ID1 --group status-check`.
+
+1. Run `inactive --id ID1`, then repeat it.<br>
+   Expected: `Status Check` remains in the list, dimmed and labelled `Inactive`. The repeated command reports that the client is already inactive; `Status Other` stays active.
+
+1. Run `active --name "Status Check"`, then `inactive --phone 9000`.<br>
+   Expected: The first command restores the client to active. The second matches both clients, lists them and asks for an ID without changing either client's status.
+
+1. Run `tag --id ID1 --type Gym`, then `tag --id ID1 --type personal`.<br>
+   Expected: The client first has a `gym` label, then only a `personal` client-type label. The custom `status-check` group remains attached throughout.
+
+1. Run `find --group personal`, then `tag --id ID1 --untag personal` and `view --id ID1`.<br>
+   Expected: The search finds `Status Check`. Removing the type label keeps their custom group and contact details.
+
+1. Run `tag --id ID1 --type rehab`.<br>
+   Expected: An error explains the supported client types; no label or group is changed.
+
+1. Run `inactive --phone 90001111`, close and reopen Cindy, then run `view --id ID1`.<br>
+   Expected: The first client is still inactive, with the same ID, contact details and custom group. The other client remains active.
+
+### Scheduling, cancelling and rescheduling appointments
+
+Start with an empty disposable copy. Run `add --name "Appointment Check" --phone 86667777` and `add --name "Other Appointment" --phone 87778888`. Use their assigned IDs as `ID1` and `ID2`.
+
+Replace `D` with tomorrow's real date in `YYYY-MM-DD` format. Replace `D2`, `D7`, `D14` and `D21` with the dates 2, 7, 14 and 21 days after `D`. Keep these dates fixed during the test; the placeholders are not accepted as command arguments.
+
+1. Run `appointment --add --id ID1 --date D --time 09:00`, then `appointment --add --id ID2 --date D --time 18:00`.<br>
+   Expected: Each client gets four appointments on `D`, `D7`, `D14` and `D21`, at their specified time. Each detail card numbers appointments from 1 to 4 in date/time order.
+
+1. Run `appointment --date D`, then `appointment --week D`.<br>
+   Expected: The day feedback lists `Appointment Check` at 09:00 before `Other Appointment` at 18:00, with their IDs. The week feedback states the Monday-to-Sunday boundaries containing `D` and includes those same two appointments with their dates. Both clients appear in the filtered client list.
+
+1. Run `appointment --cancel --id ID1 --index 1`, then `appointment --date D`.<br>
+   Expected: The first client's 09:00 appointment stays in the feedback, marked `(Cancelled)`. Repeat the cancel command: an error says it is already cancelled and no appointment changes.
+
+1. Run `appointment --reschedule --id ID1 --index 1 --date D --time 18:30`.<br>
+   Expected: The cancelled appointment becomes active at 18:30 on `D`, and the other three appointments are unchanged.
+
+1. Run `appointment --reschedule --id ID1 --index 1 --date D7 --time 09:00`.<br>
+   Expected: An error reports a clash with that client's second appointment. The appointment at `D` 18:30 stays unchanged.
+
+1. Run `appointment --reschedule --id ID1 --index 1 --date D14 --time 08:00`.<br>
+   Expected: The moved appointment is now number 2: the client's order is `D7` 09:00, `D14` 08:00, `D14` 09:00 and `D21` 09:00. Close and reopen Cindy, then use `view --id ID1` to verify the new order and times are retained.
+
+1. Run `appointment --date D2`, then `list`.<br>
+   Expected: The first command reports no appointments and shows an empty client list. `list` restores both clients without changing their appointments.
+
+1. Run `appointment --add --name "Appointment Check" --date D --time 10:00`.<br>
+   Expected: This replaces that client's series with four active appointments at 10:00 on `D`, `D7`, `D14` and `D21`; it does not append four more. The other client's series is unchanged.
+
+1. Run `appointment --reschedule --id ID1 --index 5 --date D --time 11:00`, then `appointment --date 2026-02-30`.<br>
+   Expected: The first command rejects an out-of-range index; the second rejects a non-existent date. Neither changes any appointments.
+
+### Clearing clients and groups after confirmation
+
+Use only a disposable copy for this section. Run `add --name "Clear Check" --phone 88889999` and `group --name clear-check`; leave the group empty.
+
+1. Run `clear`, then `list` and `group --list`.<br>
+   Expected: `clear` asks for `clear --confirm`; the existing clients and the empty `clear-check` group remain.
+
+1. Run `clear --confirm --confirm`.<br>
+   Expected: An error rejects the repeated flag without deleting any clients or groups.
+
+1. Run `clear --confirm`, then `list` and `group --list`.<br>
+   Expected: All clients and custom groups, including the empty group, are removed.
+
+1. Run `add --name "After Clear" --phone 89990000`, close and reopen Cindy, then run `list` and `group --list`.<br>
+   Expected: Only `After Clear` remains, with ID 1, and there are no custom groups. The cleared records do not return after restarting.
+
 ### Recording and editing session notes
 
 Use a disposable copy of Cindy. Add a client named `Session Check` and use its assigned ID in place of `ID` below.
