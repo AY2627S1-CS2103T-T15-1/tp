@@ -886,50 +886,61 @@ Use a disposable copy of Cindy. Add a client named `Session Check` and use its a
 
 Use a disposable copy of Cindy and its data for these checks. Opening help should not change any client's details.
 
-1. HELP-001: Opening help from each entry point
+1. Opening help from each entry point
 
    1. Run `list`, note the displayed clients, then run `help`.<br>
       Expected: The result display says `Opened help window.` and one window titled `Cindy Help` opens. The client list is unchanged.
+
    1. Close the Help window using its window close button, then choose **Help > Help** in the main window.<br>
       Expected: The same command reference opens, and Cindy continues running.
+
    1. Close Help, focus the main command box and press F1. Repeat with the result display focused.<br>
       Expected: Both uses of F1 open the Help window, including when a text control has focus.
 
-1. HELP-002: Reference content and scrolling
+1. Reference content and scrolling
 
    1. Check the syntax and client-selector guidance above the command cards.<br>
       Expected: It explains placeholders, optional parts, alternatives, persistent client IDs and ambiguous names.
+
    1. Scroll through the reference.<br>
       Expected: There are 28 command cards in eight groups: Client details, Finding clients, Training information, Client status, Client types and groups, Appointments, Session records and Application. Each has a description, format and example. The reference covers group creation and moving, tagging and untagging, group deletion, appointment scheduling/day/week/cancellation/rescheduling, and session add/edit.
+
    1. Find the `list --today` card.<br>
       Expected: Its heading says `list`, its format says `list --today`, and its description explains that it shows clients with appointments today.
+
    1. Check the appointment scheduling and rescheduling examples.<br>
       Expected: Scheduling uses `--date 2026-12-07 --time 09:00` and rescheduling uses `--date 2026-12-08 --time 18:00`. On fresh sample data, each example executes successfully on its own. When testing after these dates, use a future date instead.
+
    1. Scroll to the bottom.<br>
       Expected: The `exit` card and keyboard shortcuts are reachable. The User Guide URL and Copy URL button remain visible at the top. Reading examples does not execute them.
 
-1. HELP-003: Resizing and keyboard navigation
+1. Resizing and keyboard navigation
 
    1. Make Help as small as its minimum size, then enlarge it again.<br>
       Expected: Text wraps, full commands remain readable by scrolling vertically, and no horizontal scrolling is needed. The guide controls remain usable.
+
    1. Use Tab or Shift+Tab to focus Copy URL, then press Space.<br>
       Expected: The button has a visible focus indicator and copies the guide URL.
+
    1. Move keyboard focus to the command-reference scroll pane, then use Down or Page Down, followed by Up or Page Up.<br>
       Expected: The reference scrolls in the requested direction without executing commands.
 
-1. HELP-004: Copying the guide URL and using help offline
+1. Copying the guide URL and using help offline
 
    1. Click Copy URL and paste into an empty text editor.<br>
       Expected: The pasted text is exactly `https://ay2627s1-cs2103t-t15-1.github.io/tp/UserGuide.html`. Copying does not open a browser or modify client data.
+
    1. With the computer offline, close and reopen Help.<br>
       Expected: All command summaries and examples remain available. Copy URL still works; opening the full guide in a browser requires a connection.
 
-1. HELP-005: Reopening help and preserving the client view
+1. Reopening help and preserving the client view
 
    1. Keep Help open, return to the main window and run `help` again.<br>
       Expected: The existing Help window is focused; no second Help window or duplicate command cards appear.
+
    1. Close Help, run `view --id ID` using an existing client's ID, then run `help` and close Help again.<br>
       Expected: The same client's details are still displayed with unchanged values. Repeat after filtering with `find --name NAME`; the filtered client list remains unchanged.
+
    1. Minimize Help and invoke `help` again.<br>
       Expected: The existing window remains minimized, as documented in the User Guide's known issues. Restore it manually; no duplicate window should appear.
 
