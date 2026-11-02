@@ -117,7 +117,7 @@ Cindy gives every new client a unique ID number, shown in the message after the 
 
 Name requirements:
 
-* Contains 1–100 characters after trimming.
+* Contains 1–100 characters after trimming and collapsing consecutive spaces.
 * Allows Unicode letters, spaces, apostrophes, hyphens, and periods.
 * Must contain at least one letter.
 * Consecutive spaces are collapsed when saved.
