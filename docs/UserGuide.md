@@ -566,6 +566,8 @@ Only one Cindy window can use the data file at a time. If Cindy is already open,
 
 Cindy data is saved automatically as a JSON file `[JAR file location]/data/cindy.json`. Advanced users are welcome to update data directly by editing that data file.
 
+Close Cindy and back up the data file before editing it. Save your changes, then restart Cindy to load them. If you edit the file while Cindy is running, its next save can overwrite your edits.
+
 Long-form text loaded from the data file is preserved as stored, including literal backslash sequences. If you later re-enter that text through a command, the [long-form text limitations](#long-form-text-limitations) apply: literal `\n` becomes a line break.
 
 <box type="warning" seamless>
