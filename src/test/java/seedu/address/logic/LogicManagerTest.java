@@ -1,6 +1,7 @@
 package seedu.address.logic;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.logic.Messages.MESSAGE_UNKNOWN_COMMAND;
 import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalPersons.AMY;
@@ -8,6 +9,9 @@ import static seedu.address.testutil.TypicalPersons.AMY;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Path;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,11 +22,14 @@ import seedu.address.logic.commands.ListCommand;
 import seedu.address.logic.commands.PersonSelector;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.logic.parser.exceptions.ParseException;
+import seedu.address.model.AddressBook;
 import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.ReadOnlyAddressBook;
 import seedu.address.model.UserPrefs;
+import seedu.address.model.appointment.Appointment;
 import seedu.address.model.person.Person;
+import seedu.address.model.tag.Tag;
 import seedu.address.storage.JsonAddressBookStorage;
 import seedu.address.storage.JsonUserPrefsStorage;
 import seedu.address.storage.StorageManager;
@@ -144,6 +151,77 @@ public class LogicManagerTest {
         assertEquals(ListCommand.MESSAGE_NO_CLIENTS, logic.execute(ListCommand.COMMAND_WORD).getFeedbackToUser());
         assertEquals(ListCommand.MESSAGE_NO_CLIENTS_TODAY,
                 logic.execute(ListCommand.COMMAND_WORD + " --today").getFeedbackToUser());
+    }
+
+    @Test
+    public void execute_viewWhenSaveFails_returnsPersonToView() throws Exception {
+        model.addPerson(AMY);
+        ReadOnlyAddressBook previousData = new AddressBook(model.getAddressBook());
+        useStorageThatThrows(DUMMY_AD_EXCEPTION);
+
+        assertEquals(AMY, logic.execute("view --id 10").getPersonToView().orElseThrow());
+        assertEquals(AMY, logic.execute("view --name Amy").getPersonToView().orElseThrow());
+        assertEquals(previousData, model.getAddressBook());
+    }
+
+    @Test
+    public void execute_findWhenSaveFails_filtersClients() throws Exception {
+        model.addPerson(AMY);
+        model.addPerson(new PersonBuilder().withId(11).withName("Bob").build());
+        ReadOnlyAddressBook previousData = new AddressBook(model.getAddressBook());
+        useStorageThatThrows(DUMMY_AD_EXCEPTION);
+
+        assertEquals("Found 1 client", logic.execute("find --name Amy").getFeedbackToUser());
+        assertEquals(List.of(AMY), model.getFilteredPersonList());
+        assertEquals(previousData, model.getAddressBook());
+    }
+
+    @Test
+    public void execute_listGroupsWhenSaveFails_listsGroups() throws Exception {
+        model.addGroup(new Tag("morning"));
+        ReadOnlyAddressBook previousData = new AddressBook(model.getAddressBook());
+        useStorageThatThrows(DUMMY_AD_EXCEPTION);
+
+        assertEquals("Groups (1): morning", logic.execute("group --list").getFeedbackToUser());
+        assertEquals(previousData, model.getAddressBook());
+    }
+
+    @Test
+    public void execute_listAppointmentsWhenSaveFails_listsAppointmentsAndFiltersClients() throws Exception {
+        Appointment appointment = new Appointment(LocalDate.of(2026, 10, 19), LocalTime.of(9, 0));
+        Person amy = new PersonBuilder(AMY).withAppointments(appointment).build();
+        model.addPerson(amy);
+        model.addPerson(new PersonBuilder().withId(11).withName("Bob").build());
+        ReadOnlyAddressBook previousData = new AddressBook(model.getAddressBook());
+        useStorageThatThrows(DUMMY_AD_EXCEPTION);
+
+        assertEquals("Appointments on Mon 2026-10-19:\n09:00 Amy Bee (ID: 10)",
+                logic.execute("appointment --date 2026-10-19").getFeedbackToUser());
+        assertEquals(List.of(amy), model.getFilteredPersonList());
+        assertEquals("Appointments from Mon 2026-10-19 to Sun 2026-10-25:\n"
+                + "Mon 2026-10-19 09:00 Amy Bee (ID: 10)",
+                logic.execute("appointment --week 2026-10-22").getFeedbackToUser());
+        assertEquals(List.of(amy), model.getFilteredPersonList());
+        assertEquals(previousData, model.getAddressBook());
+    }
+
+    @Test
+    public void execute_exitWhenSaveFails_returnsExitResult() throws Exception {
+        model.addPerson(AMY);
+        ReadOnlyAddressBook previousData = new AddressBook(model.getAddressBook());
+        useStorageThatThrows(DUMMY_AD_EXCEPTION);
+
+        assertTrue(logic.execute("exit").isExit());
+        assertEquals(previousData, model.getAddressBook());
+    }
+
+    @Test
+    public void execute_confirmedClearWhenSaveFails_restoresData() {
+        model.addPerson(AMY);
+        useStorageThatThrows(DUMMY_AD_EXCEPTION);
+
+        assertCommandException("clear --confirm", String.format(
+                LogicManager.FILE_OPS_PERMISSION_ERROR_FORMAT, DUMMY_AD_EXCEPTION.getMessage()));
     }
 
     @Test

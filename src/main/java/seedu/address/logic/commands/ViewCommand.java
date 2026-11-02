@@ -35,6 +35,11 @@ public class ViewCommand extends PersonTargetedCommand {
     }
 
     @Override
+    public boolean isReadOnly() {
+        return true;
+    }
+
+    @Override
     protected CommandResult executeOn(Person target, Model model) {
         logger.fine("Showing details of client " + target.getId());
         return new CommandResult(String.format(MESSAGE_VIEW_PERSON_SUCCESS, Messages.format(target)), target);
