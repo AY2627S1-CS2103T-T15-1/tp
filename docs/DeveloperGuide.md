@@ -447,10 +447,8 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 1.  Trainer requests to view the client roster.
 2.  Cindy shows the client roster.
-3.  Trainer requests to update a specific client's contact details.
-4.  Cindy shows the client's current contact details.
-5.  Trainer provides the updated contact details.
-6.  Cindy updates the client's record and confirms the update.
+3.  Trainer requests to update a specific client, providing the updated contact details in the same request.
+4.  Cindy updates the client's record and confirms the update.
 
     Use case ends.
 
@@ -472,17 +470,17 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
       Use case resumes at step 3.
 
-* 5a. Trainer does not provide any updated contact details.
+* 3c. Trainer does not provide any updated contact details.
 
-    * 5a1. Cindy shows an error message stating that no changes were provided.
+    * 3c1. Cindy shows an error message stating that no changes were provided.
 
-      Use case resumes at step 5.
+      Use case resumes at step 3.
 
-* 5b. One or more updated contact details are in an invalid format.
+* 3d. One or more updated contact details are in an invalid format.
 
-    * 5b1. Cindy shows an error message describing the expected format.
+    * 3d1. Cindy shows an error message describing the expected format.
 
-      Use case resumes at step 5.
+      Use case resumes at step 3.
 
 **Use case: Record a training session**
 
