@@ -639,7 +639,7 @@ and replaces the client's current appointments with four weekly appointments. It
 
 **Extensions**
 
-* 1a. The group name is not made of letters and digits, or is longer than 50 characters.
+* 1a. After trimming and collapsing repeated spaces, the group name is empty, exceeds 50 characters, or does not consist of words of letters and digits separated by single spaces or hyphens.
 
     * 1a1. Cindy shows an error message describing valid group names.
 
