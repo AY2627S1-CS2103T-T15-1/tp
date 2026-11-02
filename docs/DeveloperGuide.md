@@ -97,14 +97,24 @@ Here's a (partial) class diagram of the `Logic` component:
 
 <puml src="diagrams/LogicClassDiagram.puml" width="850"/>
 
-The sequence diagram below illustrates the interactions within the `Logic` component, taking `execute("delete --id 1")` API call as an example.
+The following two sequence diagrams separate parsing from execution so that their message labels remain readable. They illustrate the `execute("delete --id 1")` API call; the execution diagram also shows the alternative for an ambiguous name selector.
 
-<puml src="diagrams/DeleteSequenceDiagram.puml" alt="Interactions Inside the Logic Component for the `delete --id 1` Command" />
+#### Parsing a delete command
+
+<puml src="diagrams/DeleteParsingSequenceDiagram.puml" alt="Delete parsing: constructing the selector and command" />
+
+The first diagram starts at `AddressBookParser#parseCommand`. `LogicManager` calls this method and receives the resulting command.
 
 <box type="info" seamless>
 
 **Note:** The lifeline for `DeleteCommandParser` should end at the destroy marker (X), but due to a limitation of PlantUML, the lifeline continues till the end of diagram.
 </box>
+
+#### Executing a delete command
+
+<puml src="diagrams/DeleteSequenceDiagram.puml" alt="Delete execution: selecting and deleting a client or listing ambiguous matches" />
+
+The `get all clients` interaction abbreviates `Model#getAddressBook().getPersonList()`; the intermediate address-book object and result construction are omitted. The zero-match exception is also omitted.
 
 `DeleteCommand`, like the other commands that act on one client (e.g. `view`, `edit`, `note`), extends `PersonTargetedCommand`. The parser turns `--id 1` (or `--name NAME`) into a `PersonSelector`, and the command uses it to find the matching clients when executed. If exactly one client matches, the command acts on that client in `executeOn`. If several clients match, which can only happen with `--name`, no client is changed: the list is filtered to the matching clients, and the user is asked to choose one with `--id`. If no client matches, a `CommandException` is thrown (not shown in the diagram).
 
@@ -236,7 +246,7 @@ The text-change listener resets navigation when the user edits input. During rec
 
 <puml src="diagrams/RescheduleSequenceDiagram.puml" alt="Interactions for the `appointment --reschedule` Command" />
 
-Parsing works like it does for `delete` in the [Logic component](#logic-component) section, so the diagram shows it as a single `ref` frame. `AppointmentCommandParser` handles every form of the `appointment` command and picks the form from its flag (`--add`, `--cancel`, `--reschedule`, or `--date`/`--week` for listing). For `--reschedule`, it turns `--id 2` (or `--name NAME`) into a `PersonSelector` and creates a `RescheduleAppointmentCommand` with the selector, the appointment index, and the new date and time.
+Parsing works like it does for `delete` in the [Logic component](#logic-component) section, so the diagram shows it as a single `ref` frame. The second `ref` frame reuses the client-selection interactions in the [delete execution diagram](#executing-a-delete-command); it ends once the selector has found the single client `p`. This keeps the rescheduling diagram focused on replacing the appointment. `AppointmentCommandParser` handles every form of the `appointment` command and picks the form from its flag (`--add`, `--cancel`, `--reschedule`, or `--date`/`--week` for listing). For `--reschedule`, it turns `--id 2` (or `--name NAME`) into a `PersonSelector` and creates a `RescheduleAppointmentCommand` with the selector, the appointment index, and the new date and time.
 
 `RescheduleAppointmentCommand` extends `AppointmentIndexCommand`, which extends `PersonTargetedCommand`, so the client is found the same way as for `delete`: the command gets the client list from the `Model` and asks the `PersonSelector` for the matching clients. In `executeOn`, the command checks that the client has an appointment at the given index, and that the new date is not in the past or more than a year ahead. It then creates a new `Appointment` at the new date and time, and checks that no other appointment of the client is at that date and time. Because `Person` and `Appointment` are immutable, the old appointment is not changed. Instead, `Person#withAppointments` returns a new `Person` whose list has the new appointment in place of the old one, and `Model#setPerson` replaces the client. The command then shows all clients in the list again, and `LogicManager` saves the data after the command returns. The new appointment is never cancelled, so rescheduling a cancelled appointment makes it active again.
 
@@ -356,21 +366,33 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 | `* * *`  | fitness trainer | list all my clients | get an overview of everyone I am currently training |
 | `* * *`  | fitness trainer | delete a client who has stopped training with me | keep my client list focused on the clients I am actively training |
 | `* * *`  | fitness trainer | have my client data saved automatically on my computer | keep my client records between sessions without saving manually or relying on an internet connection |
+| `* *`    | new fitness trainer | explore Cindy using sample clients | learn its features before entering real client data |
 | `* *`    | fitness trainer | edit a client's details | keep their contact and training information accurate when it changes |
-| `* *`    | fitness trainer with many clients | find a client by name | pull up their details quickly without scrolling through my whole client list |
-| `* *`    | fitness trainer | tag clients by fitness goal (e.g. weight loss, strength) | group clients with similar goals and reuse suitable training approaches |
+| `* *`    | fitness trainer with many clients | find a client by name, phone number or ID | pull up their details quickly without scrolling through my whole client list |
+| `* *`    | fitness trainer | schedule four weekly appointments for a client | reserve a regular training time for the coming weeks |
+| `* *`    | fitness trainer | cancel an appointment while keeping it on record | distinguish a cancelled meeting from one that is still scheduled |
+| `* *`    | fitness trainer | reschedule one appointment without moving the client's other appointments | accommodate a change in availability without rebuilding the whole schedule |
+| `* *`    | fitness trainer | view all clients' appointments for a day or week | plan my workload across clients |
+| `* *`    | fitness trainer | list today's clients in earliest-appointment order | prepare for meetings in the order they happen |
+| `* *`    | fitness trainer | mark a client inactive without deleting their records | distinguish paused clients while retaining their training history |
+| `* *`    | fitness trainer | mark an inactive client active again | resume their training using the records I already have |
+| `* *`    | fitness trainer | label clients as gym or personal clients | find clients by the type of training arrangement |
+| `* *`    | fitness trainer | create custom groups before adding clients | prepare categories for organizing my clients |
+| `* *`    | fitness trainer | view all my custom groups, including empty ones | see which categories are available |
+| `* *`    | fitness trainer | add clients to custom groups | organize clients by training goals or arrangements |
+| `* *`    | fitness trainer | filter clients by one or more groups | focus on the relevant clients |
+| `* *`    | fitness trainer | move a client between groups | reflect changed arrangements while preserving their records |
+| `* *`    | fitness trainer | remove a client from a group | keep memberships accurate without deleting the client |
+| `* *`    | fitness trainer | delete a custom group while keeping its clients | remove categories I no longer use |
 | `* *`    | fitness trainer | record a client's fitness goals | design each session to work towards what the client wants to achieve |
 | `* *`    | fitness trainer | record a client's injuries or health conditions | avoid exercises that could aggravate an injury or put the client at risk |
-| `* *`    | fitness trainer | track how many sessions remain in a client's package | remind the client to renew before their package runs out |
-| `* *`    | fitness trainer | view a deleted client's history | pick up where we left off if a former client returns |
+| `* *`    | fitness trainer | copy an existing client's note as editable command text | update part of a long note without retyping all of it |
+| `* *`    | new fitness trainer | clear all sample clients and groups after confirmation | start managing my own records without accidentally deleting data |
 | `* *`    | fitness trainer with many clients | sort my clients (e.g. by name) | find the client I need in a long list more easily |
 | `* *`    | experienced user | use short commands | update client records quickly between back-to-back sessions |
-| `*`      | fitness trainer | track a client's progress metrics over time (e.g. weight, personal bests) | show clients how far they have come and keep them motivated |
+| `* *`    | experienced user | recall and edit previously submitted commands | repeat similar updates without typing each command from scratch |
 | `*`      | fitness trainer | store a workout plan for each client | run each session from a prepared plan instead of writing it from memory |
-| `*`      | fitness trainer | log a client's session attendance | spot clients who are missing sessions and check in with them |
-| `*`      | fitness trainer | set follow-up reminders for clients | check in with clients on time and keep them engaged between sessions |
-| `*`      | fitness trainer | track client payments | see who has outstanding payments without keeping separate records |
-| `*`      | fitness trainer | export my client list | back up my records or share them with another trainer if I need cover |
+| `*`      | fitness trainer | record and correct exercise results, measurements and training observations in dated session notes | refer to an accurate training history |
 
 ### Use cases
 
@@ -424,8 +446,8 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 * 1a. Trainer includes `--today` in the request.
 
-    * 1a1. Cindy replaces any previous filter and shows only clients with a non-cancelled appointment on the computer's local date at execution time, using the same alphabetical roster layout and client IDs.
-    * 1a2. Each matching client appears once, including inactive clients and clients whose appointment time has already passed today. If no clients match, Cindy shows an empty list and reports `No clients have appointments today.`
+    * 1a1. Cindy replaces any previous filter and shows only clients with a non-cancelled appointment on the computer's local date at execution time. Clients keep their original IDs and are ordered by their earliest appointment time today, with name as the tie-breaker.
+    * 1a2. Each matching client appears once, including inactive clients and clients whose appointment time has already passed today. The feedback lists each client's non-cancelled appointment times today, earliest first, followed by their name and ID. If no clients match, Cindy shows an empty list and reports `No clients have appointments today.`
 
       Use case ends.
 
@@ -447,10 +469,8 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 1.  Trainer requests to view the client roster.
 2.  Cindy shows the client roster.
-3.  Trainer requests to update a specific client's contact details.
-4.  Cindy shows the client's current contact details.
-5.  Trainer provides the updated contact details.
-6.  Cindy updates the client's record and confirms the update.
+3.  Trainer requests to update a specific client, providing the updated contact details in the same request.
+4.  Cindy updates the client's record and confirms the update.
 
     Use case ends.
 
@@ -472,17 +492,17 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
       Use case resumes at step 3.
 
-* 5a. Trainer does not provide any updated contact details.
+* 3c. Trainer does not provide any updated contact details.
 
-    * 5a1. Cindy shows an error message stating that no changes were provided.
+    * 3c1. Cindy shows an error message stating that no changes were provided.
 
-      Use case resumes at step 5.
+      Use case resumes at step 3.
 
-* 5b. One or more updated contact details are in an invalid format.
+* 3d. One or more updated contact details are in an invalid format.
 
-    * 5b1. Cindy shows an error message describing the expected format.
+    * 3d1. Cindy shows an error message describing the expected format.
 
-      Use case resumes at step 5.
+      Use case resumes at step 3.
 
 **Use case: Record a training session**
 
@@ -631,7 +651,7 @@ and replaces the client's current appointments with four weekly appointments. It
 
 **Extensions**
 
-* 1a. The group name is not made of letters and digits, or is longer than 50 characters.
+* 1a. After trimming and collapsing repeated spaces, the group name is empty, exceeds 50 characters, or does not consist of words of letters and digits separated by single spaces or hyphens.
 
     * 1a1. Cindy shows an error message describing valid group names.
 
@@ -772,12 +792,30 @@ and replaces the client's current appointments with four weekly appointments. It
 ### Non-Functional Requirements
 
 1.  Should work on any _mainstream OS_ as long as it has Java `25` or above installed.
-2.  Should be able to hold up to 1000 persons without noticeable sluggishness in performance for typical usage.
-3.  A user with above average typing speed for regular English text (i.e. not code, not system admin commands) should be able to accomplish most of the tasks faster using commands than using the mouse.
+2.  With 1000 clients loaded, `list`, `find`, `view`, `edit` and `note` should each complete within the two-second response limit in requirement 5, using the workload and timing method below.
+3.  Trainers comfortable with keyboard input should complete at least three of the five tasks in the comparison below faster in Cindy than in a spreadsheet using mouse-based navigation. Compare the median of three correct attempts per task for each participant.
 4.  All features are accessible using the keyboard.
 5.  All commands should produce a result within 2 seconds.
 6.  The user should not lose more than 1 minute of work after unexpected closure.
 7.  The user should be able to understand the error message within 20 seconds of reading it.
+
+#### Performance acceptance checks
+
+These checks define acceptance criteria; they are not measured performance results. Record the Cindy revision, OS, Java version, processor, memory, storage type and participant details with the results so that a later run can use the same conditions.
+
+**Dataset and command response time (requirements 2 and 5).** Use a disposable data file with 1000 clients, each with a unique name and phone number, a 100-character note, a 100-character workout plan, four appointments and four session records. Create two custom groups and put each client in one of them. Keep the data folder on writable local storage.
+
+After startup, run one warm-up attempt of each command, then measure three attempts of each of the following: list all clients; find a client by phone digits; view a client by ID; change a client's phone number; and replace a client's note. Use known client IDs and valid, non-duplicate values. Restore the same starting dataset between attempts. Measure from pressing Enter until both the feedback and the resulting list or detail panel finish updating; for commands that change data, include the automatic save. Each measured attempt must finish within two seconds. Report the individual timings and any failures, rather than only an average.
+
+**Task completion time (requirement 3).** Give each participant practice with Cindy and a spreadsheet containing the same 1000-client dataset, with one row per client and columns for ID, name, phone, note and groups. Record the spreadsheet application/version and the participant's typing speed and experience with both tools. In the spreadsheet, participants may type field values, but use the mouse to navigate, select records and apply filters. In Cindy, they use commands. Both tools must produce the same correct result for each task:
+
+1. Add a client with a supplied name and phone number.
+2. Find a client using supplied phone digits and report their full name.
+3. Replace a specified client's phone number.
+4. Replace a specified client's note.
+5. Show the clients in a specified custom group.
+
+For each participant, time three attempts per task in each tool, using equivalent inputs and restoring the starting dataset between attempts. Alternate which tool goes first to reduce practice effects. Measure from revealing the task and its inputs until the correct result is visible, including time spent correcting errors. For each task, compare that participant's median time in each tool. Requirement 3 passes for that participant if Cindy is faster on at least three of the five tasks; ties do not count as faster. Report every participant's results.
 
 ### Glossary
 
@@ -841,6 +879,115 @@ Use a disposable copy of Cindy with no clients named `Add Check` or `Shared Phon
 1. Run `add --name "Extra Check" --phone 91234567 morning`, then repeat with the phone in quotes.<br>
    Expected: `Unexpected text after --phone: morning.` with usage guidance; no client is added.
 
+### Editing, finding and viewing clients
+
+Start with an empty disposable copy of Cindy. Run `add --name "Profile Check" --phone 81112222` and `add --name "Profile Other" --phone 82223333`. Use the assigned IDs as `ID1` and `ID2` below; do not type the placeholders literally.
+
+1. Run `edit --id ID1 --to-name "Profile Renamed" --to-phone 83334444`, then `view --name "profile renamed"`.<br>
+   Expected: The first client's details show the new name and phone number with the same ID. The other client is unchanged.
+
+1. Run `find --name renamed --phone 8333`, then `find --id ID2`.<br>
+   Expected: The first search shows only `Profile Renamed`; the second replaces that filter and shows only `Profile Other`.
+
+1. Run `find --name "No Such Client"`, then `list`.<br>
+   Expected: The search shows no clients without deleting anything. `list` restores both clients in alphabetical order.
+
+1. Run `edit --id ID1`, then `edit --id ID1 --to-name "Profile Other" --to-phone 82223333`.<br>
+   Expected: The first command requires a changed field; the second rejects a duplicate client. Neither changes the saved details. Close and reopen Cindy, then run `view --id ID1` to check the successful edit is retained.
+
+### Workout plans and client notes
+
+Use a disposable copy with a client created by `add --name "Training Check" --phone 84445555`. Use its assigned ID as `ID` below.
+
+1. Run `plan --id ID --plan "Squats: 3 sets\nPush-ups: 3 sets"`, then `note --id ID --note "Knee injury\nAvoid lunges"`.<br>
+   Expected: The client's detail view opens with separate plan and note sections, each displaying two lines. Enter each command on one line, typing a backslash followed by `n` for the line break.
+
+1. Run `plan --name "Training Check" --plan "Walking: 20 minutes"`.<br>
+   Expected: The plan is replaced in full and the two-line note is unchanged.
+
+1. Right-click the displayed note, choose **Copy note**, and paste into an empty text editor.<br>
+   Expected: The clipboard contains the single-line text `Knee injury\nAvoid lunges`, ready to paste inside a quoted note argument. Run `note --id ID --note "Knee injury\nAvoid deep lunges"` to check replacement of the note without changing the plan.
+
+1. Run `edit --id ID --to-phone 85556666`, close and reopen Cindy, then run `view --id ID`.<br>
+   Expected: The client keeps the same ID; the new phone, replacement plan and revised two-line note are all retained.
+
+1. Run `plan --id ID --plan unquoted`, then `note --id ID --note unquoted`.<br>
+   Expected: Both commands require quoted text and leave the saved plan and note unchanged.
+
+1. Run `plan --id ID --plan ""`, then `note --id ID --note ""`.<br>
+   Expected: The plan card and note section disappear. The client and their contact details remain.
+
+### Client status and client-type labels
+
+Start with an empty disposable copy. Run `add --name "Status Check" --phone 90001111`, `add --name "Status Other" --phone 90002222`, and `group --name status-check`. Use the assigned IDs as `ID1` and `ID2`; add the first client to the group with `tag --id ID1 --group status-check`.
+
+1. Run `inactive --id ID1`, then repeat it.<br>
+   Expected: `Status Check` remains in the list, dimmed and labelled `Inactive`. The repeated command reports that the client is already inactive; `Status Other` stays active.
+
+1. Run `active --name "Status Check"`, then `inactive --phone 9000`.<br>
+   Expected: The first command restores the client to active. The second matches both clients, lists them and asks for an ID without changing either client's status.
+
+1. Run `tag --id ID1 --type Gym`, then `tag --id ID1 --type personal`.<br>
+   Expected: The client first has a `gym` label, then only a `personal` client-type label. The custom `status-check` group remains attached throughout.
+
+1. Run `find --group personal`, then `tag --id ID1 --untag personal` and `view --id ID1`.<br>
+   Expected: The search finds `Status Check`. Removing the type label keeps their custom group and contact details.
+
+1. Run `tag --id ID1 --type rehab`.<br>
+   Expected: An error explains the supported client types; no label or group is changed.
+
+1. Run `inactive --phone 90001111`, close and reopen Cindy, then run `view --id ID1`.<br>
+   Expected: The first client is still inactive, with the same ID, contact details and custom group. The other client remains active.
+
+### Scheduling, cancelling and rescheduling appointments
+
+Start with an empty disposable copy. Run `add --name "Appointment Check" --phone 86667777` and `add --name "Other Appointment" --phone 87778888`. Use their assigned IDs as `ID1` and `ID2`.
+
+Replace `D` with tomorrow's real date in `YYYY-MM-DD` format. Replace `D2`, `D7`, `D14` and `D21` with the dates 2, 7, 14 and 21 days after `D`. Keep these dates fixed during the test; the placeholders are not accepted as command arguments.
+
+1. Run `appointment --add --id ID1 --date D --time 09:00`, then `appointment --add --id ID2 --date D --time 18:00`.<br>
+   Expected: Each client gets four appointments on `D`, `D7`, `D14` and `D21`, at their specified time. Each detail card numbers appointments from 1 to 4 in date/time order.
+
+1. Run `appointment --date D`, then `appointment --week D`.<br>
+   Expected: The day feedback lists `Appointment Check` at 09:00 before `Other Appointment` at 18:00, with their IDs. The week feedback states the Monday-to-Sunday boundaries containing `D` and includes those same two appointments with their dates. Both clients appear in the filtered client list.
+
+1. Run `appointment --cancel --id ID1 --index 1`, then `appointment --date D`.<br>
+   Expected: The first client's 09:00 appointment stays in the feedback, marked `(Cancelled)`. Repeat the cancel command: an error says it is already cancelled and no appointment changes.
+
+1. Run `appointment --reschedule --id ID1 --index 1 --date D --time 18:30`.<br>
+   Expected: The cancelled appointment becomes active at 18:30 on `D`, and the other three appointments are unchanged.
+
+1. Run `appointment --reschedule --id ID1 --index 1 --date D7 --time 09:00`.<br>
+   Expected: An error reports a clash with that client's second appointment. The appointment at `D` 18:30 stays unchanged.
+
+1. Run `appointment --reschedule --id ID1 --index 1 --date D14 --time 08:00`.<br>
+   Expected: The moved appointment is now number 2: the client's order is `D7` 09:00, `D14` 08:00, `D14` 09:00 and `D21` 09:00. Close and reopen Cindy, then use `view --id ID1` to verify the new order and times are retained.
+
+1. Run `appointment --date D2`, then `list`.<br>
+   Expected: The first command reports no appointments and shows an empty client list. `list` restores both clients without changing their appointments.
+
+1. Run `appointment --add --name "Appointment Check" --date D --time 10:00`.<br>
+   Expected: This replaces that client's series with four active appointments at 10:00 on `D`, `D7`, `D14` and `D21`; it does not append four more. The other client's series is unchanged.
+
+1. Run `appointment --reschedule --id ID1 --index 5 --date D --time 11:00`, then `appointment --date 2026-02-30`.<br>
+   Expected: The first command rejects an out-of-range index; the second rejects a non-existent date. Neither changes any appointments.
+
+### Clearing clients and groups after confirmation
+
+Use only a disposable copy for this section. Run `add --name "Clear Check" --phone 88889999` and `group --name clear-check`; leave the group empty.
+
+1. Run `clear`, then `list` and `group --list`.<br>
+   Expected: `clear` asks for `clear --confirm`; the existing clients and the empty `clear-check` group remain.
+
+1. Run `clear --confirm --confirm`.<br>
+   Expected: An error rejects the repeated flag without deleting any clients or groups.
+
+1. Run `clear --confirm`, then `list` and `group --list`.<br>
+   Expected: All clients and custom groups, including the empty group, are removed.
+
+1. Run `add --name "After Clear" --phone 89990000`, close and reopen Cindy, then run `list` and `group --list`.<br>
+   Expected: Only `After Clear` remains, with ID 1, and there are no custom groups. The cleared records do not return after restarting.
+
 ### Recording and editing session notes
 
 Use a disposable copy of Cindy. Add a client named `Session Check` and use its assigned ID in place of `ID` below.
@@ -860,50 +1007,61 @@ Use a disposable copy of Cindy. Add a client named `Session Check` and use its a
 
 Use a disposable copy of Cindy and its data for these checks. Opening help should not change any client's details.
 
-1. HELP-001: Opening help from each entry point
+1. Opening help from each entry point
 
    1. Run `list`, note the displayed clients, then run `help`.<br>
       Expected: The result display says `Opened help window.` and one window titled `Cindy Help` opens. The client list is unchanged.
+
    1. Close the Help window using its window close button, then choose **Help > Help** in the main window.<br>
       Expected: The same command reference opens, and Cindy continues running.
+
    1. Close Help, focus the main command box and press F1. Repeat with the result display focused.<br>
       Expected: Both uses of F1 open the Help window, including when a text control has focus.
 
-1. HELP-002: Reference content and scrolling
+1. Reference content and scrolling
 
    1. Check the syntax and client-selector guidance above the command cards.<br>
       Expected: It explains placeholders, optional parts, alternatives, persistent client IDs and ambiguous names.
+
    1. Scroll through the reference.<br>
       Expected: There are 28 command cards in eight groups: Client details, Finding clients, Training information, Client status, Client types and groups, Appointments, Session records and Application. Each has a description, format and example. The reference covers group creation and moving, tagging and untagging, group deletion, appointment scheduling/day/week/cancellation/rescheduling, and session add/edit.
+
    1. Find the `list --today` card.<br>
       Expected: Its heading says `list`, its format says `list --today`, and its description explains that it shows clients with appointments today.
+
    1. Check the appointment scheduling and rescheduling examples.<br>
       Expected: Scheduling uses `--date 2026-12-07 --time 09:00` and rescheduling uses `--date 2026-12-08 --time 18:00`. On fresh sample data, each example executes successfully on its own. When testing after these dates, use a future date instead.
+
    1. Scroll to the bottom.<br>
       Expected: The `exit` card and keyboard shortcuts are reachable. The User Guide URL and Copy URL button remain visible at the top. Reading examples does not execute them.
 
-1. HELP-003: Resizing and keyboard navigation
+1. Resizing and keyboard navigation
 
    1. Make Help as small as its minimum size, then enlarge it again.<br>
       Expected: Text wraps, full commands remain readable by scrolling vertically, and no horizontal scrolling is needed. The guide controls remain usable.
+
    1. Use Tab or Shift+Tab to focus Copy URL, then press Space.<br>
       Expected: The button has a visible focus indicator and copies the guide URL.
+
    1. Move keyboard focus to the command-reference scroll pane, then use Down or Page Down, followed by Up or Page Up.<br>
       Expected: The reference scrolls in the requested direction without executing commands.
 
-1. HELP-004: Copying the guide URL and using help offline
+1. Copying the guide URL and using help offline
 
    1. Click Copy URL and paste into an empty text editor.<br>
       Expected: The pasted text is exactly `https://ay2627s1-cs2103t-t15-1.github.io/tp/UserGuide.html`. Copying does not open a browser or modify client data.
+
    1. With the computer offline, close and reopen Help.<br>
       Expected: All command summaries and examples remain available. Copy URL still works; opening the full guide in a browser requires a connection.
 
-1. HELP-005: Reopening help and preserving the client view
+1. Reopening help and preserving the client view
 
    1. Keep Help open, return to the main window and run `help` again.<br>
       Expected: The existing Help window is focused; no second Help window or duplicate command cards appear.
+
    1. Close Help, run `view --id ID` using an existing client's ID, then run `help` and close Help again.<br>
       Expected: The same client's details are still displayed with unchanged values. Repeat after filtering with `find --name NAME`; the filtered client list remains unchanged.
+
    1. Minimize Help and invoke `help` again.<br>
       Expected: The existing window remains minimized, as documented in the User Guide's known issues. Restore it manually; no duplicate window should appear.
 
@@ -956,7 +1114,12 @@ Use a disposable copy of Cindy with no groups named `morning`, `evening` or `reh
 
    1. Prerequisites: Prepare three clients with IDs 1, 2 and 3. Client 1 has a non-cancelled appointment today, client 2 has only a cancelled appointment today, and client 3 has only an appointment tomorrow. Use the computer's current local date for today.
    1. Run `find --id 3`, then `list --today`.<br>
-      Expected: Only client 1 appears, using the same card layout as `list`, with their original ID. The feedback is `Listed 1 client with appointments today`. The earlier search does not restrict the results.
+      Expected: Only client 1 appears, using the same card layout as `list`, with their original ID. The feedback starts with `Listed 1 client with appointments today:` and then lists the client's non-cancelled times today, name and ID on the next line. For example, if client 1 is Alex Tanner with an appointment at 09:00, the full feedback is:
+      ```text
+      Listed 1 client with appointments today:
+      09:00 Alex Tanner (ID: 1)
+      ```
+      Use the actual times and name from the prepared data. The earlier search does not restrict the results.
    1. Run `view --id 1`, then `list --today`.<br>
       Expected: The detail view is replaced by the same filtered client list. The command box clears and the menu and status bar remain visible.
    1. Run `list --today --today`, `list --todai`, `list --today tomorrow` and `list 3`.<br>
