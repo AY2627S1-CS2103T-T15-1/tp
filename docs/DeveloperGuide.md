@@ -95,7 +95,7 @@ The `UI` component,
 
 Here's a (partial) class diagram of the `Logic` component:
 
-<puml src="diagrams/LogicClassDiagram.puml" width="550"/>
+<puml src="diagrams/LogicClassDiagram.puml" width="850"/>
 
 The sequence diagram below illustrates the interactions within the `Logic` component, taking `execute("delete --id 1")` API call as an example.
 

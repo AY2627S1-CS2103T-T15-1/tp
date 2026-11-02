@@ -8,7 +8,12 @@ package Logic as LogicPackage {
 
 package "Parser Classes" as ParserClasses{
 }
-Class XYZCommand
+Class AddCommand
+Class FindCommand
+Class DeleteCommand
+Class ViewCommand
+Class "{abstract}\nPersonTargetedCommand" as PersonTargetedCommand
+Class PersonSelector
 Class CommandResult
 Class "{abstract}\nCommand" as Command
 
@@ -17,31 +22,47 @@ Class "<<interface>>\nLogic" as Logic
 Class LogicManager
 }
 
-package Model {
-Class HiddenModel #FFFFFF
+package Model as ModelPackage {
+Class "<<interface>>\nModel" as Model MODEL_COLOR
+Class Person MODEL_COLOR
+Class PersonId MODEL_COLOR
 }
 
-package Storage {
+package Storage as StoragePackage {
+Class "<<interface>>\nStorage" as Storage STORAGE_COLOR
 }
 
 Class HiddenOutside #FFFFFF
 HiddenOutside ..> Logic
 
-LogicManager .right.|> Logic
-LogicManager -right->"1" ParserClasses
-ParserClasses ..> XYZCommand : <<create>>
+LogicManager .up.|> Logic
+LogicManager -left->"1" ParserClasses
+ParserClasses ..> AddCommand : <<create>>
+ParserClasses ..> DeleteCommand : <<create>>
+ParserClasses ..> PersonSelector : <<create>>
+' Show representative creation dependencies; FindCommand and ViewCommand are also parser-created.
 
-XYZCommand -up-|> Command
-LogicManager .left.> Command : <<call>>
+AddCommand -up-|> Command
+FindCommand -up-|> Command
+PersonTargetedCommand -up-|> Command
+DeleteCommand -up-|> PersonTargetedCommand
+ViewCommand -up-|> PersonTargetedCommand
+PersonTargetedCommand --> "1" PersonSelector
+LogicManager .down.> Command : <<call>>
 
 LogicManager --> Model
 LogicManager --> Storage
-Storage --[hidden] Model
-Command .[hidden]up.> Storage
 Command .right.> Model
-note right of XYZCommand: XYZCommand = AddCommand, \nFindCommand, etc
+PersonSelector ..> Person
+PersonSelector --> "0..1\nid" PersonId
+' Only representative concrete commands are shown.
 
 Logic ..> CommandResult
 LogicManager .down.> CommandResult
-Command .up.> CommandResult : <<create>>
+Command .right.> CommandResult : <<create>>
+CommandResult --> "0..1\npersonToView" Person
+
+legend bottom
+Only representative commands and creation dependencies are shown.
+endlegend
 @enduml
