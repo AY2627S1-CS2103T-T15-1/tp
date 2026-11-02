@@ -97,14 +97,24 @@ Here's a (partial) class diagram of the `Logic` component:
 
 <puml src="diagrams/LogicClassDiagram.puml" width="850"/>
 
-The sequence diagram below illustrates the interactions within the `Logic` component, taking `execute("delete --id 1")` API call as an example.
+The following two sequence diagrams separate parsing from execution so that their message labels remain readable. They illustrate the `execute("delete --id 1")` API call; the execution diagram also shows the alternative for an ambiguous name selector.
 
-<puml src="diagrams/DeleteSequenceDiagram.puml" alt="Interactions Inside the Logic Component for the `delete --id 1` Command" />
+#### Parsing a delete command
+
+<puml src="diagrams/DeleteParsingSequenceDiagram.puml" alt="Delete parsing: constructing the selector and command" />
+
+The first diagram starts at `AddressBookParser#parseCommand`. `LogicManager` calls this method and receives the resulting command.
 
 <box type="info" seamless>
 
 **Note:** The lifeline for `DeleteCommandParser` should end at the destroy marker (X), but due to a limitation of PlantUML, the lifeline continues till the end of diagram.
 </box>
+
+#### Executing a delete command
+
+<puml src="diagrams/DeleteSequenceDiagram.puml" alt="Delete execution: selecting and deleting a client or listing ambiguous matches" />
+
+The `get all clients` interaction abbreviates `Model#getAddressBook().getPersonList()`; the intermediate address-book object and result construction are omitted. The zero-match exception is also omitted.
 
 `DeleteCommand`, like the other commands that act on one client (e.g. `view`, `edit`, `note`), extends `PersonTargetedCommand`. The parser turns `--id 1` (or `--name NAME`) into a `PersonSelector`, and the command uses it to find the matching clients when executed. If exactly one client matches, the command acts on that client in `executeOn`. If several clients match, which can only happen with `--name`, no client is changed: the list is filtered to the matching clients, and the user is asked to choose one with `--id`. If no client matches, a `CommandException` is thrown (not shown in the diagram).
 
@@ -236,7 +246,7 @@ The text-change listener resets navigation when the user edits input. During rec
 
 <puml src="diagrams/RescheduleSequenceDiagram.puml" alt="Interactions for the `appointment --reschedule` Command" />
 
-Parsing works like it does for `delete` in the [Logic component](#logic-component) section, so the diagram shows it as a single `ref` frame. `AppointmentCommandParser` handles every form of the `appointment` command and picks the form from its flag (`--add`, `--cancel`, `--reschedule`, or `--date`/`--week` for listing). For `--reschedule`, it turns `--id 2` (or `--name NAME`) into a `PersonSelector` and creates a `RescheduleAppointmentCommand` with the selector, the appointment index, and the new date and time.
+Parsing works like it does for `delete` in the [Logic component](#logic-component) section, so the diagram shows it as a single `ref` frame. The second `ref` frame reuses the client-selection interactions in the [delete execution diagram](#executing-a-delete-command); it ends once the selector has found the single client `p`. This keeps the rescheduling diagram focused on replacing the appointment. `AppointmentCommandParser` handles every form of the `appointment` command and picks the form from its flag (`--add`, `--cancel`, `--reschedule`, or `--date`/`--week` for listing). For `--reschedule`, it turns `--id 2` (or `--name NAME`) into a `PersonSelector` and creates a `RescheduleAppointmentCommand` with the selector, the appointment index, and the new date and time.
 
 `RescheduleAppointmentCommand` extends `AppointmentIndexCommand`, which extends `PersonTargetedCommand`, so the client is found the same way as for `delete`: the command gets the client list from the `Model` and asks the `PersonSelector` for the matching clients. In `executeOn`, the command checks that the client has an appointment at the given index, and that the new date is not in the past or more than a year ahead. It then creates a new `Appointment` at the new date and time, and checks that no other appointment of the client is at that date and time. Because `Person` and `Appointment` are immutable, the old appointment is not changed. Instead, `Person#withAppointments` returns a new `Person` whose list has the new appointment in place of the old one, and `Model#setPerson` replaces the client. The command then shows all clients in the list again, and `LogicManager` saves the data after the command returns. The new appointment is never cancelled, so rescheduling a cancelled appointment makes it active again.
 
