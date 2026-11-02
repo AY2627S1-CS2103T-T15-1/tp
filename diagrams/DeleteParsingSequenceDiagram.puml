@@ -1,0 +1,48 @@
+@startuml
+!include style.puml
+skinparam ArrowFontStyle plain
+skinparam DefaultFontSize 16
+skinparam ParticipantPadding 4
+skinparam Participant {
+    Padding 0
+    FontSize 16
+}
+
+participant ":AddressBookParser" as Parser LOGIC_COLOR
+participant ":DeleteCommandParser" as DeleteParser LOGIC_COLOR
+participant "<<class>>\nParserUtil" as Util LOGIC_COLOR
+participant "s:PersonSelector" as Selector LOGIC_COLOR
+participant "d:DeleteCommand" as Command LOGIC_COLOR
+
+[-> Parser : parseCommand("delete ~--id 1")
+activate Parser
+create DeleteParser
+Parser -> DeleteParser
+activate DeleteParser
+DeleteParser --> Parser
+deactivate DeleteParser
+
+Parser -> DeleteParser : parse("~--id 1")
+activate DeleteParser
+DeleteParser -> Util : parsePersonSelector(...)
+activate Util
+create Selector
+Util -> Selector
+activate Selector
+Selector --> Util
+deactivate Selector
+Util --> DeleteParser : s
+deactivate Util
+
+create Command
+DeleteParser -> Command : DeleteCommand(s)
+activate Command
+Command --> DeleteParser
+deactivate Command
+DeleteParser --> Parser : d
+deactivate DeleteParser
+DeleteParser -[hidden]-> Parser
+destroy DeleteParser
+[<-- Parser : d
+deactivate Parser
+@enduml
