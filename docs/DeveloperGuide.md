@@ -780,12 +780,30 @@ and replaces the client's current appointments with four weekly appointments. It
 ### Non-Functional Requirements
 
 1.  Should work on any _mainstream OS_ as long as it has Java `25` or above installed.
-2.  Should be able to hold up to 1000 persons without noticeable sluggishness in performance for typical usage.
-3.  A user with above average typing speed for regular English text (i.e. not code, not system admin commands) should be able to accomplish most of the tasks faster using commands than using the mouse.
+2.  With 1000 clients loaded, `list`, `find`, `view`, `edit` and `note` should each complete within the two-second response limit in requirement 5, using the workload and timing method below.
+3.  Trainers comfortable with keyboard input should complete at least three of the five tasks in the comparison below faster in Cindy than in a spreadsheet using mouse-based navigation. Compare the median of three correct attempts per task for each participant.
 4.  All features are accessible using the keyboard.
 5.  All commands should produce a result within 2 seconds.
 6.  The user should not lose more than 1 minute of work after unexpected closure.
 7.  The user should be able to understand the error message within 20 seconds of reading it.
+
+#### Performance acceptance checks
+
+These checks define acceptance criteria; they are not measured performance results. Record the Cindy revision, OS, Java version, processor, memory, storage type and participant details with the results so that a later run can use the same conditions.
+
+**Dataset and command response time (requirements 2 and 5).** Use a disposable data file with 1000 clients, each with a unique name and phone number, a 100-character note, a 100-character workout plan, four appointments and four session records. Create two custom groups and put each client in one of them. Keep the data folder on writable local storage.
+
+After startup, run one warm-up attempt of each command, then measure three attempts of each of the following: list all clients; find a client by phone digits; view a client by ID; change a client's phone number; and replace a client's note. Use known client IDs and valid, non-duplicate values. Restore the same starting dataset between attempts. Measure from pressing Enter until both the feedback and the resulting list or detail panel finish updating; for commands that change data, include the automatic save. Each measured attempt must finish within two seconds. Report the individual timings and any failures, rather than only an average.
+
+**Task completion time (requirement 3).** Give each participant practice with Cindy and a spreadsheet containing the same 1000-client dataset, with one row per client and columns for ID, name, phone, note and groups. Record the spreadsheet application/version and the participant's typing speed and experience with both tools. In the spreadsheet, participants may type field values, but use the mouse to navigate, select records and apply filters. In Cindy, they use commands. Both tools must produce the same correct result for each task:
+
+1. Add a client with a supplied name and phone number.
+2. Find a client using supplied phone digits and report their full name.
+3. Replace a specified client's phone number.
+4. Replace a specified client's note.
+5. Show the clients in a specified custom group.
+
+For each participant, time three attempts per task in each tool, using equivalent inputs and restoring the starting dataset between attempts. Alternate which tool goes first to reduce practice effects. Measure from revealing the task and its inputs until the correct result is visible, including time spent correcting errors. For each task, compare that participant's median time in each tool. Requirement 3 passes for that participant if Cindy is faster on at least three of the five tasks; ties do not count as faster. Report every participant's results.
 
 ### Glossary
 
