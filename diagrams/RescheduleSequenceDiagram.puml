@@ -11,12 +11,13 @@ end box
 
 box Model MODEL_COLOR_T1
 participant "m:Model" as Model MODEL_COLOR
+participant "ab:AddressBook" as AddressBook MODEL_COLOR
 participant "p:Person" as Person MODEL_COLOR
 participant "a:Appointment" as Appointment MODEL_COLOR
 participant "u:Person" as UpdatedPerson MODEL_COLOR
 end box
 
-[-> LogicManager : execute("appointment ~--reschedule\n~--id 2 ~--index 1 ~--date 2026-10-27 ~--time 18:00")
+[-> LogicManager : execute("appointment ~--reschedule\n~--id 2 ~--index 1 ~--date 2026-12-08 ~--time 18:00")
 activate LogicManager
 
 ref over LogicManager, RescheduleCommand, PersonSelector
@@ -27,7 +28,19 @@ end ref
 LogicManager -> RescheduleCommand : execute(m)
 activate RescheduleCommand
 
-RescheduleCommand -> PersonSelector : findMatches(...)
+RescheduleCommand -> Model : getAddressBook()
+activate Model
+
+Model --> RescheduleCommand : ab
+deactivate Model
+
+RescheduleCommand -> AddressBook : getPersonList()
+activate AddressBook
+
+AddressBook --> RescheduleCommand : clients
+deactivate AddressBook
+
+RescheduleCommand -> PersonSelector : findMatches(clients)
 activate PersonSelector
 
 PersonSelector --> RescheduleCommand : matches
@@ -41,14 +54,24 @@ end note
 RescheduleCommand -> RescheduleCommand : executeOn(p, m)
 activate RescheduleCommand
 
+note right of RescheduleCommand
+    checks the index and the date
+    (failures not shown)
+end note
+
 create Appointment
-RescheduleCommand -> Appointment : Appointment(2026-10-27, 18:00)
+RescheduleCommand -> Appointment : Appointment(2026-12-08, 18:00)
 activate Appointment
 
-Appointment --> RescheduleCommand
+Appointment --> RescheduleCommand : a
 deactivate Appointment
 
-RescheduleCommand -> Person : withAppointments(...)
+note right of RescheduleCommand
+    checks a against the client's other
+    appointments (failure not shown)
+end note
+
+RescheduleCommand -> Person : withAppointments(list with a)
 activate Person
 
 create UpdatedPerson
@@ -67,6 +90,12 @@ activate Model
 Model --> RescheduleCommand
 deactivate Model
 
+RescheduleCommand -> Model : updateFilteredPersonList(all clients)
+activate Model
+
+Model --> RescheduleCommand
+deactivate Model
+
 create CommandResult
 RescheduleCommand -> CommandResult
 activate CommandResult
@@ -79,6 +108,8 @@ deactivate RescheduleCommand
 
 RescheduleCommand --> LogicManager : r
 deactivate RescheduleCommand
+
+LogicManager -> LogicManager : saveAddressBook()
 
 [<--LogicManager
 deactivate LogicManager
