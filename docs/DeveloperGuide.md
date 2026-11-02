@@ -366,6 +366,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 | `* * *`  | fitness trainer | list all my clients | get an overview of everyone I am currently training |
 | `* * *`  | fitness trainer | delete a client who has stopped training with me | keep my client list focused on the clients I am actively training |
 | `* * *`  | fitness trainer | have my client data saved automatically on my computer | keep my client records between sessions without saving manually or relying on an internet connection |
+| `* *`    | new fitness trainer | explore Cindy using sample clients | learn its features before entering real client data |
 | `* *`    | fitness trainer | edit a client's details | keep their contact and training information accurate when it changes |
 | `* *`    | fitness trainer with many clients | find a client by name, phone number or ID | pull up their details quickly without scrolling through my whole client list |
 | `* *`    | fitness trainer | schedule four weekly appointments for a client | reserve a regular training time for the coming weeks |
@@ -376,22 +377,22 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 | `* *`    | fitness trainer | mark a client inactive without deleting their records | distinguish paused clients while retaining their training history |
 | `* *`    | fitness trainer | mark an inactive client active again | resume their training using the records I already have |
 | `* *`    | fitness trainer | label clients as gym or personal clients | find clients by the type of training arrangement |
-| `* *`    | fitness trainer | tag clients by fitness goal (e.g. weight loss, strength) | group clients with similar goals and reuse suitable training approaches |
+| `* *`    | fitness trainer | create custom groups before adding clients | prepare categories for organizing my clients |
+| `* *`    | fitness trainer | view all my custom groups, including empty ones | see which categories are available |
+| `* *`    | fitness trainer | add clients to custom groups | organize clients by training goals or arrangements |
+| `* *`    | fitness trainer | filter clients by one or more groups | focus on the relevant clients |
+| `* *`    | fitness trainer | move a client between groups | reflect changed arrangements while preserving their records |
+| `* *`    | fitness trainer | remove a client from a group | keep memberships accurate without deleting the client |
+| `* *`    | fitness trainer | delete a custom group while keeping its clients | remove categories I no longer use |
 | `* *`    | fitness trainer | record a client's fitness goals | design each session to work towards what the client wants to achieve |
 | `* *`    | fitness trainer | record a client's injuries or health conditions | avoid exercises that could aggravate an injury or put the client at risk |
 | `* *`    | fitness trainer | copy an existing client's note as editable command text | update part of a long note without retyping all of it |
 | `* *`    | new fitness trainer | clear all sample clients and groups after confirmation | start managing my own records without accidentally deleting data |
-| `* *`    | fitness trainer | track how many sessions remain in a client's package | remind the client to renew before their package runs out |
-| `* *`    | fitness trainer | view a deleted client's history | pick up where we left off if a former client returns |
 | `* *`    | fitness trainer with many clients | sort my clients (e.g. by name) | find the client I need in a long list more easily |
 | `* *`    | experienced user | use short commands | update client records quickly between back-to-back sessions |
 | `* *`    | experienced user | recall and edit previously submitted commands | repeat similar updates without typing each command from scratch |
-| `*`      | fitness trainer | track a client's progress metrics over time (e.g. weight, personal bests) | show clients how far they have come and keep them motivated |
 | `*`      | fitness trainer | store a workout plan for each client | run each session from a prepared plan instead of writing it from memory |
-| `*`      | fitness trainer | log and correct a client's dated session records | keep an accurate history of their training sessions |
-| `*`      | fitness trainer | set follow-up reminders for clients | check in with clients on time and keep them engaged between sessions |
-| `*`      | fitness trainer | track client payments | see who has outstanding payments without keeping separate records |
-| `*`      | fitness trainer | export my client list | back up my records or share them with another trainer if I need cover |
+| `*`      | fitness trainer | record and correct exercise results, measurements and training observations in dated session notes | refer to an accurate training history |
 
 ### Use cases
 
