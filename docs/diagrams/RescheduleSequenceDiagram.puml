@@ -55,8 +55,8 @@ RescheduleCommand -> RescheduleCommand : executeOn(p, m)
 activate RescheduleCommand
 
 note right of RescheduleCommand
-    checks the index, the date
-    and clashes (failures not shown)
+    checks the index and the date
+    (failures not shown)
 end note
 
 create Appointment
@@ -65,6 +65,11 @@ activate Appointment
 
 Appointment --> RescheduleCommand : a
 deactivate Appointment
+
+note right of RescheduleCommand
+    checks a against the client's other
+    appointments (failure not shown)
+end note
 
 RescheduleCommand -> Person : withAppointments(list with a)
 activate Person
