@@ -15,6 +15,12 @@
 
 * This project is based on the [AddressBook-Level3](https://github.com/se-edu/addressbook-level3) project created by the [SE-EDU initiative](https://se-education.org).
 * Libraries used: [JavaFX](https://openjfx.io/), [Jackson](https://github.com/FasterXML/jackson), [JUnit5](https://github.com/junit-team/junit5)
+* Notable uses of AI:
+  * @ThaiNguyen0806 used Claude Code to help implement client IDs, the find, view, note, tag and active/inactive commands, fix alpha-testing bugs, and update the UG, DG and delete sequence diagrams.
+  * @lingsongc used OpenAI Codex to help implement the GUI, today view, workout details, command history and data-saving safeguards, fix UI and saving bugs, and update the UI and Logic class diagrams.
+  * @wongzhongxian used OpenAI Codex to help implement groups, client sorting and the list command, fix group and list bugs, and update the Model class diagram.
+  * @justin2oo used OpenAI Codex to help implement adding clients, duplicate detection and training session records, fix validation and startup bugs, and correct the Storage and Parser class diagrams.
+  * @hphehe used Claude Code to help implement and test the appointment features, fix their bugs, and update the reschedule sequence diagram.
 
 --------------------------------------------------------------------------------------------------------------------
 
