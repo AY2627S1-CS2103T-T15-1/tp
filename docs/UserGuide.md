@@ -117,7 +117,7 @@ Cindy gives every new client a unique ID number, shown in the message after the 
 
 Name requirements:
 
-* Contains 1–100 characters after trimming.
+* Contains 1–100 characters after trimming and collapsing consecutive spaces.
 * Allows Unicode letters, spaces, apostrophes, hyphens, and periods.
 * Must contain at least one letter.
 * Consecutive spaces are collapsed when saved.
@@ -224,6 +224,7 @@ Format: `appointment --add --id ID --date DATE --time TIME` or `appointment --ad
 * `TIME` is in the 24-hour format `HH:MM`, e.g. `09:00` or `18:30`.
 * Creates 4 appointments, one week apart, starting on `DATE`. A client has at most 4 appointments.
 * Replaces all of the client's current appointments, including cancelled ones.
+* Cindy does not check for conflicts with other clients' appointments. Use [`appointment --date` or `appointment --week`](#viewing-appointments-appointment-date-appointment-week) to review your schedule before choosing a time.
 * Exactly one selector, one `--date` and one `--time` must be provided. Repeated flags are rejected, and nothing may follow `--add` itself.
 * The appointments are saved automatically. Editing a client's contact details with `edit` preserves their appointments.
 * After scheduling, the client's detail view opens with the appointments listed in their own card, numbered in order of date and time. Clients with no appointments have no card.
@@ -263,6 +264,7 @@ Format: `appointment --reschedule --id ID --index INDEX --date DATE --time TIME`
 * `DATE` and `TIME` are the new date and time, in the same formats as for `appointment --add`. The new `DATE` must be from today up to one year from today, but an appointment that has already passed can be moved to a new date.
 * A cancelled appointment that is rescheduled becomes active again, even when it keeps its old date and time.
 * The client cannot have two appointments at the same date and time, including cancelled ones, because a cancelled appointment keeps its date and time. To use that date and time, first reschedule the other appointment to a different date or time. This makes it active again if it was cancelled, so cancel it again if needed.
+* Clash checks apply only to this client's other appointments. Cindy does not check for conflicts with other clients. Review your schedule with [`appointment --date` or `appointment --week`](#viewing-appointments-appointment-date-appointment-week) before choosing a new time.
 * The appointments card is re-numbered in order of date and time, so the moved appointment may get a new number.
 * Exactly one selector, one `--index`, one `--date` and one `--time` must be provided. Repeated flags are rejected, and nothing may follow `--reschedule` itself.
 * After rescheduling, the client's detail view opens.
@@ -545,7 +547,7 @@ Format: `exit`
 
 ### Saving the data
 
-Cindy automatically saves data after every successfully executed command. You do not need to save manually.
+Cindy automatically saves data after every successful command that changes saved data. Read-only commands, such as `list`, `find` and `view`, do not save. You do not need to save manually.
 
 The **home folder** is the folder containing the Cindy JAR file. Cindy uses this folder even when you launch it from another directory. Keep the JAR in a folder where you have permission to write files.
 
@@ -565,6 +567,8 @@ Only one Cindy window can use the data file at a time. If Cindy is already open,
 ### Editing the data file
 
 Cindy data is saved automatically as a JSON file `[JAR file location]/data/cindy.json`. Advanced users are welcome to update data directly by editing that data file.
+
+Close Cindy and back up the data file before editing it. Save your changes, then restart Cindy to load them. If you edit the file while Cindy is running, its next save can overwrite your edits.
 
 Long-form text loaded from the data file is preserved as stored, including literal backslash sequences. If you later re-enter that text through a command, the [long-form text limitations](#long-form-text-limitations) apply: literal `\n` becomes a line break.
 
